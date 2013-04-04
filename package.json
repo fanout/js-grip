@@ -1,0 +1,4 @@
+{
+    "name" : "grip",
+    "main" : "./lib/grip"
+}
