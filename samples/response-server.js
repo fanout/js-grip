@@ -61,14 +61,14 @@ http.createServer(function (req, res) {
         // If any connections are held open by the createHoldResponse call above,
         // this will complete those connections.
         var testValue = reqUrl.pathname.replace(/^\//, '');
-        pub.publishHttpResponse("test", testValue, function(success, message) {
+        pub.publishHttpResponse("test", testValue, function(success, message, context) {
             var r = [];
             r.push("Pushed test response: " + testValue);
             if(success) {
                 r.push("Success!");
             } else {
-                r.push("Failed!");
-                r.push(util.inspect(message));
+                r.push("Failed: " + message);
+                r.push(util.inspect(context));
             }
             res.writeHead(200, {'Content-Type': 'text/plain'});
             res.end(r.join("\n"));

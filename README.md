@@ -1,7 +1,7 @@
 nodegrip - GRIP interface library for NodeJS
 ============================================
 
-Version: v 0.1.3  
+Version: v 0.1.4  
 Date: April 18th, 2013  
 Author: Katsuyuki Ohmuro <harmony7@pex2.jp>
 
@@ -41,8 +41,10 @@ following GRIP message to send it.
     // The following is the default endpoint if using Pushpin.
     var endpoint = "http://127.0.0.1:5561";
     var pub = new grip.GripPubControl(endpoint);
-    pub.publishHttpResponse("test", "Hello, World!", function(success, message) {
+    pub.publishHttpResponse("test", "Hello, World!", function(success, message, context) {
         console.log(success);
+        console.log(message);
+        console.dir(context);
     });
 
 In addition to the "response" GRIP control message types illustrated by these
