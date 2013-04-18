@@ -1,7 +1,8 @@
 nodegrip - GRIP interface library for NodeJS
 ============================================
 
-Date: April 3rd, 2013  
+Version: v 0.1.2  
+Date: April 17th, 2013  
 Author: Katsuyuki Ohmuro <harmony7@pex2.jp>
 
 Description
