@@ -1,5 +1,5 @@
-nodepubcontrol CHANGE LOG
-=========================
+nodegrip CHANGE LOG
+===================
 
 v 0.1.0 04-03-2013  - Initial Release. Formats, Channel, Response, Publisher.  
 v 0.1.1 04-16-2013  - Fixed serious bug in Response that was preventing proper JSON generation.  
