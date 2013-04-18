@@ -1,6 +1,6 @@
 {
     "name": "grip",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "author": "Fan Out Networks, Inc. <info@fanout.io>",
     "description": "GRIP Interface Library",
     "contributors": [
@@ -24,7 +24,8 @@
         "publish"
     ],
     "dependencies": {
-        "pubcontrol": "*"
+        "pubcontrol": "*",
+        "jwt-simple": "*"
     },
     "license": "MIT"
 }
