@@ -1,5 +1,5 @@
 // response-server.js
-// (C) 2013 Fan Out Networks, Inc.
+// (C) 2013 Fanout, Inc.
 // File author: Katsuyuki Ohmuro <harmony7@pex2.jp>
 // Licensed under the MIT License, see file COPYING for details.
 

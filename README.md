@@ -1,8 +1,8 @@
 nodegrip - GRIP interface library for NodeJS
 ============================================
 
-Version: v 0.1.4  
-Date: April 18th, 2013  
+Version: v 0.1.5  
+Date: May 15th, 2013  
 Author: Katsuyuki Ohmuro <harmony7@pex2.jp>
 
 Description
@@ -55,5 +55,5 @@ open, and then repeatedly call pub.publishHttpStream with data chunks.
 License
 -------
 
-(C) 2013 Fan Out Networks, Inc.  
+(C) 2013 Fanout, Inc.  
 Licensed under the MIT License, see file COPYING for details.

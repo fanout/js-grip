@@ -1,7 +1,7 @@
 {
     "name": "grip",
-    "version": "0.1.4",
-    "author": "Fan Out Networks, Inc. <info@fanout.io>",
+    "version": "0.1.5",
+    "author": "Fanout, Inc. <info@fanout.io>",
     "description": "GRIP Interface Library",
     "contributors": [
         {
