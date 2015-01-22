@@ -129,6 +129,50 @@ WebSocket example using the Tornado 4.0.2 module. A client connects to a GRIP pr
 WebSocket over HTTP example. In this case, a client connects to a GRIP proxy via WebSockets and the GRIP proxy communicates with the origin via HTTP.
 
 ```javascript
+var http = require('http');
+var pubcontrol = require('pubcontrol');
+var grip = require('gripcontrol');
+
+http.createServer(function (req, res) {
+    // Validate the Grip-Sig header:
+    if (!grip.validateSig(req.headers['grip-sig'], 'changeme')) {
+        return;
+    }
+
+    // Set the headers required by the GRIP proxy:
+    res.writeHead(200, {
+            'Sec-WebSocket-Extensions': 'grip; message-prefix=""',
+            'Content-Type': 'application/websocket-events'});
+
+    var body = '';
+    req.on('data', function (chunk) {
+        body += chunk;
+    });
+
+    req.on('end', function() {
+        var inEvents = grip.decodeWebSocketEvents(body);
+        if (inEvents[0].getType() == 'OPEN') {
+            // Open the WebSocket and subscribe it to a channel:
+            var outEvents = [];
+            outEvents.push(new grip.WebSocketEvent('OPEN'));
+            outEvents.push(new grip.WebSocketEvent('TEXT', 'c:' +
+                    grip.webSocketControlMessage('subscribe',
+                    {'channel': 'channel'})));
+            res.end(grip.encodeWebSocketEvents(outEvents));
+
+            // Wait and then publish a message to the subscribed channel:
+            setTimeout(function() {
+                var grippub = new grip.GripPubControl({
+                        'control_uri': '<myendpoint>'});
+                grippub.publish('channel', new pubcontrol.Item(
+                        new grip.WebSocketMessageFormat(
+                        'Test WebSocket Publish!!')));
+            }, 5000);
+        }
+    });
+}).listen(80, '0.0.0.0');
+
+console.log('Server running...');
 ```
 
 Parse a GRIP URI to extract the URI, ISS, and key values. The values will be returned in a dictionary containing 'control_uri', 'control_iss', and 'key' keys.
