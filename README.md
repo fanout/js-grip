@@ -121,9 +121,28 @@ http.createServer(function (req, res) {
 console.log('Server running...')
 ```
 
-WebSocket example using the Tornado 4.0.2 module. A client connects to a GRIP proxy via WebSockets and the proxy forward the request to the origin. The origin accepts the connection over a WebSocket and responds with a control message indicating that the client should be subscribed to a channel. Note that in order for the GRIP proxy to properly interpret the control messages, the origin must provide a 'grip' extension in the 'Sec-WebSocket-Extensions' header. This is accomplished by overriding the 'get' method in the handler and implementing a custom WebSocketProtocol class. Also note that a significant amount of code was removed from the 'get' and '_accept_connection' methods for the sake of readability and should be replaced if using this code in a real environment.
+WebSocket example using nodejs-websocket. A client connects to a GRIP proxy via WebSockets and the proxy forward the request to the origin. The origin accepts the connection over a WebSocket and responds with a control message indicating that the client should be subscribed to a channel. Note that in order for the GRIP proxy to properly interpret the control messages, the origin must provide a 'grip' extension in the 'Sec-WebSocket-Extensions' header. To accomplish this with nodejs-websocket edit Connection.js and ensure that the following header is appended to the 'this.socket.write()' function call in the answerHandshake() method: 'Sec-WebSocket-Extensions: grip; message-prefix=""\r\n'
 
 ```javascript
+var ws = require("nodejs-websocket")
+var pubcontrol = require('pubcontrol');
+var grip = require('grip');
+
+ws.createServer(function (conn) {
+     // Subscribe the WebSocket to a channel:
+    conn.sendText('c:' + grip.webSocketControlMessage(
+            'subscribe', {'channel': '<channel>'}));
+    // Wait and then publish a message to the subscribed channel:
+    setTimeout(function() {
+        var grippub = new grip.GripPubControl({
+                'control_uri': '<myendpoint>'});
+        grippub.publish('test_channel', new pubcontrol.Item(
+                new grip.WebSocketMessageFormat(
+                'Test WebSocket Publish!!')));
+    }, 5000);
+}).listen(80, '0.0.0.0');
+
+console.log('Server running...');
 ```
 
 WebSocket over HTTP example. In this case, a client connects to a GRIP proxy via WebSockets and the GRIP proxy communicates with the origin via HTTP.
