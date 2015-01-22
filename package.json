@@ -1,23 +1,28 @@
 {
     "name": "grip",
-    "version": "0.1.5",
+    "version": "1.0.0",
     "author": "Fanout, Inc. <info@fanout.io>",
     "description": "GRIP Interface Library",
     "contributors": [
         {
             "name": "Katsuyuki Ohmuro",
             "email": "harmony7@pex2.jp"
+        },
+        {
+            "name": "Konstantin Bokarius",
+            "email": "kon@fanout.io"
         }
     ],
     "main": "./lib/grip",
     "repository": {
         "type": "git",
-        "url": "https://github.com/fanout/nodegrip.git"
+        "url": "https://github.com/fanout/node-grip.git"
     },
     "readmeFilename": "README.md",
     "keywords": [
         "grip",
         "fanout",
+        "fanoutpub",
         "realtime",
         "push",
         "pubcontrol",
