@@ -1,8 +1,8 @@
 GRIP Interface Library for NodeJS
 ============================================
 
-Version: v 1.1.0
-Date: January 22th, 2015  
+Version: v 1.2.0
+Date: January 31st, 2015  
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
 Description
@@ -87,6 +87,8 @@ http.createServer(function (req, res) {
     // Instruct the client to long poll via the response headers:
     res.writeHead(200, {
             'Grip-Hold': 'response',
+            // To optionally set a timeout value in seconds:
+            // 'Grip-Timeout': <timeout_value>,
             'Grip-Channel': grip.createGripChannelHeader('<channel>')});
     res.end();
 }).listen(80, '0.0.0.0');
@@ -109,6 +111,8 @@ http.createServer(function (req, res) {
     // Instruct the client to long poll via the response body:
     res.writeHead(200, {'Content-Type': 'application/grip-instruct'});
     res.end(grip.createHoldResponse('<channel>'));
+    // Or to optionally set a timeout value in seconds:
+    // res.end(grip.createHoldResponse('<channel>', null, <timeout_value>));
 }).listen(80, '0.0.0.0');
 
 console.log('Server running...')
