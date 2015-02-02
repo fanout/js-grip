@@ -9,4 +9,5 @@ v 0.1.4 04-18-2013  - Updated samples to match pubcontrol v0.2
 v 0.1.5 05-15-2013  - Documentation updates to reflect new company name.  
 v 1.0.0 01-21-2015  - Changed design to match the other language libs.  
 v 1.1.0 01-22-2015  - Added an applyConfig method to GripPubControl.  
-v 1.2.0 01-31-2015  - Added timeout functionality to create_hold_response.
+v 1.2.0 01-31-2015  - Added timeout functionality to create_hold_response.  
+v 1.2.1 02-02-2015  - Updated the dependency versions.
