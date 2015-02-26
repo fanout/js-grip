@@ -10,4 +10,5 @@ v 0.1.5 05-15-2013  - Documentation updates to reflect new company name.
 v 1.0.0 01-21-2015  - Changed design to match the other language libs.  
 v 1.1.0 01-22-2015  - Added an applyConfig method to GripPubControl.  
 v 1.2.0 01-31-2015  - Added timeout functionality to create_hold_response.  
-v 1.2.1 02-02-2015  - Updated the dependency versions.
+v 1.2.1 02-02-2015  - Updated the dependency versions.  
+v 1.3.0 02-27-2015  - Added WebSocketContext.  
