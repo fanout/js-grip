@@ -1,7 +1,7 @@
 GRIP Interface Library for NodeJS
 ============================================
 
-Version: v 1.2.2   
+Version: v 1.2.3   
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
 Description
