@@ -13,4 +13,5 @@ v 1.2.0 01-31-2015  - Added timeout functionality to create_hold_response.
 v 1.2.1 02-02-2015  - Updated the dependency versions.  
 v 1.2.2 03-03-2015  - Added createHold as an export.  
 v 1.2.3 03-03-2015  - Added buffer decoding to decodeWebSocketEvents.  
-v 1.2.4 03-08-2015  - Added buffer encoding to decodeWebSocketEvents.
+v 1.2.4 03-08-2015  - Added buffer encoding to decodeWebSocketEvents.  
+v 1.2.5 03-25-2015  - Split code into multiple files and added tests and docs.  
