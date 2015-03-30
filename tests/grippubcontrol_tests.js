@@ -1,9 +1,7 @@
 var assert = require('assert');
 var util = require('util');
 var pubcontrol = require('pubcontrol');
-var httpresponseformat = require('../lib/httpresponseformat')
-var httpstreamformat = require('../lib/httpstreamformat')
-var grippubcontrol = require('../lib/grippubcontrol');
+var grip = require('../lib/grip')
 
 var TestFormat = function(body) { this.body = body; };
 util.inherits(TestFormat, pubcontrol.Format);
@@ -12,16 +10,16 @@ TestFormat.prototype.export = function() { return {'body': this.body}; };
 var TestItem = new pubcontrol.Item();
 
 (function testInitialize() {
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     assert.equal(pc.pubControl.clients.length, 0);
-    var pc = new grippubcontrol.GripPubControl({ 'control_uri': 'uri',
+    var pc = new grip.GripPubControl({ 'control_uri': 'uri',
             'control_iss': 'iss',
             'key': 'key==' });
     assert.equal(pc.pubControl.clients.length, 1);
 })();
 
 (function testApplyGripConfig() {
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.applyGripConfig({ 'control_uri': 'uri',
             'control_iss': 'iss',
             'key': 'key==' });
@@ -48,7 +46,7 @@ var TestItem = new pubcontrol.Item();
 })();
 
 (function testRemoveAllClients() {
-    var pc = new grippubcontrol.GripPubControl({ 'control_uri': 'uri',
+    var pc = new grip.GripPubControl({ 'control_uri': 'uri',
             'control_iss': 'iss',
             'key': 'key==' });
     assert.equal(pc.pubControl.clients.length, 1);
@@ -57,7 +55,7 @@ var TestItem = new pubcontrol.Item();
 })();
 
 (function testAddClient() {
-    var pc = new grippubcontrol.GripPubControl({ 'control_uri': 'uri',
+    var pc = new grip.GripPubControl({ 'control_uri': 'uri',
             'control_iss': 'iss',
             'key': 'key==' });
     assert.equal(pc.pubControl.clients.length, 1);
@@ -66,7 +64,7 @@ var TestItem = new pubcontrol.Item();
 })();
 
 (function testApplyConfig() {
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.applyConfig({ 'uri': 'uri',
             'iss': 'iss',
             'key': 'key==' });
@@ -94,7 +92,7 @@ var TestItem = new pubcontrol.Item();
 
 (function testPublish() {
     var wasPublishCalled = false;
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, callback) {
         assert.equal(item, 'item');
         assert.equal(channel, 'chan');
@@ -108,7 +106,7 @@ var TestItem = new pubcontrol.Item();
 (function testPublishCallback() {
     var callback = function() {};
     var wasPublishCalled = false;
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, cb) {
         assert.equal(item, 'item');
         assert.equal(channel, 'chan');
@@ -129,10 +127,10 @@ var TestItem = new pubcontrol.Item();
 
 (function testPublishHttpResponse() {
     var wasPublishCalled = false;
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, callback) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpresponseformat.HttpResponseFormat(
+                    new grip.HttpResponseFormat(
                     {body: 'message'}))));
         assert.equal(channel, 'chan');
         assert.equal(callback, null);   
@@ -141,16 +139,16 @@ var TestItem = new pubcontrol.Item();
     pc.publishHttpResponse('chan', 'message');
     assert(wasPublishCalled);
     wasPublishCalled = false;
-    pc = new grippubcontrol.GripPubControl();
+    pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, callback) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpresponseformat.HttpResponseFormat('1', '2', '3',
+                    new grip.HttpResponseFormat('1', '2', '3',
                     '4'))));
         assert.equal(channel, 'chan');
         assert.equal(callback, null);   
         wasPublishCalled = true;
     }});
-    pc.publishHttpResponse('chan', new httpresponseformat.HttpResponseFormat(
+    pc.publishHttpResponse('chan', new grip.HttpResponseFormat(
             '1', '2', '3', '4'));
     assert(wasPublishCalled);
 })();
@@ -158,10 +156,10 @@ var TestItem = new pubcontrol.Item();
 (function testResponsePublishCallback() {
     var callback = function() {};
     var wasPublishCalled = false;
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, cb) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpresponseformat.HttpResponseFormat(
+                    new grip.HttpResponseFormat(
                     {body: 'message'}))));
         assert.equal(channel, 'chan');
         assert.equal(cb.numCalls, 2);   
@@ -170,7 +168,7 @@ var TestItem = new pubcontrol.Item();
     }});
     pc.addClient({ publish: function(channel, item, cb) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpresponseformat.HttpResponseFormat(
+                    new grip.HttpResponseFormat(
                     {body: 'message'}))));
         assert.equal(channel, 'chan');
         assert.equal(cb.numCalls, 2);   
@@ -183,10 +181,10 @@ var TestItem = new pubcontrol.Item();
 
 (function testPublishHttpStream() {
     var wasPublishCalled = false;
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, callback) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpstreamformat.HttpStreamFormat('message'))));
+                    new grip.HttpStreamFormat('message'))));
         assert.equal(channel, 'chan');
         assert.equal(callback, null);   
         wasPublishCalled = true;
@@ -194,15 +192,15 @@ var TestItem = new pubcontrol.Item();
     pc.publishHttpStream('chan', 'message');
     assert(wasPublishCalled);
     wasPublishCalled = false;
-    pc = new grippubcontrol.GripPubControl();
+    pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, callback) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpstreamformat.HttpStreamFormat('1'))));
+                    new grip.HttpStreamFormat('1'))));
         assert.equal(channel, 'chan');
         assert.equal(callback, null);   
         wasPublishCalled = true;
     }});
-    pc.publishHttpStream('chan', new httpstreamformat.HttpStreamFormat(
+    pc.publishHttpStream('chan', new grip.HttpStreamFormat(
             '1'));
     assert(wasPublishCalled);
 })();
@@ -210,10 +208,10 @@ var TestItem = new pubcontrol.Item();
 (function testStreamPublishCallback() {
     var callback = function() {};
     var wasPublishCalled = false;
-    var pc = new grippubcontrol.GripPubControl();
+    var pc = new grip.GripPubControl();
     pc.addClient({ publish: function(channel, item, cb) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpstreamformat.HttpStreamFormat(
+                    new grip.HttpStreamFormat(
                     'message'))));
         assert.equal(channel, 'chan');
         assert.equal(cb.numCalls, 2);   
@@ -222,7 +220,7 @@ var TestItem = new pubcontrol.Item();
     }});
     pc.addClient({ publish: function(channel, item, cb) {
         assert.equal(JSON.stringify(item), JSON.stringify(new pubcontrol.Item(
-                    new httpstreamformat.HttpStreamFormat(
+                    new grip.HttpStreamFormat(
                     'message'))));
         assert.equal(channel, 'chan');
         assert.equal(cb.numCalls, 2);   

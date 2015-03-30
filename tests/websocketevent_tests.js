@@ -1,22 +1,22 @@
 var assert = require('assert');
-var websocketevent = require('../lib/websocketevent');
+var grip = require('../lib/grip');
 
 (function testInitialize() {
-    var we = new websocketevent.WebSocketEvent('type');
+    var we = new grip.WebSocketEvent('type');
     assert.equal(we.type, 'type');
     assert.equal(we.content, null);
-    we = new websocketevent.WebSocketEvent('type', 'content');
+    we = new grip.WebSocketEvent('type', 'content');
     assert.equal(we.type, 'type');
     assert.equal(we.content, 'content');
 })();
 
 (function testGetType() {
-    var we = new websocketevent.WebSocketEvent('type');
+    var we = new grip.WebSocketEvent('type');
     assert.equal(we.getType(), 'type');
 })();
 
 (function testGetContent() {
-    var we = new websocketevent.WebSocketEvent('type', 'content');
+    var we = new grip.WebSocketEvent('type', 'content');
     assert.equal(we.getContent(), 'content');
 })();
 
