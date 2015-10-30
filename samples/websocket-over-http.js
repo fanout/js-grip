@@ -1,6 +1,6 @@
 var http = require('http');
 var pubcontrol = require('pubcontrol');
-var grip = require('gripcontrol');
+var grip = require('grip');
 
 http.createServer(function (req, res) {
     // Validate the Grip-Sig header:
