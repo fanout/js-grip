@@ -31,7 +31,7 @@ var callback = function(success, message, context) {
         console.log("Publish failed!");
         console.log("Message: " + message);
         console.log("Context: ");
-        console.dir(context); 
+        console.dir(context);
     }
 };
 
@@ -79,6 +79,8 @@ var grip = require('grip');
 http.createServer(function (req, res) {
     // Validate the Grip-Sig header:
     if (!grip.validateSig(req.headers['grip-sig'], '<key>')) {
+        res.writeHead(401);
+        res.end('invalid grip-sig token');
         return;
     }
 
@@ -103,6 +105,8 @@ var grip = require('grip');
 http.createServer(function (req, res) {
     // Validate the Grip-Sig header:
     if (!grip.validateSig(req.headers['grip-sig'], '<key>')) {
+        res.writeHead(401);
+        res.end('invalid grip-sig token');
         return;
     }
 
@@ -151,6 +155,8 @@ var grip = require('grip');
 http.createServer(function (req, res) {
     // Validate the Grip-Sig header:
     if (!grip.validateSig(req.headers['grip-sig'], 'changeme')) {
+        res.writeHead(401);
+        res.end('invalid grip-sig token');
         return;
     }
 
