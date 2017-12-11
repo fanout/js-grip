@@ -139,6 +139,14 @@ var grip = require('../lib/grip');
         '&key=base64:geag121321='
     config = grip.parseGripUri(uri)
     assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm')
+    uri = 'https://api.fanout.io/realm/realm?key=base64:geag%2B21321='
+    config = grip.parseGripUri(uri)
+    assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm')
+    assert.equal(config['key'], new Buffer('geag+21321=', 'base64').toString())
+    uri = 'https://api.fanout.io/realm/realm?key=base64:geag+21321='
+    config = grip.parseGripUri(uri)
+    assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm')
+    assert.equal(config['key'], new Buffer('geag+21321=', 'base64').toString())
     config = grip.parseGripUri('http://api.fanout.io/realm/realm')
     assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm')
     assert.equal('control_iss' in config, false)
