@@ -15,3 +15,4 @@ v 1.2.2 03-03-2015  - Added createHold as an export.
 v 1.2.3 03-03-2015  - Added buffer decoding to decodeWebSocketEvents.  
 v 1.2.4 03-08-2015  - Added buffer encoding to decodeWebSocketEvents.  
 v 1.2.5 03-25-2015  - Split code into multiple files and added tests and docs.  
+v 1.2.6 12-10-2017  - Implement workaround for parseGripUri.
