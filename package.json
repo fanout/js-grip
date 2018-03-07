@@ -33,8 +33,10 @@
     ],
     "dependencies": {
         "pubcontrol": "1.x",
-        "jwt-simple": "0.x",
-        "buffertools": "2.x"
+        "jwt-simple": "0.x"
     },
-    "license": "MIT"
+    "license": "MIT",
+    "engines": {
+        "node": ">=1.5.0"
+    }
 }
