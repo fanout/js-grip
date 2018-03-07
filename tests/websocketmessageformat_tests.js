@@ -1,4 +1,5 @@
 var assert = require('assert');
+var grip = require('../lib/grip');
 var websocketmessageformat = require('../lib/websocketmessageformat');
 
 (function testInitialize() {
