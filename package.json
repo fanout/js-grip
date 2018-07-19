@@ -1,42 +1,43 @@
 {
-    "name": "grip",
-    "version": "1.2.8",
-    "author": "Fanout, Inc. <info@fanout.io>",
-    "description": "GRIP Interface Library",
-    "contributors": [
-        {
-            "name": "Katsuyuki Ohmuro",
-            "email": "harmony7@pex2.jp"
-        },
-        {
-            "name": "Konstantin Bokarius",
-            "email": "kon@fanout.io"
-        }
-    ],
-    "main": "./lib/grip",
-    "scripts": {
-        "test": "node tests"
+  "name": "grip",
+  "version": "1.2.8",
+  "author": "Fanout, Inc. <info@fanout.io>",
+  "description": "GRIP Interface Library",
+  "contributors": [
+    {
+      "name": "Katsuyuki Ohmuro",
+      "email": "harmony7@pex2.jp"
     },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/fanout/node-grip.git"
-    },
-    "readmeFilename": "README.md",
-    "keywords": [
-        "grip",
-        "fanout",
-        "fanoutpub",
-        "realtime",
-        "push",
-        "pubcontrol",
-        "publish"
-    ],
-    "dependencies": {
-        "pubcontrol": "1.x",
-        "jwt-simple": "0.x"
-    },
-    "license": "MIT",
-    "engines": {
-        "node": ">=1.5.0"
+    {
+      "name": "Konstantin Bokarius",
+      "email": "kon@fanout.io"
     }
+  ],
+  "main": "./lib/grip",
+  "scripts": {
+    "test": "node tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fanout/node-grip.git"
+  },
+  "readmeFilename": "README.md",
+  "keywords": [
+    "grip",
+    "fanout",
+    "fanoutpub",
+    "realtime",
+    "push",
+    "pubcontrol",
+    "publish"
+  ],
+  "dependencies": {
+    "jspack": "0.0.4",
+    "jwt-simple": "0.x",
+    "pubcontrol": "1.x"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=1.5.0"
+  }
 }
