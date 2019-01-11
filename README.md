@@ -126,6 +126,14 @@ WebSocket example using nodejs-websocket. A client connects to a GRIP proxy via 
 wss.on('headers', function processHeaders(headers, req) {
     headers.push('Sec-WebSocket-Extensions: grip; message-prefix=""');
 });
+
+...
+
+server.on('upgrade', function upgrade(request, socket, head) {
+    wss.handleUpgrade(request, socket, head, function done(ws) {
+        wss.emit('connection', ws, request);
+    });
+});
 ```
 
 ```javascript
