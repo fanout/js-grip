@@ -74,3 +74,13 @@ var grip = require('../lib/grip');
 	ws.close(code=100);
 	assert.equal(ws.outCloseCode, 100);
 })();
+
+(function testServerDisconnect() {
+	var ws = new grip.WebSocketContext('conn-5', {}, []);
+	assert.equal(ws.outEvents.length, 0);
+	ws.disconnect();
+	assert.equal(ws.outEvents.length, 1);
+	assert.equal(ws.outEvents[0].getType(), 'DISCONNECT');
+	const disconnectEvent = ws.outEvents[0]
+	assert(ws.outEvents[0].getContent() === null, 'disconnect event has null content')
+})();

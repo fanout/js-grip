@@ -71,6 +71,7 @@ export class WebSocketContext {
   public isOpening(): boolean;
   public accept(): void;
   public close(code: number): void;
+  public disconnect(): void;
   public canRecv(): boolean;
   public recvRaw(): string | Buffer | null;
   public recv(): string | null;
