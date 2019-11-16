@@ -19,5 +19,8 @@ var websocketmessageformat = require('../lib/websocketmessageformat');
             Buffer('message'));
     assert.equal(ws.export()['content-bin'], new Buffer('message').
             toString('base64'));
+    ws = new grip.WebSocketMessageFormat(null, true, 1009);
+    assert.equal(ws.export()['action'], 'close');
+    assert.equal(ws.export()['code'], 1009);
 })();
 
