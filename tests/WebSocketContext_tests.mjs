@@ -1,9 +1,12 @@
-var assert = require('assert');
-var jspack = require('jspack').jspack;
-var grip = require('../lib/grip');
+import assert from "assert";
+import jspackModule from "jspack";
+const { jspack } = jspackModule;
+
+import WebSocketContext from "../esm/data/websocket/WebSocketContext.mjs";
+import WebSocketEvent from "../esm/data/websocket/WebSocketEvent.mjs";
 
 (function testOpen() {
-	var ws = new grip.WebSocketContext('conn-1', {}, [new grip.WebSocketEvent('OPEN')]);
+	const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('OPEN')]);
 	assert.equal(ws.id, 'conn-1');
 	assert(ws.isOpening());
 	assert(!ws.canRecv());
@@ -13,16 +16,16 @@ var grip = require('../lib/grip');
 })();
 
 (function testRecv() {
-	var ws = new grip.WebSocketContext('conn-1', {}, [new grip.WebSocketEvent('TEXT', Buffer.from('hello'))]);
+	const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('TEXT', Buffer.from('hello'))]);
 	assert(!ws.isOpening());
 	assert(ws.canRecv());
-	var msg = ws.recv();
+	const msg = ws.recv();
 	assert.equal(msg, 'hello');
 	assert(!ws.canRecv());
 })();
 
 (function testSend() {
-	var ws = new grip.WebSocketContext('conn-1', {}, []);
+	const ws = new WebSocketContext('conn-1', {}, []);
 	assert(!ws.isOpening());
 	assert(!ws.canRecv());
 	assert.equal(ws.outEvents.length, 0);
@@ -42,7 +45,7 @@ var grip = require('../lib/grip');
 })();
 
 (function testControl() {
-	var ws = new grip.WebSocketContext('conn-1', {}, []);
+	const ws = new WebSocketContext('conn-1', {}, []);
 	assert.equal(ws.outEvents.length, 0);
 	ws.subscribe('foo');
 	ws.unsubscribe('bar');
@@ -60,23 +63,23 @@ var grip = require('../lib/grip');
 })();
 
 (function testClose() {
-	var ws = new grip.WebSocketContext('conn-1', {}, [new grip.WebSocketEvent('CLOSE', jspack.Pack('>H', [100]))]);
+	let ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('CLOSE', jspack.Pack('>H', [100]))]);
 	assert(!ws.isOpening());
 	assert(ws.canRecv());
-	var msg = ws.recv();
+	const msg = ws.recv();
 	assert(msg == null);
 	assert.equal(ws.closeCode, 100);
 
-	var ws = new grip.WebSocketContext('conn-1', {}, []);
+	ws = new WebSocketContext('conn-1', {}, []);
 	assert(!ws.isOpening());
 	assert(!ws.canRecv());
 	assert(!ws.closed);
-	ws.close(code=100);
+	ws.close(100);
 	assert.equal(ws.outCloseCode, 100);
 })();
 
 (function testServerDisconnect() {
-	var ws = new grip.WebSocketContext('conn-5', {}, []);
+	const ws = new WebSocketContext('conn-5', {}, []);
 	assert.equal(ws.outEvents.length, 0);
 	ws.disconnect();
 	assert.equal(ws.outEvents.length, 1);

@@ -1,6 +1,6 @@
 {
-  "name": "grip",
-  "version": "1.6.0",
+  "name": "@fanoutio/grip",
+  "version": "2.0.0-alpha.0",
   "author": "Fanout, Inc. <info@fanout.io>",
   "description": "GRIP Interface Library",
   "contributors": [
@@ -13,9 +13,21 @@
       "email": "kon@fanout.io"
     }
   ],
-  "main": "./lib/grip",
+  "type": "commonjs",
+  "main": "./esm/main.mjs",
+  "module": "./esm/main.mjs",
   "scripts": {
-    "test": "node tests"
+    "prepublishOnly": "npm run build-commonjs && npm run build-browser",
+    "build-commonjs": "npm run build-commonjs:clean && npm run build-commonjs:build && npm run build-commonjs:package",
+    "build-commonjs:clean": "rimraf commonjs",
+    "build-commonjs:build": "babel esm --out-dir commonjs",
+    "build-commonjs:package": "rm commonjs/main.browser.js && cp commonjs-index.js commonjs/index.js && cp ./commonjs-package.json commonjs/package.json",
+    "build-browser": "npm run build-browser:clean && npm run build-browser:build",
+    "build-browser:clean": "rimraf browser",
+    "build-browser:build": "webpack",
+    "lint": "npm run lint:eslint",
+    "lint:eslint": "eslint --ext=.js,.mjs esm/* tests/*",
+    "test": "node --experimental-modules tests/index.mjs"
   },
   "repository": {
     "type": "git",
@@ -32,15 +44,30 @@
     "publish"
   ],
   "dependencies": {
+    "@fanoutio/pubcontrol": "^2.0.0-beta.3",
     "jspack": "0.0.4",
-    "jwt-simple": "^0.5.6",
-    "pubcontrol": "1.x"
+    "jwt-simple": "^0.5.6"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
+    "@babel/plugin-transform-runtime": "^7.7.6",
+    "@babel/preset-env": "^7.7.6",
+    "@babel/runtime-corejs3": "^7.7.6",
+    "babel-eslint": "^10.0.3",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-module-extension": "^0.1.1",
+    "buffer": "^5.4.3",
+    "core-js": "^3.6.1",
+    "eslint": "^6.7.2",
+    "regenerator-runtime": "^0.13.3",
+    "rimraf": "^3.0.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
   "license": "MIT",
   "engines": {
     "node": ">=1.5.0"
-  },
-  "devDependencies": {
-    "@types/node": "^12.0.4"
   }
 }

@@ -1,19 +1,20 @@
-var assert = require('assert');
-var grip = require('../lib/grip');
+import assert from 'assert';
+import Response from '../esm/data/Response.mjs';
+
 
 (function testInitialize() {
-    var hf = new grip.Response();
+    let hf = new Response();
     assert.equal(hf.code, null);
     assert.equal(hf.reason, null);
     assert.equal(hf.headers, null);
     assert.equal(hf.body, null);
-    hf = new grip.Response('code', 'reason',
+    hf = new Response('code', 'reason',
             'headers', 'body');
     assert.equal(hf.code, 'code');
     assert.equal(hf.reason, 'reason');
     assert.equal(hf.headers, 'headers');
     assert.equal(hf.body, 'body');
-    hf = new grip.Response({ code: 'code',
+    hf = new Response({ code: 'code',
             reason: 'reason', headers: 'headers', body: 'body' });
     assert.equal(hf.code, 'code');
     assert.equal(hf.reason, 'reason');
@@ -22,15 +23,15 @@ var grip = require('../lib/grip');
 })();
 
 (function testExport() {
-    var hf = new grip.Response({ body: 'body' });
+    let hf = new Response({ body: 'body' });
     assert.equal(JSON.stringify(hf.export()), JSON.stringify({ body: 'body' }));
-    hf = new grip.Response({ code: 'code',
+    hf = new Response({ code: 'code',
             reason: 'reason', headers: 'headers', body: 'body' });
     assert.equal(JSON.stringify(hf.export()), JSON.stringify(
             { code: 'code', reason: 'reason', headers: 'headers', body: 'body' }));
-    hf = new grip.Response({ code: 'code',
-            reason: 'reason', headers: 'headers', body: new Buffer('body') });
+    hf = new Response({ code: 'code',
+            reason: 'reason', headers: 'headers', body: Buffer.from('body') });
     assert.equal(JSON.stringify(hf.export()), JSON.stringify(
             { code: 'code', reason: 'reason', headers: 'headers', 'body-bin':
-            new Buffer('body').toString('base64') }));
+            Buffer.from('body').toString('base64') }));
 })();

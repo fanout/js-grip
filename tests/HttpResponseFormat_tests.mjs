@@ -1,19 +1,21 @@
-var assert = require('assert');
-var grip = require('../lib/grip');
+import assert from "assert";
+import HttpResponseFormat from "../esm/data/http/HttpResponseFormat.mjs";
 
 (function testInitialize() {
-    var hf = new grip.HttpResponseFormat();
+    let hf = new HttpResponseFormat();
     assert.equal(hf.code, null);
     assert.equal(hf.reason, null);
     assert.equal(hf.headers, null);
     assert.equal(hf.body, null);
-    hf = new grip.HttpResponseFormat('code', 'reason',
+
+    hf = new HttpResponseFormat('code', 'reason',
             'headers', 'body');
     assert.equal(hf.code, 'code');
     assert.equal(hf.reason, 'reason');
     assert.equal(hf.headers, 'headers');
     assert.equal(hf.body, 'body');
-    hf = new grip.HttpResponseFormat({ code: 'code',
+
+    hf = new HttpResponseFormat({ code: 'code',
             reason: 'reason', headers: 'headers', body: 'body' });
     assert.equal(hf.code, 'code');
     assert.equal(hf.reason, 'reason');
@@ -22,20 +24,22 @@ var grip = require('../lib/grip');
 })();
 
 (function testName() {
-    var hf = new grip.HttpResponseFormat('body');
+    const hf = new HttpResponseFormat('body');
     assert.equal(hf.name(), 'http-response');
 })();
 
 (function testExport() {
-    var hf = new grip.HttpResponseFormat({ body: 'body' });
+    let hf = new HttpResponseFormat({ body: 'body' });
     assert.equal(JSON.stringify(hf.export()), JSON.stringify({ body: 'body' }));
-    hf = new grip.HttpResponseFormat({ code: 'code',
+
+    hf = new HttpResponseFormat({ code: 'code',
             reason: 'reason', headers: 'headers', body: 'body' });
     assert.equal(JSON.stringify(hf.export()), JSON.stringify(
             { code: 'code', reason: 'reason', headers: 'headers', body: 'body' }));
-    hf = new grip.HttpResponseFormat({ code: 'code',
-            reason: 'reason', headers: 'headers', body: new Buffer('body') });
+
+    hf = new HttpResponseFormat({ code: 'code',
+            reason: 'reason', headers: 'headers', body: Buffer.from('body') });
     assert.equal(JSON.stringify(hf.export()), JSON.stringify(
             { code: 'code', reason: 'reason', headers: 'headers', 'body-bin':
-            new Buffer('body').toString('base64') }));
+            Buffer.from('body').toString('base64') }));
 })();
