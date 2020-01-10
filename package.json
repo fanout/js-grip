@@ -20,11 +20,11 @@
     "prepublishOnly": "npm run build-commonjs && npm run build-browser",
     "build-commonjs": "npm run build-commonjs:clean && npm run build-commonjs:build && npm run build-commonjs:package",
     "build-commonjs:clean": "rimraf commonjs",
-    "build-commonjs:build": "babel esm --out-dir commonjs",
+    "build-commonjs:build": "NODE_ENV=commonjs babel esm --out-dir commonjs",
     "build-commonjs:package": "rm commonjs/main.browser.js && cp commonjs-index.js commonjs/index.js && cp ./commonjs-package.json commonjs/package.json",
     "build-browser": "npm run build-browser:clean && npm run build-browser:build",
     "build-browser:clean": "rimraf browser",
-    "build-browser:build": "webpack",
+    "build-browser:build": "NODE_ENV=browser webpack",
     "lint": "npm run lint:eslint",
     "lint:eslint": "eslint --ext=.js,.mjs esm/* tests/*",
     "test": "node --experimental-modules tests/index.mjs"
@@ -44,7 +44,7 @@
     "publish"
   ],
   "dependencies": {
-    "@fanoutio/pubcontrol": "^2.0.0-beta.3",
+    "@fanoutio/pubcontrol": "^2.0.0-beta.6",
     "jspack": "0.0.4",
     "jwt-simple": "^0.5.6"
   },
@@ -58,8 +58,9 @@
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
     "babel-plugin-module-extension": "^0.1.1",
+    "babel-plugin-module-resolver": "^4.0.0",
     "buffer": "^5.4.3",
-    "core-js": "^3.6.1",
+    "core-js": "^3.6.2",
     "eslint": "^6.7.2",
     "regenerator-runtime": "^0.13.3",
     "rimraf": "^3.0.0",

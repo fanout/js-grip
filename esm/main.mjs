@@ -20,4 +20,16 @@ export {
     GripControl,
 };
 
+Object.assign(GripPubControl, {
+    Channel,
+    Response,
+    HttpResponseFormat,
+    HttpStreamFormat,
+    WebSocketContext,
+    buildWebSocketControlMessage,
+    WebSocketEvent,
+    WebSocketMessageFormat,
+    GripControl,
+});
+
 export default GripPubControl;
