@@ -18,7 +18,10 @@
   "module": "./esm/main.mjs",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "npm run build-commonjs && npm run build-browser",
+    "build": "npm run build-esm && npm run build-commonjs && npm run build-browser",
+    "build-esm": "npm run build-esm:clean && npm run build-esm:build",
+    "build-esm:clean": "rimraf esm",
+    "build-esm:build": "rollup -c rollup.esm.config.js",
     "build-commonjs": "npm run build-commonjs:clean && npm run build-commonjs:build",
     "build-commonjs:clean": "rimraf commonjs",
     "build-commonjs:build": "rollup -c rollup.commonjs.config.js",
