@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { isFunction, isString, toBuffer } from '../esm/utilities.mjs';
+import { isFunction, isString, toBuffer } from '../src/utilities.mjs';
 
 (function testIsFunction() {
     assert(!(isFunction('hello')));

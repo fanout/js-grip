@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import WebSocketEvent from "../esm/data/websocket/WebSocketEvent.mjs";
+import WebSocketEvent from "../src/data/websocket/WebSocketEvent.mjs";
 
 (function testInitialize() {
     let we = new WebSocketEvent('type');

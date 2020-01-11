@@ -26,7 +26,7 @@
     "build-browser:clean": "rimraf browser",
     "build-browser:build": "rollup -c rollup.browser.config.js",
     "lint": "npm run lint:eslint",
-    "lint:eslint": "eslint --ext=.js,.mjs esm/* tests/*",
+    "lint:eslint": "eslint --ext=.js,.mjs src/* tests/*",
     "test": "node --experimental-modules tests/index.mjs"
   },
   "repository": {

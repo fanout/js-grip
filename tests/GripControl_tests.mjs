@@ -1,11 +1,11 @@
 import assert from "assert";
 import jwt from "jwt-simple";
 
-import GripControl from '../esm/GripControl.mjs';
-import Channel from '../esm/data/Channel.mjs';
-import Response from '../esm/data/Response.mjs';
-import WebSocketEvent from '../esm/data/websocket/WebSocketEvent.mjs';
-import { buildWebSocketControlMessage } from '../esm/data/websocket/WebSocketContext.mjs';
+import GripControl from '../src/GripControl.mjs';
+import Channel from '../src/data/Channel.mjs';
+import Response from '../src/data/Response.mjs';
+import WebSocketEvent from '../src/data/websocket/WebSocketEvent.mjs';
+import { buildWebSocketControlMessage } from '../src/data/websocket/WebSocketContext.mjs';
 
 (function validateSig() {
     let token = jwt.encode({

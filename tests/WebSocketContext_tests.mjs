@@ -2,8 +2,8 @@ import assert from "assert";
 import jspackModule from "jspack";
 const { jspack } = jspackModule;
 
-import WebSocketContext from "../esm/data/websocket/WebSocketContext.mjs";
-import WebSocketEvent from "../esm/data/websocket/WebSocketEvent.mjs";
+import WebSocketContext from "../src/data/websocket/WebSocketContext.mjs";
+import WebSocketEvent from "../src/data/websocket/WebSocketEvent.mjs";
 
 (function testOpen() {
 	const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('OPEN')]);

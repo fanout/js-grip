@@ -1,5 +1,5 @@
 import assert from 'assert';
-import Response from '../esm/data/Response.mjs';
+import Response from '../src/data/Response.mjs';
 
 
 (function testInitialize() {

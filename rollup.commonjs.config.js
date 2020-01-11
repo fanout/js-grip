@@ -5,14 +5,14 @@ import builtins from 'builtin-modules';
 import replace from "@rollup/plugin-replace";
 
 export default {
-    input: 'esm/main.commonjs.mjs',
+    input: 'src/main.commonjs.mjs',
     output: {
         file: 'commonjs/index.js',
         format: 'cjs'
     },
     plugins: [
         replace({
-            include: ['esm/**'],
+            include: ['src/**'],
             delimiters: ['', ''],
             values: {
                 "'@fanoutio/pubcontrol'": "'@fanoutio/pubcontrol/commonjs'",

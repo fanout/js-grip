@@ -2,9 +2,9 @@ import assert from "assert";
 
 import { Format, Item, PubControlClient } from '@fanoutio/pubcontrol';
 
-import GripPubControl from "../esm/engine/GripPubControl.mjs";
-import HttpResponseFormat from "../esm/data/http/HttpResponseFormat.mjs";
-import HttpStreamFormat from "../esm/data/http/HttpStreamFormat.mjs";
+import GripPubControl from "../src/engine/GripPubControl.mjs";
+import HttpResponseFormat from "../src/data/http/HttpResponseFormat.mjs";
+import HttpStreamFormat from "../src/data/http/HttpStreamFormat.mjs";
 
 class TestFormat extends Format {
     constructor(body) {

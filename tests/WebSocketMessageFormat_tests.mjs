@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import WebSocketMessageFormat from "../esm/data/websocket/WebSocketMessageFormat.mjs";
+import WebSocketMessageFormat from "../src/data/websocket/WebSocketMessageFormat.mjs";
 
 (function testInitialize() {
     const ws = new WebSocketMessageFormat('content');

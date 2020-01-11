@@ -7,7 +7,7 @@ import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
 
 export default {
-    input: 'esm/main.browser.mjs',
+    input: 'src/main.browser.mjs',
     output: {
         file: 'browser/grip.js',
         format: 'iife',

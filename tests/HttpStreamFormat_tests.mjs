@@ -1,5 +1,5 @@
 import assert from "assert";
-import HttpStreamFormat from "../esm/data/http/HttpStreamFormat.mjs";
+import HttpStreamFormat from "../src/data/http/HttpStreamFormat.mjs";
 
 (function testInitialize() {
     let hf = new HttpStreamFormat('content');

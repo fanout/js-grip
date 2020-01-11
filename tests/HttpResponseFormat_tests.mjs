@@ -1,5 +1,5 @@
 import assert from "assert";
-import HttpResponseFormat from "../esm/data/http/HttpResponseFormat.mjs";
+import HttpResponseFormat from "../src/data/http/HttpResponseFormat.mjs";
 
 (function testInitialize() {
     let hf = new HttpResponseFormat();

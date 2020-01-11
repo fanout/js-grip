@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import Channel from '../esm/data/Channel.mjs';
+import Channel from '../src/data/Channel.mjs';
 
 (function testInitialize() {
     let ch = new Channel('name');
