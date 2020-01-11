@@ -1,6 +1,4 @@
-import buffer from 'buffer';
-
-const { Buffer } = buffer;
+import { Buffer } from 'buffer';
 
 // The HttpStreamFormat class is the format used to publish messages to
 // HTTP stream clients connected to a GRIP proxy.

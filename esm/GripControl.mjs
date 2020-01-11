@@ -1,4 +1,4 @@
-import buffer from 'buffer';
+import { Buffer } from 'buffer';
 import url from 'url';
 import querystring from 'querystring';
 import jwt from 'jwt-simple';
@@ -8,8 +8,6 @@ import Response from "./data/Response.mjs";
 import Channel from "./data/Channel.mjs";
 
 import { isString, toBuffer } from "./utilities.mjs";
-
-const { Buffer } = buffer;
 
 // The GripControl class provides functionality that is used in conjunction
 // with GRIP proxies. This includes facilitating the creation of hold

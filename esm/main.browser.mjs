@@ -1,6 +1,6 @@
 import 'core-js';
 import 'regenerator-runtime/runtime';
-import buffer from 'buffer';
+import { Buffer } from 'buffer';
 
 import * as main from './main.mjs';
 
@@ -11,6 +11,6 @@ for (const key of Object.keys(main)) {
     }
 }
 
-defaultExport['Buffer'] = buffer.Buffer;
+defaultExport['Buffer'] = Buffer;
 
 export default defaultExport;

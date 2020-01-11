@@ -1,6 +1,4 @@
-import buffer from 'buffer';
-
-const { Buffer } = buffer;
+import { Buffer } from 'buffer';
 
 // The WebSocketMessageFormat class is the format used to publish data to
 // WebSocket clients connected to GRIP proxies.

@@ -1,6 +1,4 @@
-import buffer from 'buffer';
-
-const { Buffer } = buffer;
+import { Buffer } from 'buffer';
 
 const objectToString = Object.prototype.toString;
 

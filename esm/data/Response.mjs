@@ -1,6 +1,4 @@
-import buffer from 'buffer';
-
-const { Buffer } = buffer;
+import { Buffer } from 'buffer';
 
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed

@@ -1,10 +1,8 @@
-import buffer from 'buffer';
+import { Buffer } from 'buffer';
 import jspackModule from "jspack";
 const { jspack } = jspackModule;
 
 import WebSocketEvent from "./WebSocketEvent.mjs";
-
-const { Buffer } = buffer;
 
 export default class WebSocketContext {
 	id;
