@@ -1,6 +1,6 @@
 // DEMO - Server for js-grip demo
 const http = require('http');
-const { GripControl } = require('../commonjs').default;
+const { GripControl } = require('../commonjs');
 
 const port = 3000;
 
