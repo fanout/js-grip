@@ -30,8 +30,8 @@ export default {
     ],
     external: [
         ...builtins,
-        '@fanoutio/pubcontrol/commonjs',
         'jspack',
         'jwt-simple',
+        '@fanoutio/pubcontrol/commonjs',
     ],
 };

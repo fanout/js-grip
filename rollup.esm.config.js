@@ -22,8 +22,8 @@ export default {
     ],
     external: [
         ...builtins,
-        'isomorphic-fetch',
-        'agentkeepalive',
+        'jspack',
         'jwt-simple',
+        '@fanoutio/pubcontrol',
     ],
 };
