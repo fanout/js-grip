@@ -1,6 +1,6 @@
 {
   "name": "@fanoutio/grip",
-  "version": "2.0.0-alpha.2",
+  "version": "2.0.0-beta.0",
   "author": "Fanout, Inc. <info@fanout.io>",
   "description": "GRIP Interface Library",
   "contributors": [
