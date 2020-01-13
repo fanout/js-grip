@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import jspackModule from "jspack";
 const { jspack } = jspackModule;
+import { buildWebSocketControlMessage } from "../../gripUtilities.mjs";
 
 import WebSocketEvent from "./WebSocketEvent.mjs";
 
@@ -125,13 +126,4 @@ export default class WebSocketContext {
 	detach() {
 		this.sendControl(buildWebSocketControlMessage('detach'));
 	}
-}
-
-// Generate a WebSocket control message with the specified type and optional
-// arguments. WebSocket control messages are passed to GRIP proxies and
-// example usage includes subscribing/unsubscribing a WebSocket connection
-// to/from a channel.
-export function buildWebSocketControlMessage(type, args = null) {
-	const out = Object.assign({}, args, { type });
-	return JSON.stringify(out);
 }

@@ -1,4 +1,5 @@
-import Grip, * as GripProps from './main.mjs';
-export default Grip;
+import * as mainProps from './main.mjs';
+const main = {};
+export default main;
 
-Object.assign(Grip, GripProps);
+Object.assign(main, mainProps);
