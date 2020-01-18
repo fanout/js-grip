@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Planned for 2.0.0]
 Major update with great improvements in usability, with support for modern
-language features such as `class` and `async`/`await`.
+language features such as `class` and `async`/`await`.  Now also uses
+`@fanoutio/pubcontrol@2`.
 
 ### To be Added
 - To add Typescript annotations for IDE completion and static type checking.
