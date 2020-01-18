@@ -1,5 +1,48 @@
-node-grip CHANGE LOG
-===================
+# js-grip Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [Planned for 2.0.0]
+Major update with great improvements in usability, with support for modern
+language features such as `class` and `async`/`await`.
+
+### To be Added
+- To add Typescript annotations for IDE completion and static type checking.
+
+### To be Changed
+### To be Removed
+
+## [2.0.0-beta.0] - 2020-01-13
+### Added
+- Added ESM build. Uses Rollup (https://rollupjs.org/) to build bundles for consumption as
+  CommonJS, ESM, and the Browser.
+- Added new simple NodeJS based demo, providing a server and a publisher, designed
+  to be used with pushpin (https://pushpin.org).
+- Added a shimmed `Buffer` object to browser build, as it is needed during JWT authorization.
+- IDE metadata for IntelliJ IDEA.  
+
+### Changed
+- Repository now called `js-grip` to reflect that this is useful in all types of JavaScript,
+  including the browser.
+- Now distributed as a public scoped package `@fanouio/grip`.
+- Source files and tests rewritten in modern style JavaScript
+- Source files moved from `/lib` to `/src`
+- Basic data structures now using ES6 classes.
+- Start using "changelog" over "change log" since it's the common usage.
+- Bump major version to 2 to indicate that this is a modernized new version.
+- Improved README by being more straightforward with the basic use case.
+- `GripPubControl` now directory inherits from `PubControl`. 
+- `GripPubControl.publish` API has been changed, and the callback is now optional.
+  If no callback is provided, a Promise is returned instead.
+
+### Removed
+
+## Older entries
 
 v 0.1.0 04-03-2013  - Initial Release. Formats, Channel, Response, Publisher.  
 v 0.1.1 04-16-2013  - Fixed serious bug in Response that was preventing proper JSON generation.  
