@@ -20,7 +20,7 @@ var callback = function(success, message, context) {
 var grippub = new grip.GripPubControl({
         'control_uri': 'https://api.fanout.io/realm/<myrealm>',
         'control_iss': '<myrealm>',
-        'key': new Buffer('<myrealmkey>', 'base64')});
+        'key': Buffer.from('<myrealmkey>', 'base64')});
 
 // Add new endpoints by applying an endpoint configuration:
 grippub.applyGripConfig([{'control_uri': '<myendpoint_uri_1>'},

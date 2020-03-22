@@ -1,21 +1,13 @@
-GRIP Interface Library for NodeJS
-============================================
+# GRIP Interface Library for JavaScript
 
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
-Description
------------
+## Description
 
 A GRIP interface library for NodeJS.  For use with HTTP reverse proxy servers
 that support the GRIP interface, such as Pushpin.
 
-Requirements
-------------
-
-    pubcontrol
-
-Sample Usage
-------------
+## Sample Usage
 
 Examples for how to publish HTTP response and HTTP stream messages to GRIP proxy endpoints via the GripPubControl class.
 
@@ -42,7 +34,7 @@ var callback = function(success, message, context) {
 var grippub = new grip.GripPubControl({
         'control_uri': 'https://api.fanout.io/realm/<myrealm>',
         'control_iss': '<myrealm>',
-        'key': new Buffer('<myrealmkey>', 'base64')});
+        'key': Buffer.from('<myrealmkey>', 'base64')});
 
 // Add new endpoints by applying an endpoint configuration:
 grippub.applyGripConfig([{'control_uri': '<myendpoint_uri_1>'},
@@ -62,7 +54,9 @@ grippub.publishHttpResponse('<channel>', 'Test Publish!', callback);
 grippub.publishHttpStream('<channel>', 'Test Publish!', callback);
 ```
 
-Validate the Grip-Sig request header from incoming GRIP messages. This ensures that the message was sent from a valid source and is not expired. Note that when using Fanout.io the key is the realm key, and when using Pushpin the key is configurable in Pushpin's settings.
+Validate the Grip-Sig request header from incoming GRIP messages. This ensures that the message was sent from a valid
+source and is not expired. Note that when using Fanout.io the key is the realm key, and when using Pushpin the key
+is configurable in Pushpin's settings.
 
 ```javascript
 var grip = require('grip');
@@ -70,7 +64,10 @@ var grip = require('grip');
 var isValid = grip.validateSig(req.headers['grip-sig'], '<key>');
 ```
 
-Long polling example via response _headers_. The client connects to a GRIP proxy over HTTP and the proxy forwards the request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response _headers_. Note that with the recent versions of Apache it's not possible to send a 304 response containing custom headers, in which case the response body should be used instead (next usage example below).
+Long polling example via response _headers_. The client connects to a GRIP proxy over HTTP and the proxy forwards the
+request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response
+_headers_. Note that with the recent versions of Apache it's not possible to send a 304 response containing custom
+headers, in which case the response body should be used instead (next usage example below).
 
 ```javascript
 var http = require('http');
@@ -96,7 +93,9 @@ http.createServer(function (req, res) {
 console.log('Server running...')
 ```
 
-Long polling example via response _body_. The client connects to a GRIP proxy over HTTP and the proxy forwards the request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response _body_.
+Long polling example via response _body_. The client connects to a GRIP proxy over HTTP and the proxy forwards the
+request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response
+_body_.
 
 ```javascript
 var http = require('http');
@@ -218,8 +217,46 @@ var config = grip.parseGripUri('http://api.fanout.io/realm/<myrealm>' +
         '?iss=<myrealm>&key=base64:<myrealmkey>');
 ```
 
-License
--------
+### Demo
 
-(C) 2015 Fanout, Inc.  
+Included in this package is a demo that publishes a message using a Grip Stream
+to a sample server that is proxied behind the open-source Pushpin (https://pushpin.org/) server.
+
+To run the demo:
+
+1. Clone this repository, then build the commonjs build of this library
+```
+npm install
+npm run build-commonjs
+```
+
+2. Start the server process.  This runs on `localhost:3000`.
+```
+node demo/server
+```
+
+3. Install Pushpin (see https://pushpin.org/docs/install/)
+4. Make sure Pushpin points to `localhost:3000`.
+`routes` file:
+```
+* localhost:3000
+```
+5. Start Pushpin.
+```
+pushpin
+```
+6. In another terminal window, open a long-lived connection to the
+pushpin stream.
+```
+curl http://localhost:7999/long-poll
+```
+7. In another terminal window, run the publish demo file.
+```
+node demo/publish test "Message"
+```
+8. In the window that you opened in step 6, you should see the test message.
+
+## License
+
+(C) 2015, 2020 Fanout, Inc.  
 Licensed under the MIT License, see file COPYING for details.
