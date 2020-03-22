@@ -92,8 +92,12 @@ export function encodeWebSocketEvents(events: IWebSocketEvent[]) {
     for (const e of events) {
         let content = e.getContent();
         if (content != null) {
-            if (!Buffer.isBuffer(content)) {
+            if (isString(content)) {
                 content = Buffer.from(content);
+            } else {
+                if (!Buffer.isBuffer(content)) {
+                    content = Buffer.from(content);
+                }
             }
             out = Buffer.concat([out, Buffer.from(e.getType()), Buffer.from(' '),
                 Buffer.from(content.length.toString(16)),

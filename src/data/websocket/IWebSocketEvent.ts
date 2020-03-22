@@ -1,7 +1,7 @@
 export default interface IWebSocketEvent {
     type: string;
-    content: Buffer | string | null;
+    content: Buffer | Array<number> | string | null;
 
     getType(): string;
-    getContent(): Buffer | string | null;
+    getContent(): Buffer | Array<number> | string | null;
 }

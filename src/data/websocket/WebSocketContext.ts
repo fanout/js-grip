@@ -105,17 +105,17 @@ export default class WebSocketContext {
 		}
 	}
 
-	send(message: string) {
+	send(message: string | Buffer) {
 		this.outEvents.push(new WebSocketEvent('TEXT', Buffer.concat(
-				[Buffer.from('m:'), Buffer.from(message)])));
+				[Buffer.from('m:'), message instanceof Buffer ? message : Buffer.from(message)])));
 	}
-	sendBinary(message: string) {
+	sendBinary(message: string | Buffer) {
 		this.outEvents.push(new WebSocketEvent('BINARY', Buffer.concat(
-				[Buffer.from('m:'), Buffer.from(message)])));
+				[Buffer.from('m:'), message instanceof Buffer ? message : Buffer.from(message)])));
 	}
-	sendControl(message: string) {
+	sendControl(message: string | Buffer) {
 		this.outEvents.push(new WebSocketEvent('TEXT', Buffer.concat(
-				[Buffer.from('c:'), Buffer.from(message)])));
+				[Buffer.from('c:'), message instanceof Buffer ? message : Buffer.from(message)])));
 	}
 	subscribe(channel: string) {
 		this.sendControl(buildWebSocketControlMessage('subscribe',
