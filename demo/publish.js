@@ -1,6 +1,6 @@
 // DEMO - Publishes test message to backend running behind Pushpin.
 // See README.md for directions on running this demo.
-const { GripPubControl } = require('../commonjs');
+const { GripPubControl } = require('..');
 
 const uri = "http://localhost:5561/";
 
