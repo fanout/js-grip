@@ -1,28 +1,32 @@
 import { Buffer } from 'buffer';
+
 import jspackModule from "jspack";
 const { jspack } = jspackModule;
-import { buildWebSocketControlMessage } from "../../gripUtilities.mjs";
+/// <reference path="../../types/jspack.d.ts" />
 
-import WebSocketEvent from "./WebSocketEvent.mjs";
+import { buildWebSocketControlMessage } from "../../gripUtilities";
+
+import WebSocketEvent from "./WebSocketEvent";
+import IWebSocketEvent from "./IWebSocketEvent";
 
 export default class WebSocketContext {
-	id;
-	inEvents;
-	readIndex = 0;
-	accepted = false;
-	closeCode = null;
-	closed = false;
-	outCloseCode = null;
-	outEvents = [];
-	origMeta;
-	meta;
-	prefix;
+	id: string;
+	inEvents: IWebSocketEvent[];
+	readIndex: number = 0;
+	accepted: boolean = false;
+	closeCode: number | null = null;
+	closed: boolean = false;
+	outCloseCode: number | null = null;
+	outEvents: IWebSocketEvent[] = [];
+	origMeta: object;
+	meta: object;
+	prefix: string;
 
-	constructor(id, meta, inEvents, prefix = '') {
+	constructor(id: string, meta: object, inEvents: IWebSocketEvent[], prefix = '') {
 		this.id = id;
-		this.inEvents = inEvents;
-		this.origMeta = meta;
 		this.meta = JSON.parse(JSON.stringify(meta));
+		this.origMeta = meta;
+		this.inEvents = inEvents;
 		this.prefix = prefix;
 	}
 
@@ -74,13 +78,11 @@ export default class WebSocketContext {
 		const { type } = e;
 
 		if (type === 'TEXT') {
-			const { content = '' } = e;
-			return content.toString();
+			return e.content != null ? e.content.toString() : '';
 		}
 
 		if (type === 'BINARY') {
-			const { content = Buffer(0) } = e;
-			return content;
+			return e.content != null ? e.content : Buffer.alloc(0);
 		}
 
 		if (type === 'CLOSE') {
@@ -103,23 +105,23 @@ export default class WebSocketContext {
 		}
 	}
 
-	send(message) {
+	send(message: string) {
 		this.outEvents.push(new WebSocketEvent('TEXT', Buffer.concat(
 				[Buffer.from('m:'), Buffer.from(message)])));
 	}
-	sendBinary(message) {
+	sendBinary(message: string) {
 		this.outEvents.push(new WebSocketEvent('BINARY', Buffer.concat(
 				[Buffer.from('m:'), Buffer.from(message)])));
 	}
-	sendControl(message) {
+	sendControl(message: string) {
 		this.outEvents.push(new WebSocketEvent('TEXT', Buffer.concat(
 				[Buffer.from('c:'), Buffer.from(message)])));
 	}
-	subscribe(channel) {
+	subscribe(channel: string) {
 		this.sendControl(buildWebSocketControlMessage('subscribe',
 				{'channel': this.prefix + channel}));
 	}
-	unsubscribe(channel) {
+	unsubscribe(channel: string) {
 		this.sendControl(buildWebSocketControlMessage('unsubscribe',
 				{'channel': this.prefix + channel}));
 	}

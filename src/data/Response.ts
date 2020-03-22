@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import IExportedResponse from './IExportedResponse';
 
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed
@@ -6,12 +7,12 @@ import { Buffer } from 'buffer';
 // and deserialized the JSON into an HTTP response that is passed back
 // to the client.
 export default class Response {
-    code;
-    reason;
-    headers;
-    body;
+    code: string | null;
+    reason: string | null;
+    headers: object | null;
+    body: object | null;
 
-    constructor(...args) {
+    constructor(...args: any[]) {
         let code, reason, headers, body;
         // Initialize with the message code, reason, headers, and body to send
         // to the client when the message is published. If only one parameter
@@ -32,7 +33,7 @@ export default class Response {
     // of the non-null data. If the body is set to a buffer then export
     // it as 'body-bin' (as opposed to 'body') and encode it as base64.
     export() {
-        const obj = {};
+        const obj = <IExportedResponse>{};
         if (this.code != null) {
             obj.code = this.code;
         }

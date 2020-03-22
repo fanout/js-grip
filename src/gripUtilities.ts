@@ -1,13 +1,17 @@
 import { Buffer } from 'buffer';
-import url from 'url';
-import querystring from 'querystring';
-import jwt from 'jwt-simple';
+import * as url from 'url';
+import * as querystring from 'querystring';
+import * as jwt from 'jwt-simple';
 
-import WebSocketEvent from "./data/websocket/WebSocketEvent.mjs";
-import Response from "./data/Response.mjs";
-import Channel from "./data/Channel.mjs";
+import WebSocketEvent from "./data/websocket/WebSocketEvent";
+import Response from "./data/Response";
+import Channel from "./data/Channel";
 
-import { isString, toBuffer } from "./utilities.mjs";
+import {isString, parseQueryString, toBuffer} from "./utilities";
+import IExportedResponse from "./data/IExportedResponse";
+import IWebSocketEvent from "./data/websocket/IWebSocketEvent";
+
+type Channels = string | Channel | Channel[];
 
 // This file provides utilities that can be used in conjunction
 // with GRIP proxies. This includes facilitating the creation of hold
@@ -20,12 +24,14 @@ import { isString, toBuffer } from "./utilities.mjs";
 // Validate the specified JWT token and key. This method is used to validate
 // the GRIP-SIG header coming from GRIP proxies such as Pushpin or Fanout.io.
 // Note that the token expiration is also verified.
-export function validateSig(token, key) {
+export function validateSig(token: string, key: any) {
     const keyBuffer = toBuffer(key);
 
     let claim;
     try {
-        claim = jwt.decode(token, keyBuffer);
+        // HACK: jwt-simple's d.ts says decode takes a string, but
+        // it works fine with buffer.
+        claim = jwt.decode(token, keyBuffer as unknown as string);
     } catch(e) {
         return false;
     }
@@ -41,7 +47,7 @@ export function validateSig(token, key) {
 // Decode the specified HTTP request body into an array of WebSocketEvent
 // instances when using the WebSocket-over-HTTP protocol. A RuntimeError
 // is raised if the format is invalid.
-export function decodeWebSocketEvents(body) {
+export function decodeWebSocketEvents(body: Buffer | string): IWebSocketEvent[] {
     const out = [];
     let start = 0;
     let makeContentString = false;
@@ -80,7 +86,7 @@ export function decodeWebSocketEvents(body) {
 // Encode the specified array of WebSocketEvent instances. The returned string
 // value should then be passed to a GRIP proxy in the body of an HTTP response
 // when using the WebSocket-over-HTTP protocol.
-export function encodeWebSocketEvents(events) {
+export function encodeWebSocketEvents(events: IWebSocketEvent[]) {
     let out = Buffer.alloc(0);
     const bufferNewLine = Buffer.from('\r\n');
     for (const e of events) {
@@ -105,7 +111,7 @@ export function encodeWebSocketEvents(events) {
 // a Channel instance, or an array of Channel instances. The returned GRIP
 // channel header is used when sending instructions to GRIP proxies via
 // HTTP headers.
-export function createGripChannelHeader(channels) {
+export function createGripChannelHeader(channels: Channels) {
     channels = parseChannels(channels);
     const parts = [];
     for (const channel of channels) {
@@ -122,15 +128,20 @@ export function createGripChannelHeader(channels) {
 // A convenience method for creating GRIP hold response instructions for HTTP
 // long-polling. This method simply passes the specified parameters to the
 // create_hold method with 'response' as the hold mode.
-export function createHoldResponse(channels, response, timeout) {
+export function createHoldResponse(channels: Channels, response: string | Response, timeout?: number) {
     return createHold('response', channels, response, timeout);
 }
 
 // A convenience method for creating GRIP hold stream instructions for HTTP
 // streaming. This method simply passes the specified parameters to the
 // create_hold method with 'stream' as the hold mode.
-export function createHoldStream(channels, response) {
+export function createHoldStream(channels: Channels, response: string | Response) {
     return createHold('stream', channels, response);
+}
+
+interface IHoldInstruction {
+    hold: object;
+    response?: IExportedResponse;
 }
 
 // Create GRIP hold instructions for the specified mode, channels, response
@@ -138,10 +149,10 @@ export function createHoldStream(channels, response) {
 // either a string representing the channel name, a Channel instance or an
 // array of Channel instances. The response parameter can be specified as
 // either a string representing the response body or a Response instance.
-export function createHold(mode, channels, response, timeout) {
+export function createHold(mode: string, channels: Channels, response: string | Response, timeout?: number): string {
     channels = parseChannels(channels);
     const holdChannels = getHoldChannels(channels);
-    let instruct = {};
+    let instruct: IHoldInstruction;
     if (typeof timeout === 'undefined') {
         instruct = {
             hold: {
@@ -162,7 +173,7 @@ export function createHold(mode, channels, response, timeout) {
     if (isString(response)) {
         response = new Response(null, null, null, response);
     }
-    if (response instanceof Response) {
+    if ((response as Response) != null) {
         instruct.response = response.export();
     }
 
@@ -174,14 +185,12 @@ export function createHold(mode, channels, response, timeout) {
 // authentication query parameters as well as any other required query string
 // parameters. The JWT 'key' query parameter can be provided as-is or in base64
 // encoded format.
-export function parseGripUri(uri) {
-    uri = url.parse(uri);
-    let iss = null;
-    let key = null;
-    let query = uri.query || '';
-    // HACK: work around '+' character in base64-encoded values
-    query = query.replace(/\+/g, '%2B');
-    const params = querystring.parse(query);
+export function parseGripUri(uri: string) {
+    let parsedUri = url.parse(uri);
+    let iss: string | null = null;
+    let key: Buffer | string | null = null;
+
+    const params = parseQueryString(parsedUri.query || '');
     if ('iss' in params) {
         iss = params['iss'];
         delete params['iss'];
@@ -190,15 +199,15 @@ export function parseGripUri(uri) {
         key = params['key'];
         delete params['key'];
     }
-    if (key != null && key.startsWith('base64:')) {
+    if (key != null && isString(key) && key.startsWith('base64:')) {
         key = Buffer.from(key.substring(7), 'base64');
     }
     const qs = querystring.stringify(params);
-    let path = uri.pathname;
-    if (path.endsWith('/')) {
+    let path = parsedUri.pathname;
+    if (path != null && path.endsWith('/')) {
         path = path.substring(0, path.length - 1);
     }
-    let controlUri = uri.protocol + '//' + uri.host + path;
+    let controlUri = parsedUri.protocol + '//' + parsedUri.host + path;
     if (qs != null && qs !== '') {
         controlUri = controlUri + '?' + qs;
     }
@@ -215,7 +224,7 @@ export function parseGripUri(uri) {
 // An internal method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either
 // be a string, a Channel instance, or an array of Channel instances.
-export function parseChannels(channels) {
+export function parseChannels(channels: Channels) {
     if (channels instanceof Channel) {
         channels = [channels];
     } else if (isString(channels)) {
@@ -226,13 +235,13 @@ export function parseChannels(channels) {
 
 // An internal Get an array of hashes representing the specified channels parameter. The
 // resulting array is used for creating GRIP proxy hold instructions.
-export function getHoldChannels(channels) {
+export function getHoldChannels(channels: string[] | Channel[]) {
     const holdChannels = [];
     for (let channel of channels) {
         if (isString(channel)) {
             channel = new Channel(channel);
         }
-        if (channel instanceof Channel) {
+        if ((channel as Channel) != null) {
             holdChannels.push(channel.export());
         }
     }
@@ -243,7 +252,7 @@ export function getHoldChannels(channels) {
 // arguments. WebSocket control messages are passed to GRIP proxies and
 // example usage includes subscribing/unsubscribing a WebSocket connection
 // to/from a channel.
-export function buildWebSocketControlMessage(type, args = null) {
+export function buildWebSocketControlMessage(type: string, args: object | null = null) {
     const out = Object.assign({}, args, { type });
     return JSON.stringify(out);
 }

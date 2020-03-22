@@ -1,7 +1,8 @@
-import PubControl, { Item } from '@fanoutio/pubcontrol';
-import HttpStreamFormat from '../data/http/HttpStreamFormat.mjs';
-import HttpResponseFormat from '../data/http/HttpResponseFormat.mjs';
-import { isFunction } from "../utilities.mjs";
+import PubControl, { IFormat, IPubControlPublishCallback } from '@fanoutio/pubcontrol';
+import HttpStreamFormat from '../data/http/HttpStreamFormat';
+import HttpResponseFormat from '../data/http/HttpResponseFormat';
+import IGripConfig from "./IGripConfig";
+const { Item } = PubControl;
 
 // The GripPubControl class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Configuring GripPubControl
@@ -10,7 +11,7 @@ import { isFunction } from "../utilities.mjs";
 // GripPubControl inherits from PubControl and therefore also provides all
 // of the same functionality.
 export default class GripPubControl extends PubControl {
-    constructor(config = []) {
+    constructor(config: IGripConfig | IGripConfig[] = []) {
         super();
         this.applyGripConfig(config);
     }
@@ -19,7 +20,7 @@ export default class GripPubControl extends PubControl {
     // each hash corresponds to a single PubControlClient instance. Each hash
     // will be parsed and a PubControlClient will be created either using just
     // a URI or a URI and JWT authentication information.
-    applyGripConfig(config) {
+    applyGripConfig(config: IGripConfig | IGripConfig[]) {
         const configsArray = Array.isArray(config) ? config : [config];
         const configsTransformed = configsArray.map(entry => {
             const { control_uri: uri, control_iss: iss, key, } = entry;
@@ -40,12 +41,25 @@ export default class GripPubControl extends PubControl {
     // and passed a result and error message (if an error was encountered). The
     // callback method can be specified as the third parameter if the ID and
     // previous ID parameters are omitted.
-    publishHttpResponse(channel, httpResponse, id, prevId, cb) {
+    publishHttpResponse(channel: string, data: HttpResponseFormat | string, cb?: IPubControlPublishCallback): Promise<void>;
+    publishHttpResponse(channel: string, data: HttpResponseFormat | string, id: string | IPubControlPublishCallback, prevId: string, cb?: IPubControlPublishCallback): Promise<void>;
+    publishHttpResponse(channel: string, data: HttpResponseFormat | string, ...args: any[]): Promise<void> {
+
+        let id: string | undefined;
+        let prevId: string | undefined;
+        let cb: IPubControlPublishCallback | undefined;
+
+        if (args[0] as IPubControlPublishCallback) {
+            [cb] = args;
+        } else {
+            [id, prevId, cb] = args;
+        }
+
+        const httpResponse = data instanceof HttpResponseFormat ? data : new HttpResponseFormat({body: data});
+
         return this._publish(
             channel,
             httpResponse,
-            HttpResponseFormat,
-            data => new HttpResponseFormat({body: data}),
             id,
             prevId,
             cb
@@ -62,28 +76,32 @@ export default class GripPubControl extends PubControl {
     // and passed a result and error message (if an error was encountered). The
     // callback method can be specified as the third parameter if the ID and
     // previous ID parameters are omitted.
-    publishHttpStream(channel, httpStream, id, prevId, cb) {
+    publishHttpStream(channel: string, data: HttpStreamFormat | string, cb?: IPubControlPublishCallback): Promise<void>;
+    publishHttpStream(channel: string, data: HttpStreamFormat | string, id: string, prevId: string, cb?: IPubControlPublishCallback): Promise<void>;
+    publishHttpStream(channel: string, data: HttpStreamFormat | string, ...args: any[]): Promise<void> {
+
+        let id: string | undefined;
+        let prevId: string | undefined;
+        let cb: IPubControlPublishCallback | undefined;
+
+        if (args[0] as IPubControlPublishCallback) {
+            [cb] = args;
+        } else {
+            [id, prevId, cb] = args;
+        }
+
+        const httpStream = data instanceof HttpStreamFormat ? data : new HttpStreamFormat(data);
+
         return this._publish(
             channel,
             httpStream,
-            HttpStreamFormat,
-            data => new HttpStreamFormat(data),
             id,
             prevId,
             cb
         );
     }
 
-    _publish(channel, data, type, factory, id, prevId, cb) {
-
-        if (isFunction(id)) {
-            cb = id;
-            id = undefined;
-            prevId = undefined;
-        }
-
-        const format = data instanceof type ? data : factory(data);
-
+    _publish(channel: string, format: IFormat, id?: string, prevId?: string, cb?: IPubControlPublishCallback): Promise<void> {
         const item = new Item(format, id, prevId);
         return this.publish(channel, item, cb);
     }

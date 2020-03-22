@@ -2,12 +2,12 @@ import nodeGlobals from 'rollup-plugin-node-globals';
 import nodeBuiltins from 'rollup-plugin-node-builtins';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from 'rollup-plugin-node-resolve';
-import babel from 'rollup-plugin-babel';
 import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
-    input: 'src/main.browser.mjs',
+    input: 'src/main.browser.ts',
     output: {
         file: 'browser/grip.js',
         format: 'iife',
@@ -21,33 +21,20 @@ export default {
                 'crypto.createHmac': "require('create-hmac')",
             },
         }),
-        commonjs(),
+        commonjs({
+            namedExports: {
+                // left-hand side can be an absolute path, a path
+                // relative to the current directory, or the name
+                // of a module in node_modules
+                'jwt-simple': ['encode', 'decode'],
+            }
+        }),
         nodeGlobals(),
         nodeBuiltins(),
         nodeResolve({
             browser: true,
         }),
         json(),
-        babel({
-            babelrc: false,
-            exclude: 'node_modules/**',　// only transpile our source code
-            runtimeHelpers: true,
-            presets: [
-                ['@babel/preset-env', {
-                    useBuiltIns: 'entry',
-                    corejs: 3,
-                    modules: false,
-                    targets: {
-                        ie: '11',
-                    },
-                }],
-            ],
-            plugins: [
-                '@babel/plugin-proposal-class-properties',
-                ["@babel/plugin-transform-runtime", {
-                    corejs: 3,
-                }],
-            ],
-        }),
+        typescript({lib: ["es5", "dom", "es6"], target: "es5"}),
     ],
 };
