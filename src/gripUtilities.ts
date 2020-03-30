@@ -7,9 +7,9 @@ import WebSocketEvent from "./data/websocket/WebSocketEvent";
 import Response from "./data/Response";
 import Channel from "./data/Channel";
 
-import {isString, parseQueryString, toBuffer} from "./utilities";
-import IExportedResponse from "./data/IExportedResponse";
+import { isString, parseQueryString, toBuffer } from "./utilities";
 import IWebSocketEvent from "./data/websocket/IWebSocketEvent";
+import IHoldInstruction from "./IHoldInstruction";
 
 type Channels = string | Channel | Channel[];
 
@@ -141,11 +141,6 @@ export function createHoldResponse(channels: Channels, response: string | Respon
 // create_hold method with 'stream' as the hold mode.
 export function createHoldStream(channels: Channels, response: string | Response) {
     return createHold('stream', channels, response);
-}
-
-interface IHoldInstruction {
-    hold: object;
-    response?: IExportedResponse;
 }
 
 // Create GRIP hold instructions for the specified mode, channels, response

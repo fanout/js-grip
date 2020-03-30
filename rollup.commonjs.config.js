@@ -27,6 +27,12 @@ export default {
             rollupCommonJSResolveHack: true,
             exclude: '**/__tests__/**',
             clean: true,
+            tsconfigOverride: {
+                compilerOptions: {
+                    rootDir: './src',
+                },
+                exclude: [ './tests' ],
+            },
         }),
         commonjs({
             include: ['node_modules/**'],
