@@ -11,7 +11,7 @@ import { isString, parseQueryString, toBuffer } from "./utilities";
 import IWebSocketEvent from "./data/websocket/IWebSocketEvent";
 import IHoldInstruction from "./IHoldInstruction";
 
-type Channels = string | Channel | Channel[];
+type Channels = Channel | Channel[] | string | string[];
 
 // This file provides utilities that can be used in conjunction
 // with GRIP proxies. This includes facilitating the creation of hold
@@ -223,13 +223,9 @@ export function parseGripUri(uri: string) {
 // An internal method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either
 // be a string, a Channel instance, or an array of Channel instances.
-export function parseChannels(channels: Channels) {
-    if (channels instanceof Channel) {
-        channels = [channels];
-    } else if (isString(channels)) {
-        channels = [new Channel(channels)];
-    }
-    return channels;
+export function parseChannels(inChannels: Channels): Channel[] {
+    let channels = !Array.isArray(inChannels) ? [inChannels] : inChannels;
+    return channels.map(channel => isString(channel) ? new Channel(channel) : channel);
 }
 
 // An internal Get an array of hashes representing the specified channels parameter. The

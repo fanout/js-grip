@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
 
-import jspackModule from "jspack";
-const { jspack } = jspackModule;
+import { jspack } from "jspack";
 /// <reference path="../../types/jspack.d.ts" />
 
 import { buildWebSocketControlMessage } from "../../gripUtilities";

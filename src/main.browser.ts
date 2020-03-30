@@ -1,6 +1,4 @@
 import { Buffer } from 'buffer';
-import * as mainProps from './main';
-const main = {};
-export default main;
+import * as main from './main';
 
-Object.assign(main, mainProps, { Buffer });
+export default Object.assign(main, { Buffer });

@@ -1,7 +1,7 @@
 import nodeGlobals from 'rollup-plugin-node-globals';
 import nodeBuiltins from 'rollup-plugin-node-builtins';
 import commonjs from '@rollup/plugin-commonjs';
-import nodeResolve from 'rollup-plugin-node-resolve';
+import nodeResolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import replace from '@rollup/plugin-replace';
 import typescript from '@rollup/plugin-typescript';
@@ -35,6 +35,9 @@ export default {
             browser: true,
         }),
         json(),
-        typescript({lib: ["es5", "dom", "es6"], target: "es5"}),
+        typescript({
+            declaration: false,
+            esModuleInterop: false,
+        }),
     ],
 };
