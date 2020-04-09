@@ -7,13 +7,19 @@ Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io
 A GRIP interface library for NodeJS.  For use with HTTP reverse proxy servers
 that support the GRIP interface, such as Pushpin.
 
+## Installation
+
+```sh
+npm install @fanoutio/grip
+```
+
 ## Sample Usage
 
 Examples for how to publish HTTP response and HTTP stream messages to GRIP proxy endpoints via the GripPubControl class.
 
 ```javascript
-var pubcontrol = require('pubcontrol');
-var grip = require('grip');
+var pubcontrol = require('@fanoutio/pubcontrol');
+var grip = require('@fanoutio/grip');
 
 var callback = function(success, message, context) {
     if (success) {
@@ -71,7 +77,7 @@ headers, in which case the response body should be used instead (next usage exam
 
 ```javascript
 var http = require('http');
-var grip = require('grip');
+var grip = require('@fanoutio/grip');
 
 http.createServer(function (req, res) {
     // Validate the Grip-Sig header:
@@ -99,7 +105,7 @@ _body_.
 
 ```javascript
 var http = require('http');
-var grip = require('grip');
+var grip = require('@fanoutio/grip');
 
 http.createServer(function (req, res) {
     // Validate the Grip-Sig header:
@@ -137,8 +143,8 @@ server.on('upgrade', function upgrade(request, socket, head) {
 
 ```javascript
 var ws = require("nodejs-websocket")
-var pubcontrol = require('pubcontrol');
-var grip = require('grip');
+var pubcontrol = require('@fanoutio/pubcontrol');
+var grip = require('@fanoutio/grip');
 
 ws.createServer(function (conn) {
      // Subscribe the WebSocket to a channel:
@@ -162,8 +168,8 @@ WebSocket over HTTP example. In this case, a client connects to a GRIP proxy via
 
 ```javascript
 var http = require('http');
-var pubcontrol = require('pubcontrol');
-var grip = require('grip');
+var pubcontrol = require('@fanoutio/pubcontrol');
+var grip = require('@fanoutio/grip');
 
 http.createServer(function (req, res) {
     // Validate the Grip-Sig header:
@@ -212,9 +218,39 @@ console.log('Server running...');
 Parse a GRIP URI to extract the URI, ISS, and key values. The values will be returned in a dictionary containing 'control_uri', 'control_iss', and 'key' keys.
 
 ```javascript
-var grip = require('grip');
+var grip = require('@fanoutio/grip');
 var config = grip.parseGripUri('http://api.fanout.io/realm/<myrealm>' +
         '?iss=<myrealm>&key=base64:<myrealmkey>');
+```
+
+## Consuming this library
+
+### CommonJS
+
+The CommonJS version of this package requires Node v8 or newer.
+
+Require in your JavaScript:
+
+```javascript
+const grip = require('@fanoutio/grip');
+const grippub = new grip.GripPubControl({control_uri: "<endpoint_uri>"});
+```
+
+If you are building a bundle, you may also import in your JavaScript.
+
+```javascript
+import grip from '@fanoutio/grip';
+const pub = new grip.GripPubControl({control_uri: "<endpoint_uri>"});
+```
+
+This package comes with full TypeScript type definitions, so you may use it with
+TypeScript as well.
+
+```javascript
+import grip, { IHoldInstruction } from '@fanoutio/grip';
+const pub = new grip.GripPubControl({control_uri: "<endpoint_uri>"});
+
+// IHoldInstruction is a type declaration.
 ```
 
 ### Demo
