@@ -2,6 +2,7 @@ import assert from "assert";
 
 import PubControl, { IItem } from '@fanoutio/pubcontrol';
 const { Item, PubControlClient } = PubControl;
+type PubControlClient = InstanceType<typeof PubControlClient>;
 
 import GripPubControl from "../src/engine/GripPubControl";
 import HttpResponseFormat from "../src/data/http/HttpResponseFormat";
@@ -157,16 +158,14 @@ describe('GripPubControl', function () {
             let publishCalled = 0;
             let wasCallbackCalled = false;
             let pc = new GripPubControl();
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(item, 'item');
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
             });
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(item, 'item');
                     assert.equal(channel, 'chan');
@@ -192,8 +191,7 @@ describe('GripPubControl', function () {
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
             const pc = new GripPubControl();
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat('1', '2', '3',
@@ -210,8 +208,7 @@ describe('GripPubControl', function () {
             let publishCalled = 0;
             let wasCallbackCalled = false;
             const pc = new GripPubControl();
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat(
@@ -220,8 +217,7 @@ describe('GripPubControl', function () {
                     publishCalled++;
                 }
             });
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat(
@@ -249,8 +245,7 @@ describe('GripPubControl', function () {
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
             const pc = new GripPubControl();
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat('1'))));
@@ -266,8 +261,7 @@ describe('GripPubControl', function () {
             let publishCalled = 0;
             let wasCallbackCalled = false;
             const pc = new GripPubControl();
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat(
@@ -276,8 +270,7 @@ describe('GripPubControl', function () {
                     publishCalled++;
                 }
             });
-            // @ts-ignore
-            pc.addClient({
+            pc.addClient(<PubControlClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat(
