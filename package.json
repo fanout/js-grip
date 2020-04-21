@@ -45,7 +45,7 @@
     "publish"
   ],
   "dependencies": {
-    "@fanoutio/pubcontrol": "^2.1.2",
+    "@fanoutio/pubcontrol": "^2.1.4",
     "jspack": "0.0.4",
     "jwt-simple": "^0.5.6"
   },
