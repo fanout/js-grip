@@ -3,12 +3,6 @@ import * as querystring from "querystring";
 
 const objectToString = Object.prototype.toString;
 
-// Determines whether the specified object is a function.
-const functionObjectIdentifier = objectToString.call(function(){});
-export function isFunction(obj: any): obj is Function {
-    return obj != null && objectToString.call(obj) === functionObjectIdentifier;
-}
-
 // Determines whether the specified object is a string.
 const stringObjectIdentifier = objectToString.call('');
 export function isString(obj: any): obj is string {

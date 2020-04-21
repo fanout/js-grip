@@ -15,7 +15,7 @@ export default class Channel {
     // Export this channel instance into a dictionary containing the
     // name and previous ID value.
     export(): IExportedChannel {
-        const obj = <IExportedChannel>{name: this.name};
+        const obj = {name: this.name} as IExportedChannel;
         if (this.prevId != null) {
             obj.prevId = this.prevId;
         }

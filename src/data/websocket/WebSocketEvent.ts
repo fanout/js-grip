@@ -5,9 +5,9 @@ import IWebSocketEvent from "./IWebSocketEvent";
 // about the type of event as well as an optional content field.
 export default class WebSocketEvent implements IWebSocketEvent {
     type: string;
-    content: Buffer | Array<number> | string | null;
+    content: Buffer | number[] | string | null;
 
-    constructor(type: string, content: Buffer | Array<number> | string | null = null) {
+    constructor(type: string, content: Buffer | number[] | string | null = null) {
         // Initialize with a specified event type and optional content information.
         this.type = type;
         this.content = content;

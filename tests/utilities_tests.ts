@@ -1,13 +1,7 @@
 import assert from 'assert';
-import { isFunction, isString, toBuffer } from '../src/utilities';
+import { isString, toBuffer } from '../src/utilities';
 
 describe('utilities', function () {
-    describe('#isFunction', function () {
-        it('test case', function () {
-            assert(!(isFunction('hello')));
-            assert(isFunction(function(){}));
-        });
-    });
     describe('#isString', function () {
         it('test case', function () {
             assert(isString('hello'));

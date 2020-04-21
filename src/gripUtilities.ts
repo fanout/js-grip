@@ -185,7 +185,7 @@ export function createHold(mode: string, channels: Channels, response: string | 
 // parameters. The JWT 'key' query parameter can be provided as-is or in base64
 // encoded format.
 export function parseGripUri(uri: string) {
-    let parsedUri = url.parse(uri);
+    const parsedUri = url.parse(uri);
     let iss: string | null = null;
     let key: Buffer | string | null = null;
 
@@ -224,7 +224,7 @@ export function parseGripUri(uri: string) {
 // array of Channel instances. The specified parameter can either
 // be a string, a Channel instance, or an array of Channel instances.
 export function parseChannels(inChannels: Channels): Channel[] {
-    let channels = !Array.isArray(inChannels) ? [inChannels] : inChannels;
+    const channels = !Array.isArray(inChannels) ? [inChannels] : inChannels;
     return channels.map(channel => isString(channel) ? new Channel(channel) : channel);
 }
 
