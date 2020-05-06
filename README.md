@@ -292,6 +292,25 @@ node demo/publish test "Message"
 ```
 8. In the window that you opened in step 6, you should see the test message.
 
+### Browser Demo
+
+This demo runs in a browser and streams from the endpoint. This demo
+uses the fetch API with its ReadableStream interface to read from the
+streaming endpoint.
+
+1. Follow Steps 1 through 5 in the demo above to start the server and
+proxy processes. 
+
+2. In a web browser, open the `demo/fetch.html` file.
+
+3. Click the button labeled `Go`.  The browser will connect to the
+streaming API at `http://localhost:7999/long-poll`.
+
+4. In another terminal window follow step 7 in the demo above.
+
+5. In the web browser that you opened in step 2, you should see the test
+message.
+
 ## License
 
 (C) 2015, 2020 Fanout, Inc.  
