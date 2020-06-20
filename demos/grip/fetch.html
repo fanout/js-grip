@@ -30,7 +30,7 @@
 
                 try {
                     console.log("Fetching.");
-                    const res = await fetch('http://localhost:7999/long-poll');
+                    const res = await fetch('http://localhost:7999/stream');
                     reader = res.body.getReader();
                 } catch(ex) {
                     console.log("Fetch error.");

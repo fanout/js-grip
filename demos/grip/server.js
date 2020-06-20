@@ -1,6 +1,6 @@
 // DEMO - Server for js-grip demo
 const http = require('http');
-const { createGripChannelHeader } = require('..');
+const { createGripChannelHeader } = require('../..');
 
 const port = 3000;
 

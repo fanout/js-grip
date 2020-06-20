@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="../../../browser/grip.js"></script>
+    <style>
+        .label {
+            display: inline-block;
+            width: 10rem;
+        }
+        .field {
+            width: 20rem;
+        }
+        #console {
+            font-family: monospace;
+            color: white;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <form id="pubcontrol-form">
+        <div>
+            Grip Publisher Test
+        </div>
+
+        <div>
+            <label>
+                    <span class='label'>
+                        Channel
+                    </span>
+                <input name="channel" class='field'/>
+            </label>
+        </div>
+        <div>
+            <label>
+                    <span class='label'>
+                        Message
+                    </span>
+                <input name="message" class='field'/>
+            </label>
+        </div>
+
+        <div>
+            <label>
+                    <span class='label'>
+                        Publish URI
+                    </span>
+                <input name="uri" class='field'/>
+            </label>
+        </div>
+        <div>
+            <label>
+                    <span class='label'>
+                        Claim ISS (realm id)
+                    </span>
+                <input name="iss" class='field'/>
+            </label>
+        </div>
+        <div>
+            <label>
+                    <span class='label'>
+                        Claim Key (realm key)
+                    </span>
+                <input name="key" class='field'/>
+            </label>
+        </div>
+
+        <div>
+            <button>Publish!</button>
+        </div>
+    </form>
+</div>
+
+<div id="console">
+</div>
+
+<script>
+    (function() {
+        const { Publisher, Format, Item, Buffer } = Grip;
+
+        // Define a data format.
+        class HttpStreamFormat extends Format {
+            message;
+            constructor(message) {
+                super();
+                this.message = message;
+            }
+            name() {
+                return 'http-stream';
+            }
+            export() {
+                const data = {
+                    event: 'message',
+                    data: this.message,
+                };
+                const content = Object.entries(data)
+                    .map(([key, value]) => `${key}: ${value.replace('\n', '\\n')}`)
+                    .join('\n') + '\n\n';
+                return { content, };
+            }
+        }
+
+        const form = document.getElementById('pubcontrol-form');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+
+            const channel = form.elements.channel.value !== '' ? form.elements.channel.value : 'test';
+            const message = form.elements.message.value !== '' ? form.elements.message.value : 'Hello, World!';
+
+            const uri = form.elements.uri.value;
+            const iss = form.elements.iss.value;
+            const key = form.elements.key.value;
+
+            const config = {
+                uri,
+            };
+            if (iss !== '') {
+                config.iss = iss;
+            }
+            if (key !== '') {
+                config.key = Buffer.from( key, 'base64' );;
+            }
+
+            // Instantiate PubControl publisher.
+            const pub = new Publisher(config);
+
+            // Publish across all configured endpoints.
+            const item = new Item(new HttpStreamFormat(message));
+            pub.publish(channel, item)
+                .then(() => {
+                    writeLine('Publish successful!');
+                })
+                .catch(({message, context}) => {
+                    writeLine('Publish failed!');
+                    writeLine('Message: ' + message);
+                    writeLine('Context: ');
+                    writeLine(JSON.stringify(context, null, 4));
+                });
+
+        });
+
+        function writeLine(str) {
+            for (const line of str.split('\n')) {
+
+                const el = document.createElement('div');
+                el.textContent = line;
+                document.getElementById('console').append(el);
+
+            }
+        }
+
+    })();
+</script>
+
+</body>
+</html>
