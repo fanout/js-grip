@@ -1,6 +1,6 @@
 {
   "name": "@fanoutio/grip",
-  "version": "2.1.1",
+  "version": "3.0.0-alpha.0",
   "author": "Fanout, Inc. <info@fanout.io>",
   "description": "GRIP Interface Library",
   "contributors": [
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/fanout/node-grip.git"
+    "url": "https://github.com/fanout/js-grip.git"
   },
   "readmeFilename": "README.md",
   "keywords": [
@@ -45,7 +45,8 @@
     "publish"
   ],
   "dependencies": {
-    "@fanoutio/pubcontrol": "^2.1.4",
+    "agentkeepalive": "^4.1.0",
+    "isomorphic-fetch": "^2.2.1",
     "jspack": "0.0.4",
     "jwt-simple": "^0.5.6"
   },

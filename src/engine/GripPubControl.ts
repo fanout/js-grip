@@ -1,8 +1,10 @@
-import PubControl, { IFormat, IPubControlPublishCallback } from '@fanoutio/pubcontrol';
+import PubControl from './PubControl';
+import Item from '../data/Item';
+import IFormat from '../data/IFormat';
+import IPubControlPublishCallback from './IPubControlPublishCallback';
 import HttpStreamFormat from '../data/http/HttpStreamFormat';
 import HttpResponseFormat from '../data/http/HttpResponseFormat';
 import IGripConfig from "./IGripConfig";
-const { Item } = PubControl;
 
 // The GripPubControl class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Configuring GripPubControl

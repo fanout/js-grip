@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { IFormat } from '@fanoutio/pubcontrol';
+import IFormat from '../IFormat';
 
 // The HttpStreamFormat class is the format used to publish messages to
 // HTTP stream clients connected to a GRIP proxy.

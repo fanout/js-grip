@@ -1,5 +1,5 @@
 import Response from '../Response';
-import { IFormat } from "@fanoutio/pubcontrol";
+import IFormat from '../IFormat';
 
 // The HttpResponseFormat class is the format used to publish messages to
 // HTTP response clients connected to a GRIP proxy.

@@ -2,7 +2,7 @@ import assert from "assert";
 
 import jspackModule from "jspack";
 const { jspack } = jspackModule;
-/// <reference path="../src/types/jspack.d.ts" />
+/// <reference path="../types/jspack.d.ts" />
 
 import WebSocketContext from "../src/data/websocket/WebSocketContext";
 import WebSocketEvent from "../src/data/websocket/WebSocketEvent";

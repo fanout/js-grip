@@ -1,8 +1,8 @@
 import assert from "assert";
 
-import PubControl, { IItem } from '@fanoutio/pubcontrol';
-const { Item, PubControlClient } = PubControl;
-type PubControlClient = InstanceType<typeof PubControlClient>;
+import Item from '../src/data/Item';
+import IItem from '../src/data/IItem';
+import PubControlClient from "../src/engine/PubControlClient";
 
 import GripPubControl from "../src/engine/GripPubControl";
 import HttpResponseFormat from "../src/data/http/HttpResponseFormat";

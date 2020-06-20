@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { IFormat } from "@fanoutio/pubcontrol";
+import IFormat from '../IFormat';
 
 // The WebSocketMessageFormat class is the format used to publish data to
 // WebSocket clients connected to GRIP proxies.
