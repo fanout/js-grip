@@ -180,7 +180,7 @@ export function createHold(mode: string, channels: Channels, response: string | 
 }
 
 // Parse the specified GRIP URI into a config object that can then be passed
-// to the GripPubControl class. The URI can include 'iss' and 'key' JWT
+// to the Publisher class. The URI can include 'iss' and 'key' JWT
 // authentication query parameters as well as any other required query string
 // parameters. The JWT 'key' query parameter can be provided as-is or in base64
 // encoded format.
