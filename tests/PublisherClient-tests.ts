@@ -2,7 +2,7 @@ import assert from "assert";
 
 import Item from '../src/data/Item';
 import Format from '../src/data/Format';
-import PubControlClient from "../src/engine/PubControlClient";
+import PublisherClient from "../src/engine/PublisherClient";
 import PublishException from "../src/data/PublishException";
 import Basic from "../src/auth/Basic";
 import Jwt from "../src/auth/Jwt";
@@ -22,10 +22,10 @@ class TestFormat extends Format {
     }
 }
 
-describe('PubControlClient', function() {
+describe('PublisherClient', function() {
     describe('#constructor', function() {
         it('test case', function() {
-            const pcc = new PubControlClient("uri");
+            const pcc = new PublisherClient("uri");
             assert.equal(pcc.uri, "uri");
             assert.equal(pcc.auth, null);
             assert.notEqual(pcc.httpKeepAliveAgent, null);
@@ -34,7 +34,7 @@ describe('PubControlClient', function() {
     });
     describe('#setAuthBasic', function() {
         it('test case', function() {
-            const pcc = new PubControlClient("uri");
+            const pcc = new PublisherClient("uri");
             pcc.setAuthBasic("user", "pass");
             assert.equal((<Basic>pcc.auth).user, "user");
             assert.equal((<Basic>pcc.auth).pass, "pass");
@@ -42,14 +42,14 @@ describe('PubControlClient', function() {
     });
     describe('#setAuthJwt', function() {
         it('key and claim', function() {
-            const pcc = new PubControlClient("uri");
+            const pcc = new PublisherClient("uri");
             const claim = {};
             pcc.setAuthJwt(claim, "key");
             assert.equal((<Jwt>pcc.auth).claim, claim);
             assert.equal((<Jwt>pcc.auth).key, "key");
         });
         it('token', function() {
-            const pcc = new PubControlClient("uri");
+            const pcc = new PublisherClient("uri");
             pcc.setAuthJwt("token");
             assert.equal((<Jwt>pcc.auth).token, "token");
         });
@@ -60,7 +60,7 @@ describe('PubControlClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const pcc = new PubControlClient("uri");
+            const pcc = new PublisherClient("uri");
             pcc._startPubCall = async function(uri, authHeader, items) {
                 assert.equal(uri, "uri");
                 assert.equal(
@@ -79,7 +79,7 @@ describe('PubControlClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const pcc = new PubControlClient("uri");
+            const pcc = new PublisherClient("uri");
             pcc._startPubCall = async function(uri, authHeader, items) {
                 assert.equal(uri, "uri");
                 assert.equal(authHeader, null);
@@ -93,7 +93,7 @@ describe('PubControlClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const pcc = new PubControlClient("uri");
+            const pcc = new PublisherClient("uri");
             pcc._startPubCall = async function() {
                 throw new PublishException('fail', null);
             };
@@ -110,7 +110,7 @@ describe('PubControlClient', function() {
     });
     describe('#_startPubCall', function() {
         it('test', async function() {
-            const pcc = new PubControlClient("http://uri.com");
+            const pcc = new PublisherClient("http://uri.com");
             const testItems: IItemExport[] = [];
             let wasPerformHttpRequestCalled = false;
             pcc._performHttpRequest = async function(_transport, uri, reqParams) {
@@ -131,7 +131,7 @@ describe('PubControlClient', function() {
             assert(wasPerformHttpRequestCalled);
         });
         it('https', async function() {
-            const pcc = new PubControlClient("https://uri.com");
+            const pcc = new PublisherClient("https://uri.com");
             const testItems: IItemExport[] = [];
             let wasPerformHttpRequestCalled = false;
             pcc._performHttpRequest = async function(_transport, uri, reqParams) {
@@ -151,7 +151,7 @@ describe('PubControlClient', function() {
             assert(wasPerformHttpRequestCalled);
         });
         it('bad uri', async function() {
-            const pcc = new PubControlClient("https://uri.com");
+            const pcc = new PublisherClient("https://uri.com");
             const testItems: IItemExport[] = [];
             let resultEx: any = null;
             await assert.rejects(async () => {
@@ -166,7 +166,7 @@ describe('PubControlClient', function() {
         });
     });
     describe('#_finishHttpRequest', function() {
-        const pcc = new PubControlClient("https://uri.com");
+        const pcc = new PublisherClient("https://uri.com");
         it('test', async function() {
             assert.doesNotThrow(() => {
                 pcc._finishHttpRequest(
@@ -204,7 +204,7 @@ describe('PubControlClient', function() {
     describe('#_performHttpRequest', function() {
         let wasFinishHttpRequestCalled: boolean;
         let wasFinishHttpRequestCalledForClose: boolean;
-        const pcc = new PubControlClient("https://uri.com");
+        const pcc = new PublisherClient("https://uri.com");
         pcc._finishHttpRequest = (mode, httpData) => {
             wasFinishHttpRequestCalled = false;
             wasFinishHttpRequestCalledForClose = false;

@@ -2,9 +2,9 @@ import assert from "assert";
 
 import Item from '../src/data/Item';
 import IItem from '../src/data/IItem';
-import PubControlClient from "../src/engine/PubControlClient";
+import PublisherClient from "../src/engine/PublisherClient";
 
-import GripPubControl from "../src/engine/GripPubControl";
+import Publisher from "../src/engine/Publisher";
 import HttpResponseFormat from "../src/data/http/HttpResponseFormat";
 import HttpStreamFormat from "../src/data/http/HttpStreamFormat";
 import PublishException from "../src/data/PublishException";
@@ -12,12 +12,12 @@ import PublishException from "../src/data/PublishException";
 describe('Publisher', function () {
     describe('#constructor', function () {
         it('allows for creation of empty Publisher object', function () {
-            const pubControl = new GripPubControl();
+            const pubControl = new Publisher();
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 0);
         });
         it('allows for creation of Publisher object based on single input', function () {
-            const pubControl = new GripPubControl({
+            const pubControl = new Publisher({
                 'control_uri': 'uri',
                 'control_iss': 'iss',
                 'key': 'key==',
@@ -26,11 +26,11 @@ describe('Publisher', function () {
             assert.equal(pc.clients.length, 1);
         });
         it('test case', function () {
-            const pc = new GripPubControl({ uri: "uri", iss: "iss", key: "key==" });
+            const pc = new Publisher({ uri: "uri", iss: "iss", key: "key==" });
             assert.equal(pc.clients.length, 1);
         });
         it('allows for creation of Publisher object based on multiple inputs', function () {
-            const pubControl = new GripPubControl([
+            const pubControl = new Publisher([
                 {
                     'control_uri': 'uri2',
                     'control_iss': 'iss2',
@@ -54,7 +54,7 @@ describe('Publisher', function () {
     });
     describe('#applyConfig', function () {
         it('allows for appending additional configs', function () {
-            let pubControl = new GripPubControl();
+            let pubControl = new Publisher();
             pubControl.applyConfig({
                 'control_uri': 'uri',
                 'control_iss': 'iss',
@@ -89,7 +89,7 @@ describe('Publisher', function () {
             assert.equal(pc.clients[2].auth.key, 'key==3');
         });
         it('test case', function () {
-            const pubControl = new GripPubControl();
+            const pubControl = new Publisher();
             const pc = pubControl as any;
             pubControl.applyConfig({ uri: "uri", iss: "iss", key: "key==" });
             assert.equal(pc.clients.length, 1);
@@ -114,7 +114,7 @@ describe('Publisher', function () {
     });
     describe('#removeAllClients', function () {
         it('allows removal of all clients', function () {
-            let pubControl = new GripPubControl({
+            let pubControl = new Publisher({
                 'control_uri': 'uri',
                 'control_iss': 'iss',
                 'key': 'key==',
@@ -125,7 +125,7 @@ describe('Publisher', function () {
             assert.equal(pc.clients.length, 0);
         });
         it('test case', function () {
-            const pc = new GripPubControl({ uri: "uri", iss: "iss", key: "key==" });
+            const pc = new Publisher({ uri: "uri", iss: "iss", key: "key==" });
             assert.equal(pc.clients.length, 1);
             pc.removeAllClients();
             assert.equal(pc.clients.length, 0);
@@ -133,26 +133,26 @@ describe('Publisher', function () {
     });
     describe('#addClients', function () {
         it('allows adding of a client', function () {
-            let pubControl = new GripPubControl({
+            let pubControl = new Publisher({
                 'control_uri': 'uri',
                 'control_iss': 'iss',
                 'key': 'key==',
             });
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 1);
-            pubControl.addClient(new PubControlClient('uri'));
+            pubControl.addClient(new PublisherClient('uri'));
             assert.equal(pc.clients.length, 2);
         });
         it('test case', function () {
-            const pc = new GripPubControl({ uri: "uri", iss: "iss", key: "key==" });
+            const pc = new Publisher({ uri: "uri", iss: "iss", key: "key==" });
             assert.equal(pc.clients.length, 1);
-            pc.addClient(new PubControlClient("uri"));
+            pc.addClient(new PublisherClient("uri"));
             assert.equal(pc.clients.length, 2);
         });
     });
     describe('#applyConfig', function () {
         it('allows for appending additional (non-grip) configs', function () {
-            let pubControl = new GripPubControl();
+            let pubControl = new Publisher();
             pubControl.applyConfig({
                 'uri': 'uri',
                 'iss': 'iss',
@@ -191,8 +191,8 @@ describe('Publisher', function () {
         it('test case', async function () {
             let wasPublishCalled = false;
             const testItem = <Item>{};
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
@@ -206,15 +206,15 @@ describe('Publisher', function () {
             let callbackResult: any = null;
             const testItem = <Item>{};
             let calls = 2;
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     calls--;
                 }
             });
-            pc.addClient(<PubControlClient>{
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
@@ -235,21 +235,21 @@ describe('Publisher', function () {
         it('callback fail', function(done) {
             let results: any = null;
             const testItem = <Item>{};
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                 }
             });
-            pc.addClient(<PubControlClient><unknown>{
+            pc.addClient(<PublisherClient><unknown>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     throw new PublishException("error 2", {value: 2});
                 }
             });
-            pc.addClient(<PubControlClient><unknown>{
+            pc.addClient(<PublisherClient><unknown>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
@@ -270,15 +270,15 @@ describe('Publisher', function () {
         it('async', async function() {
             const testItem = <Item>{};
             let calls = 2;
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     calls--;
                 }
             });
-            pc.addClient(<PubControlClient>{
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
@@ -290,21 +290,21 @@ describe('Publisher', function () {
         });
         it('async fail', async function() {
             const testItem = <Item>{};
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                 }
             });
-            pc.addClient(<PubControlClient><unknown>{
+            pc.addClient(<PublisherClient><unknown>{
                 publish: function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     throw new PublishException("error 2", {value: 2});
                 }
             });
-            pc.addClient(<PubControlClient><unknown>{
+            pc.addClient(<PublisherClient><unknown>{
                 publish: function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
@@ -323,7 +323,7 @@ describe('Publisher', function () {
             assert.equal(resultEx.context.value, 2);
         });
         it('makes sure that publish callback is called.', function (done) {
-            let pc = new GripPubControl();
+            let pc = new Publisher();
             pc.publish('chan', 'item' as unknown as IItem, () => {
                 done();
             });
@@ -331,15 +331,15 @@ describe('Publisher', function () {
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
             let wasCallbackCalled = false;
-            let pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            let pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(item, 'item');
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
             });
-            pc.addClient(<PubControlClient>{
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(item, 'item');
                     assert.equal(channel, 'chan');
@@ -357,15 +357,15 @@ describe('Publisher', function () {
     });
     describe('#publishHttpResponse', function () {
         it('makes sure that publish callback is called.', function (done) {
-            const pc = new GripPubControl();
+            const pc = new Publisher();
             pc.publishHttpResponse('chan', 'message', () => {
                 done();
             });
         });
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat('1', '2', '3',
@@ -381,8 +381,8 @@ describe('Publisher', function () {
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
             let wasCallbackCalled = false;
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat(
@@ -391,7 +391,7 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            pc.addClient(<PubControlClient>{
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat(
@@ -411,15 +411,15 @@ describe('Publisher', function () {
     });
     describe('#publishHttpStream', function () {
         it('makes sure that publish callback is called.', function (done) {
-            const pc = new GripPubControl();
+            const pc = new Publisher();
             pc.publishHttpStream('chan', 'message', () => {
                 done();
             });
         });
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat('1'))));
@@ -434,8 +434,8 @@ describe('Publisher', function () {
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
             let wasCallbackCalled = false;
-            const pc = new GripPubControl();
-            pc.addClient(<PubControlClient>{
+            const pc = new Publisher();
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat(
@@ -444,7 +444,7 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            pc.addClient(<PubControlClient>{
+            pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat(

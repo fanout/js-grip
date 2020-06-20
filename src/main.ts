@@ -1,6 +1,6 @@
 import Channel from './data/Channel';
 import Response from './data/Response';
-import GripPubControl from './engine/GripPubControl';
+import Publisher from './engine/Publisher';
 import HttpStreamFormat from './data/http/HttpStreamFormat';
 import HttpResponseFormat from './data/http/HttpResponseFormat';
 import WebSocketContext  from './data/websocket/WebSocketContext';
@@ -22,7 +22,7 @@ export {
     WebSocketContext,
     WebSocketEvent,
     WebSocketMessageFormat,
-    GripPubControl,
+    Publisher,
 };
 
 export type {

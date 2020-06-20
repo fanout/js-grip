@@ -31,12 +31,12 @@ interface FetchResponse {
 }
 type Transport = (url: string, reqParams: IReqParams) => Promise<FetchResponse>;
 
-// The PubControlClient class allows consumers to publish to an endpoint of
+// The PublisherClient class allows consumers to publish to an endpoint of
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method. The publish method has
 // an optional callback parameter that is called after the publishing is
 // complete to notify the consumer of the result.
-export default class PubControlClient {
+export default class PublisherClient {
     public uri?: string;
     public auth?: IAuth;
     public httpKeepAliveAgent?: HttpAgent = new HttpAgent();
