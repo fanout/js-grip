@@ -241,7 +241,7 @@ describe('gripUtilities', function () {
             assert.equal(channels[0].name, 'chan');
         });
         it('test case', function() {
-            const channels = gripUtilities.parseChannels('chan');
+            const channels = gripUtilities.parseChannels(['chan']);
             assert.equal(channels[0].name, 'chan');
         });
         it('test case', function() {
