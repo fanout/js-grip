@@ -1,5 +1,4 @@
 var http = require('http');
-var pubcontrol = require('pubcontrol');
 var grip = require('grip');
 
 http.createServer(function (req, res) {
@@ -31,9 +30,9 @@ http.createServer(function (req, res) {
 
             // Wait and then publish a message to the subscribed channel:
             setTimeout(function() {
-                var grippub = new grip.GripPubControl({
+                var grippub = new grip.Publisher({
                         'control_uri': '<myendpoint>'});
-                grippub.publish('channel', new pubcontrol.Item(
+                grippub.publish('channel', new grip.Item(
                         new grip.WebSocketMessageFormat(
                         'Test WebSocket Publish!!')));
             }, 5000);

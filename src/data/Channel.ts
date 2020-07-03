@@ -1,6 +1,6 @@
 import IExportedChannel from "./IExportedChannel";
 
-// The Channel class is used to represent a channel in for a GRIP proxy and
+// The Channel class is used to represent a channel in a GRIP proxy and
 // tracks the previous ID of the last message.
 
 export default class Channel {

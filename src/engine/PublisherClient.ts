@@ -33,9 +33,7 @@ type Transport = (url: string, reqParams: IReqParams) => Promise<FetchResponse>;
 
 // The PublisherClient class allows consumers to publish to an endpoint of
 // their choice. The consumer wraps a Format class instance in an Item class
-// instance and passes that to the publish method. The publish method has
-// an optional callback parameter that is called after the publishing is
-// complete to notify the consumer of the result.
+// instance and passes that to the publish method.
 export default class PublisherClient {
     public uri?: string;
     public auth?: IAuth;

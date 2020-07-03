@@ -228,8 +228,8 @@ export function parseChannels(inChannels: Channels): Channel[] {
     return channels.map(channel => isString(channel) ? new Channel(channel) : channel);
 }
 
-// An internal Get an array of hashes representing the specified channels parameter. The
-// resulting array is used for creating GRIP proxy hold instructions.
+// An internal method to get an array of hashes representing the specified
+// channels parameter. The resulting array is used for creating GRIP proxy hold instructions.
 export function getHoldChannels(channels: string[] | Channel[]) {
     const holdChannels = [];
     for (let channel of channels) {

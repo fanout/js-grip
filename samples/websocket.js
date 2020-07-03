@@ -1,6 +1,5 @@
 var ws = require("nodejs-websocket")
-var pubcontrol = require('pubcontrol');
-var grip = require('grip');
+var grip = require('@fanout/grip');
 
 ws.createServer(function (conn) {
      // Subscribe the WebSocket to a channel:
@@ -9,9 +8,9 @@ ws.createServer(function (conn) {
 
     // Wait and then publish a message to the subscribed channel:
     setTimeout(function() {
-        var grippub = new grip.GripPubControl({
+        var grippub = new grip.Publisher({
                 'control_uri': '<myendpoint>'});
-        grippub.publish('test_channel', new pubcontrol.Item(
+        grippub.publish('test_channel', new grip.Item(
                 new grip.WebSocketMessageFormat(
                 'Test WebSocket Publish!!')));
     }, 5000);
