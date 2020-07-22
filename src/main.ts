@@ -15,7 +15,6 @@ export { default as WebSocketMessageFormat } from './data/websocket/WebSocketMes
 export type { default as IGripConfig } from './engine/IGripConfig';
 export type { default as IExportedChannel } from './data/IExportedChannel';
 export type { default as IExportedResponse } from './data/IExportedResponse';
-export type { default as IHoldInstruction } from './IHoldInstruction';
 export type { default as IWebSocketEvent } from './data/websocket/IWebSocketEvent';
 export type { default as IFormat } from './data/IFormat';
 export type { default as IFormatExport } from './data/IFormatExport';

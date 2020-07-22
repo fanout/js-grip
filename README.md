@@ -261,7 +261,6 @@ the consumer rarely needs to instantiate or use them directly.
 | Function | Description |
 | --- | --- |
 | `parseChannels(channels)` | Parse an input parameter into an array of channels. |
-| `getHoldChannels(channels)` | Create a list of channels to be used in a hold instruction. |
 
 | Class | Description |
 | --- | --- |
@@ -276,7 +275,6 @@ the consumer rarely needs to instantiate or use them directly.
 | --- | --- |
 | `IExportedChannel` | A representation of a channel, containing the name and previous ID value|
 | `IExportedResponse` | A representation of all of the non-null data from a Response |
-| `IHoldInstruction` | A description of a hold instruction used by Grip to hold a connection |
 | `IWebSocketEvent` | Decscribes information about a WebSocket event |
 | `IFormatExport` | Represents a format-specific hash containing the required format-specific data|
 | `IItemExport` | Describes an item that has been serialized for export |
@@ -391,10 +389,10 @@ This package comes with full TypeScript type definitions, so you may use it with
 TypeScript as well.
 
 ```javascript
-import grip, { IHoldInstruction } from '@fanoutio/grip';
+import grip, { IGripConfig } from '@fanoutio/grip';
 const pub = new grip.Publisher({control_uri: "<endpoint_uri>"});
 
-// IHoldInstruction is a type declaration.
+// IGripConfig is a type declaration.
 ```
 
 ### Demos

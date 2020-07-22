@@ -3,7 +3,6 @@ import jwt from "jwt-simple";
 
 import * as gripUtilities from '../src/gripUtilities';
 import Channel from '../src/data/Channel';
-import Response from '../src/data/Response';
 import WebSocketEvent from '../src/data/websocket/WebSocketEvent';
 
 describe('gripUtilities', function () {
@@ -123,65 +122,6 @@ describe('gripUtilities', function () {
             assert.equal(header, 'channel1; prev-id=prev-id1, channel2; prev-id=prev-id2');
         });
     });
-    describe('#createHold', function () {
-        it('test case', function() {
-            const hold = gripUtilities.createHold('mode', 'chan', 'response', 999);
-            assert.equal(hold, JSON.stringify({
-                'hold': {
-                    'mode': 'mode',
-                    'channels': [(new Channel('chan')).export()],
-                    'timeout': 999
-                }, 'response':
-                    (new Response(null, null, null, 'response')).export()
-            }));
-        });
-        it('test case', function() {
-            const hold = gripUtilities.createHold('mode', 'chan', 'response');
-            assert.equal(hold, JSON.stringify({
-                'hold': {
-                    'mode': 'mode',
-                    'channels': [(new Channel('chan')).export()],
-                }, 'response':
-                    (new Response(null, null, null, 'response')).export()
-            }));
-        });
-        it('test case', function() {
-            const hold = gripUtilities.createHold('mode', 'chan', new Response(
-                'code', 'reason', 'headers', 'body'));
-            assert.equal(hold, JSON.stringify({
-                'hold': {
-                    'mode': 'mode',
-                    'channels': [(new Channel('chan')).export()],
-                }, 'response':
-                    (new Response('code', 'reason', 'headers', 'body')).export()
-            }));
-        });
-    });
-    describe('#createHoldResponse', function () {
-        it('test case', function() {
-            const hold = gripUtilities.createHoldResponse('chan', 'response', 999);
-            assert.equal(hold, JSON.stringify({
-                'hold': {
-                    'mode': 'response',
-                    'channels': [(new Channel('chan')).export()],
-                    'timeout': 999
-                }, 'response':
-                    (new Response(null, null, null, 'response')).export()
-            }));
-        });
-    });
-    describe('#createHoldStream', function () {
-        it('test case', function() {
-            const hold = gripUtilities.createHoldStream('chan', 'response');
-            assert.equal(hold, JSON.stringify({
-                'hold': {
-                    'mode': 'stream',
-                    'channels': [(new Channel('chan')).export()]
-                }, 'response':
-                    (new Response(null, null, null, 'response')).export()
-            }));
-        });
-    });
     describe('#parseGripUri', function () {
         it('test case', function() {
             const uri = 'http://api.fanout.io/realm/realm?iss=realm' +
@@ -253,22 +193,6 @@ describe('gripUtilities', function () {
             const channels = gripUtilities.parseChannels([new Channel('chan', 'prev-id')]);
             assert.equal(channels[0].name, 'chan');
             assert.equal(channels[0].prevId, 'prev-id');
-        });
-    });
-    describe('#getHoldChannels', function () {
-        it('test case', function() {
-            const holdChannels = gripUtilities.getHoldChannels([
-                new Channel('chan', 'prev-id'),
-                new Channel('chan2', 'prev-id2'),
-            ]);
-            assert.equal(JSON.stringify(holdChannels), JSON.stringify(
-                [(new Channel('chan', 'prev-id')).export(),
-                    (new Channel('chan2', 'prev-id2')).export()]));
-        });
-        it('test case', function() {
-            const holdChannels = gripUtilities.getHoldChannels(['channel']);
-            assert.equal(JSON.stringify(holdChannels), JSON.stringify(
-                [(new Channel('channel')).export()]));
         });
     });
 });

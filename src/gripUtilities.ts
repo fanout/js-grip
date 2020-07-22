@@ -4,12 +4,10 @@ import * as querystring from 'querystring';
 import * as jwt from 'jwt-simple';
 
 import WebSocketEvent from "./data/websocket/WebSocketEvent";
-import Response from "./data/Response";
 import Channel from "./data/Channel";
 
 import { isString, parseQueryString, toBuffer } from "./utilities";
 import IWebSocketEvent from "./data/websocket/IWebSocketEvent";
-import IHoldInstruction from "./IHoldInstruction";
 
 type Channels = Channel | Channel[] | string | string[];
 
@@ -129,56 +127,6 @@ export function createGripChannelHeader(channels: Channels) {
     return parts.join(', ');
 }
 
-// A convenience method for creating GRIP hold response instructions for HTTP
-// long-polling. This method simply passes the specified parameters to the
-// create_hold method with 'response' as the hold mode.
-export function createHoldResponse(channels: Channels, response: string | Response, timeout?: number) {
-    return createHold('response', channels, response, timeout);
-}
-
-// A convenience method for creating GRIP hold stream instructions for HTTP
-// streaming. This method simply passes the specified parameters to the
-// create_hold method with 'stream' as the hold mode.
-export function createHoldStream(channels: Channels, response: string | Response) {
-    return createHold('stream', channels, response);
-}
-
-// Create GRIP hold instructions for the specified mode, channels, response
-// and optional timeout value. The channel parameter can be specified as
-// either a string representing the channel name, a Channel instance or an
-// array of Channel instances. The response parameter can be specified as
-// either a string representing the response body or a Response instance.
-export function createHold(mode: string, channels: Channels, response: string | Response, timeout?: number): string {
-    channels = parseChannels(channels);
-    const holdChannels = getHoldChannels(channels);
-    let instruct: IHoldInstruction;
-    if (typeof timeout === 'undefined') {
-        instruct = {
-            hold: {
-                mode: mode,
-                channels: holdChannels
-            }
-        };
-    } else {
-        instruct = {
-            hold: {
-                mode: mode,
-                channels: holdChannels,
-                timeout: timeout
-            }
-        };
-    }
-
-    if (isString(response)) {
-        response = new Response(null, null, null, response);
-    }
-    if ((response as Response) != null) {
-        instruct.response = response.export();
-    }
-
-    return JSON.stringify(instruct);
-}
-
 // Parse the specified GRIP URI into a config object that can then be passed
 // to the Publisher class. The URI can include 'iss' and 'key' JWT
 // authentication query parameters as well as any other required query string
@@ -226,21 +174,6 @@ export function parseGripUri(uri: string) {
 export function parseChannels(inChannels: Channels): Channel[] {
     const channels = !Array.isArray(inChannels) ? [inChannels] : inChannels;
     return channels.map(channel => isString(channel) ? new Channel(channel) : channel);
-}
-
-// An internal method to get an array of hashes representing the specified
-// channels parameter. The resulting array is used for creating GRIP proxy hold instructions.
-export function getHoldChannels(channels: string[] | Channel[]) {
-    const holdChannels = [];
-    for (let channel of channels) {
-        if (isString(channel)) {
-            channel = new Channel(channel);
-        }
-        if ((channel as Channel) != null) {
-            holdChannels.push(channel.export());
-        }
-    }
-    return holdChannels;
 }
 
 // Generate a WebSocket control message with the specified type and optional
