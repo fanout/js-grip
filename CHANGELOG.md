@@ -11,14 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Major update with great improvements in usability, with support for modern
   language features such as `class` and `async`/`await`.  Collapses js-pubcontrol into
   js-grip, simplifying use and deployment.
-
+- Reorganized utility functions into categorized files.
 
 ### To be Added
 - To add Typescript annotations for IDE completion and static type checking.
 
 ### To be Changed
+- buildWebSocketControlMessage() renamed to createWebSocketControlMessage().
+
 ### To be Removed
-- Removal of createHold* functions (to be replaced by GripInstruct class)
+- Removal of createHold* functions (to be replaced by GripInstruct class) 
 
 ## [2.0.0-beta.0] - 2020-01-13
 ### Added

@@ -212,13 +212,13 @@ All of the APIs exposed on the root object, so for example you can bring them in
 as follows:
 
 ```javascript
-const { buildWebSocketControlMessage, Publisher, Format, Item } = require('@fanoutio/grip');
+const { createWebSocketControlMessage, Publisher, Format, Item } = require('@fanoutio/grip');
 ```
 
 or
 
 ```javascript
-import { buildWebSocketControlMessage, Publisher, Format, Item } from '@fanoutio/grip';
+import { createWebSocketControlMessage, Publisher, Format, Item } from '@fanoutio/grip';
 ```
 
 
@@ -232,11 +232,8 @@ The API exports the following functions, classes, and interfaces.
 | `encodeWebSocketEvents(events)` | Encode the specified array of WebSocketEvent instances. |
 | `decodeWebSocketEvents(body)` | Decode the specified HTTP request body into an array of WebSocketEvent instances when using the WebSocket-over-HTTP protocol. |
 | `createGripChannelHeader(channels)` | Create a GRIP channel header for the specified channels. |
-| `createHold(mode, channels, response, timeout?)` | Create GRIP hold instructions for the specified mode, channels, response, and optional timeout value. |
-| `createHoldResponse(channels, response, timeout?)` | A convenience method for creating GRIP hold response instructions for HTTP long-polling. |
-| `createHoldStream(channels, response, timeout?)` | A convenience method for creating GRIP hold stream instructions for HTTP streaming. |
 | `parseGripUri(uri)` | Parse the specified GRIP URI into a config object that can then be passed to the Publisher class. |
-| `buildWebSocketControlMessage(type, args)` | Generate a WebSocket control message with the specified type and optional arguments. |
+| `createWebSocketControlMessage(type, args)` | Generate a WebSocket control message with the specified type and optional arguments. |
 
 | Class | Description |
 | --- | --- |
@@ -257,10 +254,6 @@ The API exports the following functions, classes, and interfaces.
 
 Additionally, the following are exported for their types and use with code completion but with most uses of the library
 the consumer rarely needs to instantiate or use them directly.
-
-| Function | Description |
-| --- | --- |
-| `parseChannels(channels)` | Parse an input parameter into an array of channels. |
 
 | Class | Description |
 | --- | --- |

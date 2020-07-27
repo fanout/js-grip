@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import { jspack } from "jspack";
 /// <reference path="../../../types/jspack.d.ts" />
 
-import { buildWebSocketControlMessage } from "../../gripUtilities";
+import { createWebSocketControlMessage } from "../../utilities/webSocketEvents";
 
 import WebSocketEvent from "./WebSocketEvent";
 import IWebSocketEvent from "./IWebSocketEvent";
@@ -117,14 +117,14 @@ export default class WebSocketContext {
 				[Buffer.from('c:'), message instanceof Buffer ? message : Buffer.from(message)])));
 	}
 	subscribe(channel: string) {
-		this.sendControl(buildWebSocketControlMessage('subscribe',
+		this.sendControl(createWebSocketControlMessage('subscribe',
 				{'channel': this.prefix + channel}));
 	}
 	unsubscribe(channel: string) {
-		this.sendControl(buildWebSocketControlMessage('unsubscribe',
+		this.sendControl(createWebSocketControlMessage('unsubscribe',
 				{'channel': this.prefix + channel}));
 	}
 	detach() {
-		this.sendControl(buildWebSocketControlMessage('detach'));
+		this.sendControl(createWebSocketControlMessage('detach'));
 	}
 }

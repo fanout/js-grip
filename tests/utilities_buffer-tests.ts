@@ -1,13 +1,7 @@
 import assert from 'assert';
-import { isString, toBuffer } from '../src/utilities';
+import { toBuffer } from "../src/utilities/buffer";
 
-describe('utilities', function () {
-    describe('#isString', function () {
-        it('test case', function () {
-            assert(isString('hello'));
-            assert(!(isString([])));
-        });
-    });
+describe('utilities/buffer', function () {
     describe('#toBuffer', function () {
         it('test case', function () {
             let buf = Buffer.from('hello');
