@@ -108,9 +108,13 @@ http.createServer(function (req, res) {
         return;
     }
 
+    const gripInstruct = new grip.GripInstruct();
+    gripInstruct.setHoldLongPoll();
+
     // Instruct the client to long poll via the response body:
-    res.writeHead(200, {'Content-Type': 'application/grip-instruct'});
-    res.end(grip.createHoldResponse('<channel>'));
+    res.writeHead(200, gripInstruct.toHeaders());
+    
+    res.end('[start longpoll]');
     // Or to optionally set a timeout value in seconds:
     // res.end(grip.createHoldResponse('<channel>', null, <timeout_value>));
 }).listen(80, '0.0.0.0');
@@ -237,6 +241,7 @@ The API exports the following functions, classes, and interfaces.
 
 | Class | Description |
 | --- | --- |
+| `GripInstruct` | Class used to create the necessary HTTP headers that instruct the Grip proxy to hold connections. |
 | `Publisher` | Main object used to publish HTTP response and HTTP Stream format messages to Grip proxies. |
 | `HttpStreamFormat` | Format used to publish messages to HTTP stream clients connected to a GRIP proxy. |
 | `HttpResponseFormat` | Format used to publish messages to HTTP response clients connected to a GRIP proxy. |
@@ -274,6 +279,18 @@ the consumer rarely needs to instantiate or use them directly.
 | `IPublisherConfig` | Represents an EPCP client's configuration |
 | `IPublisherCallback` | (May not be needed anymore) |
 
+Class `GripInstruct`
+
+| Method | Description |
+| --- | --- |
+| constructor(`channels?`) | Create a `GripInstruct` instance, configuring it with an optional array of channels to bind to. |
+| `addChannel(channels)` | Bind to additional channels. |
+| `setHoldLongPoll(timeout?)` | Set the `Grip-Hold` header to the `response` value, and specify an optional timeout value. |
+| `setHoldStream()` | Set the `Grip-Hold` header to the `stream` mode. |
+| `setKeepAlive(data, timeout)` | Set the `Grip-Keep-Alive` header to the specified data value and timeout value. The value for `data` may be provided as either a string or `Buffer`, and the appropriate encoding will be performed. |
+| `setNextLink(uri, timeout?)` | Set the `Grip-Link` header to the specified uri, with an optional timeout value. |
+| `meta` (property) | A property to be set directly on the instance. This is serialized into the `Grip-Set-Meta` header. |
+| `toHeaders(params)` | Turns the current instance into an object that can be sent as HTTP headers. |
 
 Class `Publisher`
 

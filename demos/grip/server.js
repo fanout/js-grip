@@ -1,16 +1,19 @@
 // DEMO - Server for js-grip demo
 const http = require('http');
-const { createGripChannelHeader } = require('../..');
+const { GripInstruct } = require('../..');
 
 const port = 3000;
 
 const server = http.createServer((req, res) => {
 
-    res.writeHead(200, {
-        'Grip-Hold': 'stream',
-        'Grip-Channel': createGripChannelHeader('test'),
-        'Content-Type': 'text/plain',
-    });
+    const instruct = new GripInstruct('test');
+    instruct.setHoldStream();
+    const headers = instruct.toHeaders();
+
+    res.writeHead(200, Object.assign({
+        'Content-Type': 'text/plain'
+    }, headers));
+
     res.write("[open stream]\n", () => {
         res.end();
     });
