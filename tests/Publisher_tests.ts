@@ -202,71 +202,6 @@ describe('Publisher', function () {
             await pc.publish("chan", testItem);
             assert(wasPublishCalled);
         });
-        it('callback', function(done) {
-            let callbackResult: any = null;
-            const testItem = <Item>{};
-            let calls = 2;
-            const pc = new Publisher();
-            pc.addClient(<PublisherClient>{
-                publish: async function (channel, item) {
-                    assert.equal(channel, "chan");
-                    assert.equal(item, testItem);
-                    calls--;
-                }
-            });
-            pc.addClient(<PublisherClient>{
-                publish: async function (channel, item) {
-                    assert.equal(channel, "chan");
-                    assert.equal(item, testItem);
-                    calls--;
-                }
-            });
-            pc.publish("chan", testItem, (flag, message, context) => {
-                callbackResult = { flag, message, context };
-                done();
-            });
-            after(function() {
-                assert.equal(calls, 0);
-                assert.ok(callbackResult.flag);
-                assert.equal(callbackResult.message, null);
-                assert.equal(callbackResult.context, null);
-            });
-        });
-        it('callback fail', function(done) {
-            let results: any = null;
-            const testItem = <Item>{};
-            const pc = new Publisher();
-            pc.addClient(<PublisherClient>{
-                publish: async function (channel: string, item: IItem) {
-                    assert.equal(channel, "chan");
-                    assert.equal(item, testItem);
-                }
-            });
-            pc.addClient(<PublisherClient><unknown>{
-                publish: async function (channel: string, item: IItem) {
-                    assert.equal(channel, "chan");
-                    assert.equal(item, testItem);
-                    throw new PublishException("error 2", {value: 2});
-                }
-            });
-            pc.addClient(<PublisherClient><unknown>{
-                publish: async function (channel: string, item: IItem) {
-                    assert.equal(channel, "chan");
-                    assert.equal(item, testItem);
-                    throw new PublishException("error 3", {value: 3});
-                }
-            });
-            pc.publish("chan", testItem, (flag, message, context) => {
-                results = { flag, message, context };
-                done();
-            });
-            after(function() {
-                assert.notEqual(results, null);
-                assert.equal(results.flag, false);
-                assert.equal(results.message, "error 2");
-                assert.equal(results.context.value, 2)
-            });
-        });
         it('async', async function() {
             const testItem = <Item>{};
             let calls = 2;
@@ -322,15 +257,8 @@ describe('Publisher', function () {
             assert.equal(resultEx.message, "error 2");
             assert.equal(resultEx.context.value, 2);
         });
-        it('makes sure that publish callback is called.', function (done) {
-            let pc = new Publisher();
-            pc.publish('chan', 'item' as unknown as IItem, () => {
-                done();
-            });
-        });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
-            let wasCallbackCalled = false;
             let pc = new Publisher();
             pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
@@ -346,22 +274,13 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            await pc.publish('chan', 'item' as unknown as IItem, () => {
-                wasCallbackCalled = true;
-            });
+            await pc.publish('chan', 'item' as unknown as IItem);
             process.on('beforeExit', () => {
                 assert.strictEqual(publishCalled, 2);
-                assert(wasCallbackCalled);
             });
         });
     });
     describe('#publishHttpResponse', function () {
-        it('makes sure that publish callback is called.', function (done) {
-            const pc = new Publisher();
-            pc.publishHttpResponse('chan', 'message', () => {
-                done();
-            });
-        });
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
             const pc = new Publisher();
@@ -380,7 +299,6 @@ describe('Publisher', function () {
         });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
-            let wasCallbackCalled = false;
             const pc = new Publisher();
             pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
@@ -400,22 +318,13 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            await pc.publishHttpResponse('chan', 'message', () => {
-                wasCallbackCalled = true;
-            });
+            await pc.publishHttpResponse('chan', 'message');
             process.on('beforeExit', () => {
                 assert.strictEqual(publishCalled, 2);
-                assert(wasCallbackCalled);
             });
         });
     });
     describe('#publishHttpStream', function () {
-        it('makes sure that publish callback is called.', function (done) {
-            const pc = new Publisher();
-            pc.publishHttpStream('chan', 'message', () => {
-                done();
-            });
-        });
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
             const pc = new Publisher();
@@ -433,7 +342,6 @@ describe('Publisher', function () {
         });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
-            let wasCallbackCalled = false;
             const pc = new Publisher();
             pc.addClient(<PublisherClient>{
                 publish: async function (channel: string, item: IItem) {
@@ -453,12 +361,9 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            await pc.publishHttpStream('chan', 'message', () => {
-                wasCallbackCalled = true;
-            });
+            await pc.publishHttpStream('chan', 'message');
             process.on('beforeExit', () => {
                 assert.strictEqual(publishCalled, 2);
-                assert(wasCallbackCalled);
             });
         });
     });

@@ -1,6 +1,5 @@
 import Item from '../data/Item';
 import IFormat from '../data/IFormat';
-import IPublishCallback from './IPublishCallback';
 import HttpStreamFormat from '../data/http/HttpStreamFormat';
 import HttpResponseFormat from '../data/http/HttpResponseFormat';
 import IGripConfig from "./IGripConfig";
@@ -8,7 +7,6 @@ import IPublisherConfig from "./IPublisherConfig";
 import { gripConfigToPublisherConfig, isGripConfig } from "./configUtilities";
 import PublisherClient from "./PublisherClient";
 import IItem from "../data/IItem";
-import PublishException from "../data/PublishException";
 
 // The Publisher class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Publisher can be configured
@@ -54,121 +52,58 @@ export default class Publisher {
     }
 
     // The publish method for publishing the specified item to the specified
-    // channel on the configured endpoint. The callback method is optional
-    // and will be passed the publishing results after publishing is complete.
-    // Note that a failure to publish in any of the configured PublisherClient
-    // instances will result in a failure result being passed to the callback
-    // method along with the first encountered error message.
-    // If no callback method is passed, then this function returns a promise which
-    // is resolved when the publish is complete, or the promise being rejected with
-    // an exception describing the failure if the publish fails.
-    publish(channel: string, item: IItem, cb?: IPublishCallback): Promise<void> {
-        const publishResults = Promise.all(
+    // channel on the configured endpoint.
+    // This function returns a promise which is resolved when the publish is complete,
+    // or rejected with an exception describing the failure if the publish fails.
+    async publish(channel: string, item: IItem) {
+        await Promise.all(
             this.clients.map(client => client.publish(channel, item))
         );
+    }
 
-        if (cb == null) {
-            return Promise.resolve(publishResults as unknown as Promise<void>);
-        }
-
-        (async() => {
-            let success;
-            let message;
-            let context;
-            try {
-                await publishResults;
-                success = true;
-            } catch(ex) {
-                if (ex instanceof PublishException) {
-                    success = false;
-                    message = ex.message;
-                    context = ex.context;
-                } else {
-                    throw ex;
-                }
-            }
-            if (success) {
-                cb(true);
-            } else {
-                cb(false, message, context);
-            }
-        })();
-
-        return Promise.resolve();
+    // A utility method for publishing an item to the specified channel on the configured endpoint
+    // by building it from a single Format object or array of Format objects.
+    // This function returns a promise which is resolved when the publish is complete,
+    // or rejected with an exception describing the failure if the publish fails.
+    async publishFormats(channel: string, formats: IFormat | IFormat[], id?: string, prevId?: string) {
+        await this.publish(channel, new Item(formats, id, prevId));
     }
 
     // Publish an HTTP response format message to all of the configured
-    // PubControlClients with a specified channel, message, and optional ID,
-    // previous ID, and callback. Note that the 'http_response' parameter can
-    // be provided as either an HttpResponseFormat instance or a string (in
-    // which case an HttpResponseFormat instance will automatically
-    // be created and have the 'body' field set to the specified string). When
-    // specified, the callback method will be called after publishing is complete
-    // and passed a result and error message (if an error was encountered). The
-    // callback method can be specified as the third parameter if the ID and
-    // previous ID parameters are omitted.
-    publishHttpResponse(channel: string, data: HttpResponseFormat | string, cb?: IPublishCallback): Promise<void>;
-    publishHttpResponse(channel: string, data: HttpResponseFormat | string, id: string | IPublishCallback, prevId: string, cb?: IPublishCallback): Promise<void>;
-    publishHttpResponse(channel: string, data: HttpResponseFormat | string, ...args: any[]): Promise<void> {
-
-        let id: string | undefined;
-        let prevId: string | undefined;
-        let cb: IPublishCallback | undefined;
-
-        if (args[0] as IPublishCallback) {
-            [cb] = args;
-        } else {
-            [id, prevId, cb] = args;
-        }
+    // PubControlClients with a specified channel, message, and optional ID, and
+    // previous ID.  The 'data' parameter may be provided as either an HttpResponseFormat
+    // instance or a string (in which case an HttpResponseFormat instance will
+    // be created and have the 'body' field set to the specified string).
+    // This function returns a promise which is resolved when the publish is complete,
+    // or rejected with an exception describing the failure if the publish fails.
+    async publishHttpResponse(channel: string, data: HttpResponseFormat | string, id?: string, prevId?: string) {
 
         const httpResponse = data instanceof HttpResponseFormat ? data : new HttpResponseFormat({body: data});
 
-        return this._publish(
+        return this.publishFormats(
             channel,
             httpResponse,
             id,
             prevId,
-            cb
         );
     }
 
     // Publish an HTTP stream format message to all of the configured
-    // PubControlClients with a specified channel, message, and optional ID,
-    // previous ID, and callback. Note that the 'http_stream' parameter can
-    // be provided as either an HttpStreamFormat instance or a string (in
-    // which case an HttpStreamFormat instance will automatically
-    // be created and have the 'content' field set to the specified string). When
-    // specified, the callback method will be called after publishing is complete
-    // and passed a result and error message (if an error was encountered). The
-    // callback method can be specified as the third parameter if the ID and
-    // previous ID parameters are omitted.
-    publishHttpStream(channel: string, data: HttpStreamFormat | string, cb?: IPublishCallback): Promise<void>;
-    publishHttpStream(channel: string, data: HttpStreamFormat | string, id: string, prevId: string, cb?: IPublishCallback): Promise<void>;
-    publishHttpStream(channel: string, data: HttpStreamFormat | string, ...args: any[]): Promise<void> {
-
-        let id: string | undefined;
-        let prevId: string | undefined;
-        let cb: IPublishCallback | undefined;
-
-        if (args[0] as IPublishCallback) {
-            [cb] = args;
-        } else {
-            [id, prevId, cb] = args;
-        }
+    // PubControlClients with a specified channel, message, and optional ID, and
+    // previous ID.  The 'data' parameter may be provided as either an HttpStreamFormat
+    // instance or a string (in which case an HttpStreamFormat instance will
+    // be created and have the 'content' field set to the specified string).
+    // This function returns a promise which is resolved when the publish is complete,
+    // or rejected with an exception describing the failure if the publish fails.
+    async publishHttpStream(channel: string, data: HttpStreamFormat | string, id?: string, prevId?: string) {
 
         const httpStream = data instanceof HttpStreamFormat ? data : new HttpStreamFormat(data);
 
-        return this._publish(
+        return this.publishFormats(
             channel,
             httpStream,
             id,
-            prevId,
-            cb
+            prevId
         );
-    }
-
-    _publish(channel: string, format: IFormat, id?: string, prevId?: string, cb?: IPublishCallback): Promise<void> {
-        const item = new Item(format, id, prevId);
-        return this.publish(channel, item, cb);
     }
 }
