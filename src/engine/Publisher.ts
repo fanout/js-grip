@@ -7,7 +7,7 @@ import IPublisherConfig from "./IPublisherConfig";
 import { gripConfigToPublisherConfig, isGripConfig } from "./configUtilities";
 import PublisherClient from "./PublisherClient";
 import IItem from "../data/IItem";
-import PrefixedPublisher from "../data/PrefixedPublisher";
+import PrefixedPublisher from "../utilities/PrefixedPublisher";
 
 // The Publisher class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Publisher can be configured

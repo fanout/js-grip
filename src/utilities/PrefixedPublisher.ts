@@ -1,8 +1,8 @@
-import IFormat from "./IFormat";
+import IFormat from "../data/IFormat";
 import Publisher from "../engine/Publisher";
-import IItem from "./IItem";
-import HttpResponseFormat from "./http/HttpResponseFormat";
-import HttpStreamFormat from "./http/HttpStreamFormat";
+import IItem from "../data/IItem";
+import HttpResponseFormat from "../data/http/HttpResponseFormat";
+import HttpStreamFormat from "../data/http/HttpStreamFormat";
 
 export default class PrefixedPublisher {
 
