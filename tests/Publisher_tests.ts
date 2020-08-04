@@ -112,25 +112,6 @@ describe('Publisher', function () {
             assert.equal(pc.clients[2].auth.key, "key==3");
         });
     });
-    describe('#removeAllClients', function () {
-        it('allows removal of all clients', function () {
-            let pubControl = new Publisher({
-                'control_uri': 'uri',
-                'control_iss': 'iss',
-                'key': 'key==',
-            });
-            const pc = pubControl as any;
-            assert.equal(pc.clients.length, 1);
-            pubControl.removeAllClients();
-            assert.equal(pc.clients.length, 0);
-        });
-        it('test case', function () {
-            const pc = new Publisher({ uri: "uri", iss: "iss", key: "key==" });
-            assert.equal(pc.clients.length, 1);
-            pc.removeAllClients();
-            assert.equal(pc.clients.length, 0);
-        });
-    });
     describe('#addClients', function () {
         it('allows adding of a client', function () {
             let pubControl = new Publisher({

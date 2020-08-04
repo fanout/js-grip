@@ -41,11 +41,6 @@ export default class Publisher {
 
     }
 
-    // Remove all of the configured PublisherClient instances.
-    removeAllClients() {
-        this.clients = [];
-    }
-
     // Add the specified PublisherClient instance.
     addClient(client: PublisherClient) {
         this.clients.push(client);
