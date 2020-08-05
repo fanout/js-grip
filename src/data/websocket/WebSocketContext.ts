@@ -127,4 +127,61 @@ export default class WebSocketContext {
 	detach() {
 		this.sendControl(createWebSocketControlMessage('detach'));
 	}
+
+	getOutgoingEvents() {
+		const events = [];
+		if (this.accepted) {
+			events.push(new WebSocketEvent('OPEN'));
+		}
+		for (const event of this.outEvents) {
+			events.push(event);
+		}
+		if (this.closed) {
+			const octets = jspack.Pack('>H', [this.outCloseCode]);
+			if (octets !== false) {
+				events.push(new WebSocketEvent('CLOSE', Buffer.from(octets)));
+			}
+		}
+		return events;
+	}
+
+	toHeaders() {
+
+		// Find all keys of wsContext.origMeta that don't have the same key
+		// in wsContext.meta
+		const metaToRemove = Object.keys(this.origMeta)
+			.filter(k => Object.keys(this.meta)
+				.every(nk => nk.toLowerCase() !== k)
+			);
+
+		// Find all items in wsContext.meta whose keys and values don't match
+		// any in wsContext.origMeta
+		const metaToSet = Object.entries(this.meta)
+			.reduce((acc, [nk, nv]) => {
+				const lname = nk.toLowerCase();
+				if (Object.entries(this.origMeta)
+					.every(([k, v]) => lname !== k || nv !== v)
+				) {
+					acc[lname] = nv;
+				}
+				return acc;
+			}, {});
+
+		const headers = {
+			'Content-Type': 'application/websocket-events',
+		};
+
+		if (this.accepted) {
+			headers['Sec-WebSocket-Extensions'] = 'grip';
+		}
+		for (const k of metaToRemove) {
+			headers['Set-Meta-' + k] = '';
+		}
+		for (const [k, v] of Object.entries(metaToSet)) {
+			headers['Set-Meta-' + k] = String(v);
+		}
+
+		return headers;
+
+	}
 }
