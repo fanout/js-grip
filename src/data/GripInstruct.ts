@@ -11,6 +11,7 @@ import {
 
 export default class GripInstruct {
 
+    public status?: number;
     public hold?: string;
     public channels: Channel[] = [];
     public timeout = 0;
@@ -28,6 +29,10 @@ export default class GripInstruct {
 
     public addChannel(channels: Channel | Channel[] | string | string[]) {
         this.channels.push(...parseChannels(channels));
+    }
+
+    public setStatus(status: number) {
+        this.status = status;
     }
 
     public setHoldLongPoll(timeout?: number) {
@@ -54,6 +59,9 @@ export default class GripInstruct {
     public toHeaders(additionalHeaders?: object) {
         const headers = {};
         headers['Grip-Channel'] = createGripChannelHeader(this.channels);
+        if (this.status != null) {
+            headers['Grip-Status'] = `${this.status}`; // Convert to string
+        }
         if (this.hold != null) {
             headers['Grip-Hold'] = this.hold;
             if (this.timeout > 0) {
