@@ -2,6 +2,12 @@
 
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
+## [Planned for 3.0.0]
+- Major update with great improvements in usability, with support for modern
+  language features such as `class` and `async`/`await`.  Collapses js-pubcontrol into
+  js-grip, simplifying use and deployment.
+- Reorganized utility functions into categorized files.
+
 ## Description
 
 A GRIP interface library for NodeJS.  For use with HTTP reverse proxy servers
@@ -361,9 +367,7 @@ Represents Basic authentication to be used with a `PublisherClient`.
 
 Class `Auth.Jwt`
 
-
-
-
+Represents JWT (JSON Web Tokens) authentication to be used with a `PublisherClient`.
 
 ## Configuring the GRIP endpoint
 
