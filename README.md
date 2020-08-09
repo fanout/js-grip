@@ -296,7 +296,7 @@ Class `Publisher`
 
 | Method | Description |
 | --- | --- |
-| constructor(configs) | Create a `Publisher` instance, configuring it with clients that based on the specified GRIP or publisher settings. |
+| constructor(`configs`) | Create a `Publisher` instance, configuring it with clients that based on the specified GRIP or publisher settings. |
 | `applyConfig(configs)` | Apply additional clients based on specified Grip or publisher configs to the publisher instance. |
 | `removeAllClients()` | Remove all clients from this publisher instance. |
 | `async publish(channel, item)` | Publish an item to the specified channel. |
@@ -346,7 +346,7 @@ directly.
 
 | Method | Description |
 | --- | --- |
-| constructor(uri) | Create a `PublisherClient` instance, initializing it with the given publishing endpoint. |
+| constructor(`uri`) | Create a `PublisherClient` instance, initializing it with the given publishing endpoint. |
 | `setAuthBasic(username, password)` | Configure this instance with Basic authentication with the specified username and password. |
 | `setAuthJwt(token)`<br />`setAuthJwt(claim, key?)` | Configure this instance with Jwt authentication with the specified claim and key, or with the specified token. |
 | `async publish(channel, item)` | Publish a specified item to the specified channel. |  
