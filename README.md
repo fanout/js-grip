@@ -26,114 +26,154 @@ npm install @fanoutio/grip
 
 ## Sample Usage
 
+### Publishing HTTP messages
+
 Examples for how to publish HTTP response and HTTP stream messages to GRIP proxy endpoints via the Publisher class.
 
 ```javascript
-var grip = require('@fanoutio/grip');
-
-var callback = function(success, message, context) {
-    if (success) {
-        console.log('Publish successful!');
-    }
-    else {
-        console.log("Publish failed!");
-        console.log("Message: " + message);
-        console.log("Context: ");
-        console.dir(context);
-    }
-};
+const { Publisher, PublishException } = require('@fanoutio/grip');
 
 // Publisher can be initialized with or without an endpoint configuration.
 // Each endpoint can include optional JWT authentication info.
 // Multiple endpoints can be included in a single configuration.
 
-var grippub = new grip.Publisher({
-        'control_uri': 'https://api.fanout.io/realm/<myrealm>',
-        'control_iss': '<myrealm>',
-        'key': Buffer.from('<myrealmkey>', 'base64')});
+const publisher = new Publisher({
+    'control_uri': 'https://api.fanout.io/realm/<myrealm>',
+    'control_iss': '<myrealm>',
+    'key': Buffer.from('<myrealmkey>', 'base64'),
+});
 
-// Add new endpoints by applying an endpoint configuration:
-grippub.applyGripConfig([{'control_uri': '<myendpoint_uri_1>'},
-        {'control_uri': '<myendpoint_uri_2>'}]);
+// Add additional endpoints by applying an endpoint configuration:
+publisher.applyGripConfig([
+    {'control_uri': '<myendpoint_uri_1>'},
+    {'control_uri': '<myendpoint_uri_2>'},
+]);
 
-// Remove all configured endpoints:
-grippub.removeAllClients();
+// Publish across all configured endpoints.
+// The publish methods return a promise that resolves to a void value.
+// If the publish fails, they reject with an PublishException object.
 
-// Publish across all configured endpoints:
-grippub.publishHttpResponse('<channel>', 'Test Publish!', callback);
-grippub.publishHttpStream('<channel>', 'Test Publish!', callback);
+try {
+    await publisher.publishHttpResponse('<channel>', 'Test Publish!');
+    console.log('Publish successful!');
+} catch(ex) {
+    if (ex instanceof PublishException) {
+        console.log("Publish failed!");
+        console.log("Message: " + ex.message);
+        console.log("Context: ");
+        console.dir(ex.context);
+    } else {
+        throw ex;
+    }
+}
+
+try {
+    await publisher.publishHttpStream('<channel>', 'Test Publish!');
+    console.log('Publish successful!');
+} catch(ex) {
+    if (ex instanceof PublishException) {
+        console.log("Publish failed!");
+        console.log("Message: " + ex.message);
+        console.log("Context: ");
+        console.dir(ex.context);
+    } else {
+        throw ex;
+    }
+}
 ```
 
-Validate the Grip-Sig request header from incoming GRIP messages. This ensures that the message was sent from a valid
+### Checking if the current request is proxied by GRIP 
+
+When the client connects to a GRIP proxy over HTTP, the proxy forwards the request to the origin and adds the `Grip-Sig`
+header to the proxied request. 
+
+Validate the `Grip-Sig` request header from incoming GRIP messages. This ensures that the message was sent from a valid
 source and is not expired. Note that when using Fanout.io the key is the realm key, and when using Pushpin the key
 is configurable in Pushpin's settings.
 
 ```javascript
-var grip = require('grip');
+var { validateSig } = require('grip');
 
-var isValid = grip.validateSig(req.headers['grip-sig'], '<key>');
+var isValid = validateSig(req.headers['grip-sig'], '<key>');
 ```
 
-Long polling example via response _headers_. The client connects to a GRIP proxy over HTTP and the proxy forwards the
-request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response
-_headers_. Note that with the recent versions of Apache it's not possible to send a 304 response containing custom
-headers, in which case the response body should be used instead (next usage example below).
+### Long polling example
+
+The origin subscribes the client to a channel and instructs it to long poll. This is done by instantiating a `GripInstruct`
+object to generate the applicable response headers.
 
 ```javascript
-var http = require('http');
-var grip = require('@fanoutio/grip');
+const http = require('http');
+const { validateSig, GripInstruct } = require('@fanoutio/grip');
 
-http.createServer(function (req, res) {
+http.createServer((req, res) => {
     // Validate the Grip-Sig header:
-    if (!grip.validateSig(req.headers['grip-sig'], '<key>')) {
+    if (!validateSig(req.headers['grip-sig'], '<key>')) {
         res.writeHead(401);
         res.end('invalid grip-sig token');
         return;
     }
 
+    // Instatiate GripInstruct object
+    const gripInstruct = new GripInstruct();
+    gripInstruct.addChannel('<channel>');
+    gripInstruct.setHoldLongPoll();
+    // To optionally set a timeout value in seconds:
+    // gripInstruct.setHoldLongPoll(<timeout_value>);
+    
     // Instruct the client to long poll via the response headers:
-    res.writeHead(200, {
-            'Grip-Hold': 'response',
-            // To optionally set a timeout value in seconds:
-            // 'Grip-Timeout': <timeout_value>,
-            'Grip-Channel': grip.createGripChannelHeader('<channel>')});
-    res.end();
+    res.writeHead(200, gripInstruct.toHeaders());
+
+    res.end('[start longpoll]\n');
 }).listen(80, '0.0.0.0');
 
-console.log('Server running...')
+console.log('Server running...');
 ```
 
-Long polling example via response _body_. The client connects to a GRIP proxy over HTTP and the proxy forwards the
-request to the origin. The origin subscribes the client to a channel and instructs it to long poll via the response
-_body_.
+When the response status code is 304, keep in mind that some web servers, such as recent versions of Apache, do not allow
+sending of custom headers along with a 304 response. In this case, send a 200 response and then use `gripInstruct.setStatus()`
+to indicate the intended status to the GRIP proxy.
 
 ```javascript
-var http = require('http');
-var grip = require('@fanoutio/grip');
+const http = require('http');
+const { validateSig, GripInstruct } = require('@fanoutio/grip');
 
-http.createServer(function (req, res) {
+http.createServer((req, res) => {
     // Validate the Grip-Sig header:
-    if (!grip.validateSig(req.headers['grip-sig'], '<key>')) {
+    if (!validateSig(req.headers['grip-sig'], '<key>')) {
         res.writeHead(401);
         res.end('invalid grip-sig token');
         return;
     }
 
-    const gripInstruct = new grip.GripInstruct();
+    // We intend to return a 304 status.
+
+    // Instatiate GripInstruct object
+    const gripInstruct = new GripInstruct();
+    gripInstruct.addChannel('<channel>');
     gripInstruct.setHoldLongPoll();
 
-    // Instruct the client to long poll via the response body:
+    // Set 304 here
+    gripInstruct.setStatus(304);
+
+    // Return 200 for this response.
     res.writeHead(200, gripInstruct.toHeaders());
-    
-    res.end('[start longpoll]');
-    // Or to optionally set a timeout value in seconds:
-    // res.end(grip.createHoldResponse('<channel>', null, <timeout_value>));
+
+    res.end('[start longpoll]\n');
 }).listen(80, '0.0.0.0');
 
-console.log('Server running...')
+console.log('Server running...');
 ```
 
-WebSocket example using nodejs-websocket. A client connects to a GRIP proxy via WebSockets and the proxy forward the request to the origin. The origin accepts the connection over a WebSocket and responds with a control message indicating that the client should be subscribed to a channel. Note that in order for the GRIP proxy to properly interpret the control messages, the origin must provide a 'grip' extension in the 'Sec-WebSocket-Extensions' header. To accomplish this with nodejs-websocket, edit Connection.js and ensure that the following header is appended to the 'this.socket.write()' function call in the answerHandshake() method: 'Sec-WebSocket-Extensions: grip; message-prefix=""\r\n' To accomplish this with ws, add the ws.on('headers', ...) check to your app, for example:
+### WebSocket example using nodejs-websocket
+
+A client connects to a GRIP proxy via WebSockets and the proxy forward the request to the origin.
+The origin accepts the connection over a WebSocket and responds with a control message indicating that the client should
+be subscribed to a channel. Note that in order for the GRIP proxy to properly interpret the control messages, the origin
+must provide a 'grip' extension in the 'Sec-WebSocket-Extensions' header. To accomplish this with nodejs-websocket, edit
+Connection.js and ensure that the following header is appended to the 'this.socket.write()' function call in the
+answerHandshake() method: 'Sec-WebSocket-Extensions: grip; message-prefix=""\r\n' To accomplish this with ws, add the
+ws.on('headers', ...) check to your app, for example:
 
 ```javascript
 wss.on('headers', function processHeaders(headers, req) {
@@ -151,71 +191,113 @@ server.on('upgrade', function upgrade(request, socket, head) {
 
 ```javascript
 var ws = require("nodejs-websocket")
-var grip = require('@fanoutio/grip');
+var {
+    createWebSocketControlMessage,
+    WebSocketMessageFormat,
+    Publisher,
+} = require('@fanoutio/grip');
 
 ws.createServer(function (conn) {
-     // Subscribe the WebSocket to a channel:
-    conn.sendText('c:' + grip.webSocketControlMessage(
-            'subscribe', {'channel': '<channel>'}));
+    // Subscribe the WebSocket to a channel:
+    const subscribeMessage = 'c:' + createWebSocketControlMessage('subscribe', {'channel': '<channel>'})
+    conn.sendText(subscribeMessage);
 
-    // Wait and then publish a message to the subscribed channel:
-    setTimeout(function() {
-        var grippub = new grip.Publisher({
-                'control_uri': '<myendpoint>'});
-        grippub.publish('test_channel', new grip.Item(
-                new grip.WebSocketMessageFormat(
-                'Test WebSocket Publish!!')));
+    // As an example way to check our subscription, wait and then
+    // publish a message to the subscribed channel:
+    setTimeout(() => {
+        var publisher = new Publisher({
+            'control_uri': '<myendpoint>',
+        });
+        publisher.publishFormats(
+            'test_channel',
+            new WebSocketMessageFormat('Test WebSocket Publish!!')
+        );
     }, 5000);
 }).listen(80, '0.0.0.0');
 
 console.log('Server running...');
 ```
 
-WebSocket over HTTP example. In this case, a client connects to a GRIP proxy via WebSockets and the GRIP proxy communicates with the origin via HTTP.
+### WebSocket example using WebSocket-over-HTTP
+
+The [WebSocket-Over-HTTP](https://pushpin.org/docs/protocols/websocket-over-http/) protocol is a
+simple, text-based protocol for gatewaying between a WebSocket client and a conventional HTTP server.
+It is available as a feature of Pushpin and Fanout Cloud, and is fully supported by js-grip. 
+
+In this case, a client connects to a GRIP proxy via WebSockets and the GRIP proxy communicates with the origin via HTTP.
 
 ```javascript
-var http = require('http');
-var grip = require('@fanoutio/grip');
+const http = require('http');
+const {
+    validateSig,
+    decodeWebSocketEvents,
+    encodeWebSocketEvents,
+    WebSocketContext,
+    WebSocketMessageFormat,
+    Publisher,
+} = require('@fanoutio/grip');
 
-http.createServer(function (req, res) {
+http.createServer(async (req, res) => {
     // Validate the Grip-Sig header:
-    if (!grip.validateSig(req.headers['grip-sig'], 'changeme')) {
+    if (!validateSig(req.headers['grip-sig'], 'changeme')) {
         res.writeHead(401);
         res.end('invalid grip-sig token');
         return;
     }
 
+    // Make sure we have a connection ID
+    let cid = req.headers['connection-id'];
+    if (Array.isArray(cid)) {
+        cid = cid[0];
+    }
+    if (req.headers['connection-id'] == null) {
+        res.writeHead(401);
+        res.end('connection-id required');
+        return;
+    }
+
+    const inEventsEncoded = await new Promise(resolve => {
+        let body = '';
+        req.on('data', function (chunk) {
+            body += chunk;
+        });
+        req.on('end', function() {
+            resolve(body);
+        });
+    });
+
+    const inEvents = decodeWebSocketEvents(inEventsEncoded);
+    const wsContext = new WebSocketContext(cid, {}, inEvents);
+
+    if (wsContext.isOpening()) {
+        // Open the WebSocket and subscribe it to a channel:
+        wsContext.accept();
+        wsContext.subscribe('<channel>');
+
+        // The above commands made to the wsContext are buffered
+        // in the wsContext as "outgoing events".
+        // Obtain them and write them to the response.
+        const outEvents = wsContext.getOutgoingEvents();
+        const outEventsEncoded = encodeWebSocketEvents(outEvents); 
+        res.write(outEventsEncoded);
+
+        // As an example way to check our subscription, wait and then
+        // publish a message to the subscribed channel:
+        setTimeout(() => {
+            var publisher = new Publisher({
+                'control_uri': '<myendpoint>',
+            });
+            publisher.publishFormats(
+                '<channel>', 
+                new WebSocketMessageFormat('Test WebSocket Publish!!')
+            );
+        }, 5000);
+    }
+
     // Set the headers required by the GRIP proxy:
-    res.writeHead(200, {
-            'Sec-WebSocket-Extensions': 'grip; message-prefix=""',
-            'Content-Type': 'application/websocket-events'});
+    res.writeHead(200, wsContext.toHeaders());
+    res.end();
 
-    var body = '';
-    req.on('data', function (chunk) {
-        body += chunk;
-    });
-
-    req.on('end', function() {
-        var inEvents = grip.decodeWebSocketEvents(body);
-        if (inEvents[0].getType() == 'OPEN') {
-            // Open the WebSocket and subscribe it to a channel:
-            var outEvents = [];
-            outEvents.push(new grip.WebSocketEvent('OPEN'));
-            outEvents.push(new grip.WebSocketEvent('TEXT', 'c:' +
-                    grip.webSocketControlMessage('subscribe',
-                    {'channel': 'channel'})));
-            res.end(grip.encodeWebSocketEvents(outEvents));
-
-            // Wait and then publish a message to the subscribed channel:
-            setTimeout(function() {
-                var grippub = new grip.Publisher({
-                        'control_uri': '<myendpoint>'});
-                grippub.publish('channel', new grip.Item(
-                        new grip.WebSocketMessageFormat(
-                        'Test WebSocket Publish!!')));
-            }, 5000);
-        }
-    });
 }).listen(80, '0.0.0.0');
 
 console.log('Server running...');
@@ -245,7 +327,6 @@ The API exports the following functions, classes, and interfaces.
 | `validateSig(token, key)` | Validate the specified JWT token and key. |
 | `encodeWebSocketEvents(events)` | Encode the specified array of WebSocketEvent instances. |
 | `decodeWebSocketEvents(body)` | Decode the specified HTTP request body into an array of WebSocketEvent instances when using the WebSocket-over-HTTP protocol. |
-| `createGripChannelHeader(channels)` | Create a GRIP channel header for the specified channels. |
 | `parseGripUri(uri)` | Parse the specified GRIP URI into a config object that can then be used to construct a `Publisher` instance. |
 | `createWebSocketControlMessage(type, args)` | Generate a WebSocket control message with the specified type and optional arguments. |
 
@@ -267,26 +348,6 @@ The API exports the following functions, classes, and interfaces.
 | `IFormat` | Represents a publishing format to be used with Publisher |
 | `IItem` | Represents a container used to contain a data object in one or more formats |
 
-Additionally, the following are exported for their types and use with code completion but with most uses of the library
-the consumer rarely needs to instantiate or use them directly.
-
-| Class | Description |
-| --- | --- |
-| `Auth.Basic` | Represents Basic authentication to be used with `Publisher`. |
-| `Auth.Jwt` | Represents JWT authentication to be used with `Publisher`. |
-| `Auth.Base` | Base class for authentication to be used with `Publisher`. |
-| `Channel` | Represents a channel used by a GRIP proxy. |
-| `Response` | Represents a set of HTTP response data. |
-| `PublisherClient` | Represents an endpoint and its attributes, including authentication, used with `Publisher`. |
-
-| Interfaces | Description |
-| --- | --- |
-| `IExportedChannel` | A representation of a channel, containing the name and previous ID value|
-| `IExportedResponse` | A representation of all of the non-null data from a Response |
-| `IWebSocketEvent` | Decscribes information about a WebSocket event |
-| `IFormatExport` | Represents a format-specific hash containing the required format-specific data|
-| `IItemExport` | Describes an item that has been serialized for export |
-
 Class `GripInstruct`
 
 | Method | Description |
@@ -306,7 +367,6 @@ Class `Publisher`
 | --- | --- |
 | constructor(`configs`) | Create a `Publisher` instance, configuring it with clients that based on the specified GRIP settings. |
 | `applyConfig(configs)` | Apply additional clients based on specified GRIP configs to the publisher instance. |
-| `removeAllClients()` | Remove all clients from this publisher instance. |
 | `async publish(channel, item)` | Publish an item to the specified channel. |
 | `async publishHttpResponse(channel, data, id?, prevId?)` | Publish an HTTP response format message to the specified channel, with optional ID and previous ID. |
 | `async publishHttpStream(channel, item)` | Publish an HTTP stream format message to the specified channel, with optional ID and previous ID. |
@@ -333,7 +393,11 @@ Examples of format implementations include JsonObjectFormat and HttpStreamFormat
 ### Advanced APIs
 
 The following are exported for their types and use with code completion but with most uses of the library
-the consumer rarely needs to instantiate or use them directly.
+the consumer rarely needs to use them directly.
+
+| Functions | Descriptions |
+| --- | --- |
+| `createGripChannelHeader(channels)` | Create a GRIP channel header for the specified channels. |
 
 | Class | Description |
 | --- | --- |

@@ -9,14 +9,17 @@ http.createServer((req, res) => {
         return;
     }
 
+    // We intend to return a 304 status.
+
     // Instatiate GripInstruct object
     const gripInstruct = new GripInstruct();
     gripInstruct.addChannel('<channel>');
     gripInstruct.setHoldLongPoll();
-    // To optionally set a timeout value in seconds:
-    // gripInstruct.setHoldLongPoll(<timeout_value>);
 
-    // Instruct the client to long poll via the response headers:
+    // Set 304 here
+    gripInstruct.setStatus(304);
+
+    // Return 200 for this response.
     res.writeHead(200, gripInstruct.toHeaders());
 
     res.end('[start longpoll]\n');

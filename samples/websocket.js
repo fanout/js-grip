@@ -1,17 +1,21 @@
 var ws = require("nodejs-websocket")
-var grip = require('@fanout/grip');
+var {
+    createWebSocketControlMessage,
+    Publisher,
+    WebSocketMessageFormat,
+} = require('@fanout/grip');
 
 ws.createServer(function (conn) {
      // Subscribe the WebSocket to a channel:
-    conn.sendText('c:' + grip.webSocketControlMessage(
+    conn.sendText('c:' + createWebSocketControlMessage(
             'subscribe', {'channel': '<channel>'}));
 
     // Wait and then publish a message to the subscribed channel:
     setTimeout(function() {
-        var grippub = new grip.Publisher({
+        var grippub = new Publisher({
                 'control_uri': '<myendpoint>'});
         grippub.publish('test_channel', new grip.Item(
-                new grip.WebSocketMessageFormat(
+                new WebSocketMessageFormat(
                 'Test WebSocket Publish!!')));
     }, 5000);
 }).listen(80, '0.0.0.0');
