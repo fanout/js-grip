@@ -13,7 +13,7 @@ export function createKeepAliveHeader(data: string | Buffer, timeout: number) {
     }
 
     if (output == null) {
-        let buffer = isString(data) ? Buffer.from(data) : data;
+        const buffer = isString(data) ? Buffer.from(data) : data;
         output = buffer.toString('base64') + '; format=base64';
     }
 
