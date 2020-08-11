@@ -4,9 +4,11 @@ Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io
 
 ## [Planned for 3.0.0]
 - Major update with great improvements in usability, with support for modern
-  language features such as `class` and `async`/`await`.  Collapses js-pubcontrol into
-  js-grip, simplifying use and deployment.
+  language features such as `class` and `async`/`await`.
+- Collapsed `js-pubcontrol` into `js-grip`, simplifying use and deployment.
 - Reorganized utility functions into categorized files.
+- Rewritten in TypeScript and exporting types files to enable static type checking and
+  IDE completion. 
 
 ## Description
 
@@ -135,7 +137,7 @@ wss.on('headers', function processHeaders(headers, req) {
     headers.push('Sec-WebSocket-Extensions: grip; message-prefix=""');
 });
 
-...
+/* ... */
 
 server.on('upgrade', function upgrade(request, socket, head) {
     wss.handleUpgrade(request, socket, head, function done(ws) {
@@ -218,7 +220,7 @@ console.log('Server running...');
 
 ## Using the API
 
-All of the APIs exposed on the root object, so for example you can bring them in
+All of the APIs are exposed on the root object, so for example you can bring them in
 as follows:
 
 ```javascript
@@ -231,7 +233,6 @@ or
 import { createWebSocketControlMessage, Publisher, Format, Item } from '@fanoutio/grip';
 ```
 
-
 ## API
 
 The API exports the following functions, classes, and interfaces.
@@ -242,7 +243,7 @@ The API exports the following functions, classes, and interfaces.
 | `encodeWebSocketEvents(events)` | Encode the specified array of WebSocketEvent instances. |
 | `decodeWebSocketEvents(body)` | Decode the specified HTTP request body into an array of WebSocketEvent instances when using the WebSocket-over-HTTP protocol. |
 | `createGripChannelHeader(channels)` | Create a GRIP channel header for the specified channels. |
-| `parseGripUri(uri)` | Parse the specified GRIP URI into a config object that can then be passed to the Publisher class. |
+| `parseGripUri(uri)` | Parse the specified GRIP URI into a config object that can then be used to construct a `Publisher` instance. |
 | `createWebSocketControlMessage(type, args)` | Generate a WebSocket control message with the specified type and optional arguments. |
 
 | Class | Description |
@@ -300,8 +301,8 @@ Class `Publisher`
 
 | Method | Description |
 | --- | --- |
-| constructor(`configs`) | Create a `Publisher` instance, configuring it with clients that based on the specified GRIP or publisher settings. |
-| `applyConfig(configs)` | Apply additional clients based on specified Grip or publisher configs to the publisher instance. |
+| constructor(`configs`) | Create a `Publisher` instance, configuring it with clients that based on the specified GRIP settings. |
+| `applyConfig(configs)` | Apply additional clients based on specified Grip configs to the publisher instance. |
 | `removeAllClients()` | Remove all clients from this publisher instance. |
 | `async publish(channel, item)` | Publish an item to the specified channel. |
 | `async publishHttpResponse(channel, data, id?, prevId?)` | Publish an HTTP response format message to the specified channel, with optional ID and previous ID. |
@@ -309,11 +310,11 @@ Class `Publisher`
 | `addClient(client)` | Advanced: Add a PublisherClient instance that you have configured on your own. |
 
 The constructor and `applyConfig` methods accept either a single object or an array of objects that implement
-the `IGripConfig` interface (or in advanced cases, the `IPublisherConfig` interface).
+the `IGripConfig` interface.
 
 Interface `IGripConfig`
 
-Represents the configuration for a Grip client, such as Pushpin or Fanout Cloud.
+Represents the configuration for a GRIP client, such as Pushpin or Fanout Cloud.
 
 | Field | Description |
 | --- | --- |
@@ -326,20 +327,39 @@ Class `Format`
 A base class for all publishing formats that are included in the Item class.
 Examples of format implementations include JsonObjectFormat and HttpStreamFormat.
 
-
-
 ### Advanced APIs
 
-Interface `IPublisherConfig`
+The following are exported for their types and use with code completion but with most uses of the library
+the consumer rarely needs to instantiate or use them directly.
 
-Represents the configuration for an EPCP publisher client, not limited to
-Grip clients.
-
-| Field | Description |
+| Class | Description |
 | --- | --- |
-| `control_uri` | The URI of the client. |
-| `control_iss` | (optional) The ISS, if required by the client. |
-| `key` | (optional) The key to use with the ISS, if required by the client. |
+| `Auth.Base` | Base class for authentication to be used with `Publisher`. |
+| `Auth.Basic` | Represents Basic authentication to be used with `Publisher`. |
+| `Auth.Jwt` | Represents JWT authentication to be used with `Publisher`. |
+| `Channel` | Represents a channel used by a Grip proxy. |
+| `Response` | Represents a set of HTTP response data. |
+| `PublisherClient` | Represents an endpoint and its attributes, including authentication, used with `Publisher`. |
+
+| Interfaces | Description |
+| --- | --- |
+| `IExportedChannel` | A representation of a channel, containing the name and previous ID value|
+| `IExportedResponse` | A representation of all of the non-null data from a Response |
+| `IWebSocketEvent` | Decscribes information about a WebSocket event |
+| `IFormatExport` | Represents a format-specific hash containing the required format-specific data|
+| `IItemExport` | Describes an item that has been serialized for export |
+
+Class `Auth.Base`
+
+An abstract class that represents authentication to be used with a `PublisherClient`.
+
+Class `Auth.Basic`
+
+Represents Basic authentication to be used with a `PublisherClient`.
+
+Class `Auth.Jwt`
+
+Represents JWT (JSON Web Tokens) authentication to be used with a `PublisherClient`.
 
 Class `PublisherClient`
 
@@ -354,18 +374,6 @@ directly.
 | `setAuthBasic(username, password)` | Configure this instance with Basic authentication with the specified username and password. |
 | `setAuthJwt(token)`<br />`setAuthJwt(claim, key?)` | Configure this instance with Jwt authentication with the specified claim and key, or with the specified token. |
 | `async publish(channel, item)` | Publish a specified item to the specified channel. |  
-
-Class `Auth.Base`
-
-An abstract class that represents authentication to be used with a `PublisherClient`.
-
-Class `Auth.Basic`
-
-Represents Basic authentication to be used with a `PublisherClient`.
-
-Class `Auth.Jwt`
-
-Represents JWT (JSON Web Tokens) authentication to be used with a `PublisherClient`.
 
 ## Configuring the GRIP endpoint
 
@@ -397,6 +405,8 @@ import grip from '@fanoutio/grip';
 const pub = new grip.Publisher({control_uri: "<endpoint_uri>"});
 ```
 
+### TypeScript
+
 This package comes with full TypeScript type definitions, so you may use it with
 TypeScript as well.
 
@@ -408,7 +418,6 @@ const pub = new grip.Publisher({control_uri: "<endpoint_uri>"});
 ```
 
 ### Demos
-
 
 Included in this package is a demo that publishes a message using a Grip Stream
 to a sample server that is proxied behind the open-source Pushpin (https://pushpin.org/) server.
