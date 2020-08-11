@@ -26,7 +26,6 @@ export type { default as IFormatExport } from './data/IFormatExport';
 export type { default as IItem } from './data/IItem';
 export type { default as IItemExport } from './data/IItemExport';
 export type { default as IPublisherConfig } from './engine/IPublisherConfig';
-export type { default as IPublishCallback } from "./engine/IPublishCallback";
 
 // Utility Functions
 export {

@@ -283,7 +283,6 @@ the consumer rarely needs to instantiate or use them directly.
 | `IFormatExport` | Represents a format-specific hash containing the required format-specific data|
 | `IItemExport` | Describes an item that has been serialized for export |
 | `IPublisherConfig` | Represents an EPCP client's configuration |
-| `IPublisherCallback` | (May not be needed anymore) |
 
 Class `GripInstruct`
 
