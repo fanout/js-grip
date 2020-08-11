@@ -2,6 +2,7 @@ import { Buffer } from "buffer";
 import * as querystring from "querystring";
 import * as url from "url";
 
+import IGripConfig from "../engine/IGripConfig";
 import Channel from "../data/Channel";
 import { parseQueryString, } from "./http";
 import { isString, } from "./string";
@@ -19,7 +20,7 @@ export function parseChannels(inChannels: Channel | Channel[] | string | string[
 // authentication query parameters as well as any other required query string
 // parameters. The JWT 'key' query parameter can be provided as-is or in base64
 // encoded format.
-export function parseGripUri(uri: string) {
+export function parseGripUri(uri: string): IGripConfig {
     const parsedUri = url.parse(uri);
     let iss: string | null = null;
     let key: Buffer | string | null = null;
