@@ -1,5 +1,13 @@
 # GRIP Interface Library for JavaScript
 
+A GRIP interface library for NodeJS.  For use with HTTP reverse proxy servers
+that support the GRIP interface, such as Pushpin.
+
+Supported GRIP servers include:
+
+* [Pushpin](http://pushpin.org/)
+* [Fanout Cloud](https://fanout.io/cloud/)
+
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
 ## [Planned for 3.0.0]
@@ -9,11 +17,6 @@ Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io
 - Reorganized utility functions into categorized files.
 - Rewritten in TypeScript and exporting types files to enable static type checking and
   IDE completion. 
-
-## Description
-
-A GRIP interface library for NodeJS.  For use with HTTP reverse proxy servers
-that support the GRIP interface, such as Pushpin.
 
 ## Installation
 
@@ -248,8 +251,8 @@ The API exports the following functions, classes, and interfaces.
 
 | Class | Description |
 | --- | --- |
-| `GripInstruct` | Class used to create the necessary HTTP headers that instruct the Grip proxy to hold connections. |
-| `Publisher` | Main object used to publish HTTP response and HTTP Stream format messages to Grip proxies. |
+| `GripInstruct` | Class used to create the necessary HTTP headers that instruct the GRIP proxy to hold connections. |
+| `Publisher` | Main object used to publish HTTP response and HTTP Stream format messages to GRIP proxies. |
 | `HttpStreamFormat` | Format used to publish messages to HTTP stream clients connected to a GRIP proxy. |
 | `HttpResponseFormat` | Format used to publish messages to HTTP response clients connected to a GRIP proxy. |
 | `WebSocketContext` | WebSocket context |
@@ -260,7 +263,7 @@ The API exports the following functions, classes, and interfaces.
 
 | Interfaces | Description |
 | --- | --- |
-| `IGripConfig` | Represents a Grip client's configuration |
+| `IGripConfig` | Represents a GRIP client's configuration |
 | `IFormat` | Represents a publishing format to be used with Publisher |
 | `IItem` | Represents a container used to contain a data object in one or more formats |
 
@@ -272,7 +275,7 @@ the consumer rarely needs to instantiate or use them directly.
 | `Auth.Basic` | Represents Basic authentication to be used with `Publisher`. |
 | `Auth.Jwt` | Represents JWT authentication to be used with `Publisher`. |
 | `Auth.Base` | Base class for authentication to be used with `Publisher`. |
-| `Channel` | Represents a channel used by a Grip proxy. |
+| `Channel` | Represents a channel used by a GRIP proxy. |
 | `Response` | Represents a set of HTTP response data. |
 | `PublisherClient` | Represents an endpoint and its attributes, including authentication, used with `Publisher`. |
 
@@ -302,14 +305,14 @@ Class `Publisher`
 | Method | Description |
 | --- | --- |
 | constructor(`configs`) | Create a `Publisher` instance, configuring it with clients that based on the specified GRIP settings. |
-| `applyConfig(configs)` | Apply additional clients based on specified Grip configs to the publisher instance. |
+| `applyConfig(configs)` | Apply additional clients based on specified GRIP configs to the publisher instance. |
 | `removeAllClients()` | Remove all clients from this publisher instance. |
 | `async publish(channel, item)` | Publish an item to the specified channel. |
 | `async publishHttpResponse(channel, data, id?, prevId?)` | Publish an HTTP response format message to the specified channel, with optional ID and previous ID. |
 | `async publishHttpStream(channel, item)` | Publish an HTTP stream format message to the specified channel, with optional ID and previous ID. |
 | `addClient(client)` | Advanced: Add a PublisherClient instance that you have configured on your own. |
 
-The constructor and `applyConfig` methods accept either a single object or an array of objects that implement
+The constructor and `applyConfig` methods accept either a single object, or an array of objects that implement
 the `IGripConfig` interface.
 
 Interface `IGripConfig`
@@ -318,9 +321,9 @@ Represents the configuration for a GRIP client, such as Pushpin or Fanout Cloud.
 
 | Field | Description |
 | --- | --- |
-| `control_uri` | The Control URI of the Grip client. |
-| `control_iss` | (optional) The Control ISS, if required by the Grip client. |
-| `key` | (optional) The key to use with the Control ISS, if required by the Grip client. |
+| `control_uri` | The Control URI of the GRIP client. |
+| `control_iss` | (optional) The Control ISS, if required by the GRIP client. |
+| `key` | (optional) The key to use with the Control ISS, if required by the GRIP client. |
 
 Class `Format`
 
@@ -337,7 +340,7 @@ the consumer rarely needs to instantiate or use them directly.
 | `Auth.Base` | Base class for authentication to be used with `Publisher`. |
 | `Auth.Basic` | Represents Basic authentication to be used with `Publisher`. |
 | `Auth.Jwt` | Represents JWT authentication to be used with `Publisher`. |
-| `Channel` | Represents a channel used by a Grip proxy. |
+| `Channel` | Represents a channel used by a GRIP proxy. |
 | `Response` | Represents a set of HTTP response data. |
 | `PublisherClient` | Represents an endpoint and its attributes, including authentication, used with `Publisher`. |
 
@@ -419,7 +422,7 @@ const pub = new grip.Publisher({control_uri: "<endpoint_uri>"});
 
 ### Demos
 
-Included in this package is a demo that publishes a message using a Grip Stream
+Included in this package is a demo that publishes a message using a GRIP Stream
 to a sample server that is proxied behind the open-source Pushpin (https://pushpin.org/) server.
 
 To run the demo:

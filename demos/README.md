@@ -1,4 +1,4 @@
-# Grip demos
+# GRIP demos
 
 This directory contains some samples and demos of how of
 
