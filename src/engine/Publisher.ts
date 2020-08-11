@@ -3,20 +3,17 @@ import IFormat from '../data/IFormat';
 import HttpStreamFormat from '../data/http/HttpStreamFormat';
 import HttpResponseFormat from '../data/http/HttpResponseFormat';
 import IGripConfig from "./IGripConfig";
-import IPublisherConfig from "./IPublisherConfig";
-import { gripConfigToPublisherConfig, isGripConfig } from "./configUtilities";
 import PublisherClient from "./PublisherClient";
 import IItem from "../data/IItem";
 import PrefixedPublisher from "../utilities/PrefixedPublisher";
 
 // The Publisher class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Publisher can be configured
-// using either IGripConfig or IPublisherConfig objects, meaning that they can
-// provide either a pair of control_uri and control_iss, or a pair of uri and iss.
+// using IGripConfig objects.
 export default class Publisher {
     public clients: PublisherClient[] = [];
 
-    constructor(config: IGripConfig | IPublisherConfig | (IGripConfig | IPublisherConfig)[] = []) {
+    constructor(config: IGripConfig | IGripConfig[] = []) {
         this.applyConfig(config);
     }
 
@@ -25,13 +22,11 @@ export default class Publisher {
     // each object corresponds to a single PublisherClient instance. Each object
     // will be parsed and a PublisherClient will be created either using just
     // a URI or a URI and JWT authentication information.
-    applyConfig(config: IGripConfig | IPublisherConfig | (IGripConfig | IPublisherConfig)[]) {
+    applyConfig(config: IGripConfig | IGripConfig[]) {
 
         const configsAsArray = Array.isArray(config) ? config : [ config ];
         for (const entry of configsAsArray) {
-            const publisherConfig = isGripConfig(entry) ? gripConfigToPublisherConfig(entry) : entry;
-
-            const { uri, iss, key } = publisherConfig;
+            const { control_uri: uri, control_iss: iss, key, } = entry;
             const client = new PublisherClient(uri);
             if (iss != null) {
                 client.setAuthJwt({ iss }, key);

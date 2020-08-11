@@ -25,10 +25,6 @@ describe('Publisher', function () {
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 1);
         });
-        it('test case', function () {
-            const pc = new Publisher({ uri: "uri", iss: "iss", key: "key==" });
-            assert.equal(pc.clients.length, 1);
-        });
         it('allows for creation of Publisher object based on multiple inputs', function () {
             const pubControl = new Publisher([
                 {
@@ -88,29 +84,6 @@ describe('Publisher', function () {
             assert.equal(pc.clients[2].auth.claim['iss'], 'iss3');
             assert.equal(pc.clients[2].auth.key, 'key==3');
         });
-        it('test case', function () {
-            const pubControl = new Publisher();
-            const pc = pubControl as any;
-            pubControl.applyConfig({ uri: "uri", iss: "iss", key: "key==" });
-            assert.equal(pc.clients.length, 1);
-            assert.equal(pc.clients[0].uri, "uri");
-            assert.equal(pc.clients[0].auth.claim["iss"], "iss");
-            assert.equal(pc.clients[0].auth.key, "key==");
-            pubControl.applyConfig([
-                { uri: "uri2", iss: "iss2", key: "key==2" },
-                { uri: "uri3", iss: "iss3", key: "key==3" }
-            ]);
-            assert.equal(pc.clients.length, 3);
-            assert.equal(pc.clients[0].uri, "uri");
-            assert.equal(pc.clients[0].auth.claim["iss"], "iss");
-            assert.equal(pc.clients[0].auth.key, "key==");
-            assert.equal(pc.clients[1].uri, "uri2");
-            assert.equal(pc.clients[1].auth.claim["iss"], "iss2");
-            assert.equal(pc.clients[1].auth.key, "key==2");
-            assert.equal(pc.clients[2].uri, "uri3");
-            assert.equal(pc.clients[2].auth.claim["iss"], "iss3");
-            assert.equal(pc.clients[2].auth.key, "key==3");
-        });
     });
     describe('#addClients', function () {
         it('allows adding of a client', function () {
@@ -124,19 +97,13 @@ describe('Publisher', function () {
             pubControl.addClient(new PublisherClient('uri'));
             assert.equal(pc.clients.length, 2);
         });
-        it('test case', function () {
-            const pc = new Publisher({ uri: "uri", iss: "iss", key: "key==" });
-            assert.equal(pc.clients.length, 1);
-            pc.addClient(new PublisherClient("uri"));
-            assert.equal(pc.clients.length, 2);
-        });
     });
     describe('#applyConfig', function () {
-        it('allows for appending additional (non-grip) configs', function () {
+        it('allows for appending additional configs', function () {
             let pubControl = new Publisher();
             pubControl.applyConfig({
-                'uri': 'uri',
-                'iss': 'iss',
+                'control_uri': 'uri',
+                'control_iss': 'iss',
                 'key': 'key==',
             });
             const pc = pubControl as any;
@@ -146,13 +113,13 @@ describe('Publisher', function () {
             assert.equal(pc.clients[0].auth.key, 'key==');
             pubControl.applyConfig([
                 {
-                    'uri': 'uri2',
-                    'iss': 'iss2',
+                    'control_uri': 'uri2',
+                    'control_iss': 'iss2',
                     'key': 'key==2',
                 },
                 {
-                    'uri': 'uri3',
-                    'iss': 'iss3',
+                    'control_uri': 'uri3',
+                    'control_iss': 'iss3',
                     'key': 'key==3',
                 },
             ]);
