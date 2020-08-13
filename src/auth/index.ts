@@ -7,9 +7,3 @@ export {
     Basic,
     Jwt,
 };
-
-export default {
-    Base,
-    Basic,
-    Jwt,
-};

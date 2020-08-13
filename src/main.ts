@@ -3,7 +3,7 @@
 // Classes
 export { default as Publisher } from './engine/Publisher';
 export { default as GripInstruct } from './data/GripInstruct';
-export { default as Auth } from './auth/index';
+export * as Auth from './auth/index';
 export { default as Format } from './data/Format';
 export { default as Item } from './data/Item';
 export { default as PublisherClient } from './engine/PublisherClient';
