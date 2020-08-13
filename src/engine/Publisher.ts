@@ -5,6 +5,7 @@ import HttpResponseFormat from '../data/http/HttpResponseFormat';
 import IGripConfig from "./IGripConfig";
 import PublisherClient from "./PublisherClient";
 import IItem from "../data/IItem";
+import { parseGripUri } from "../utilities/grip";
 
 // The Publisher class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Publisher can be configured
@@ -12,7 +13,7 @@ import IItem from "../data/IItem";
 export default class Publisher {
     public clients: PublisherClient[] = [];
 
-    constructor(config: IGripConfig | IGripConfig[] = []) {
+    constructor(config: string | IGripConfig | IGripConfig[] = []) {
         this.applyConfig(config);
     }
 
@@ -21,11 +22,12 @@ export default class Publisher {
     // each object corresponds to a single PublisherClient instance. Each object
     // will be parsed and a PublisherClient will be created either using just
     // a URI or a URI and JWT authentication information.
-    applyConfig(config: IGripConfig | IGripConfig[]) {
+    applyConfig(config: string | IGripConfig | IGripConfig[]) {
 
         const configsAsArray = Array.isArray(config) ? config : [ config ];
         for (const entry of configsAsArray) {
-            const { control_uri: uri, control_iss: iss, key, } = entry;
+            const entryAsConfig = typeof entry === 'string' ? parseGripUri(entry) : entry;
+            const { control_uri: uri, control_iss: iss, key, } = entryAsConfig;
             const client = new PublisherClient(uri);
             if (iss != null) {
                 client.setAuthJwt({ iss }, key);
