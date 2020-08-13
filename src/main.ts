@@ -14,7 +14,6 @@ export { default as HttpResponseFormat } from './data/http/HttpResponseFormat';
 export { default as WebSocketContext } from './data/websocket/WebSocketContext';
 export { default as WebSocketEvent } from './data/websocket/WebSocketEvent';
 export { default as WebSocketMessageFormat } from './data/websocket/WebSocketMessageFormat';
-export { default as PrefixedPublisher } from './utilities/PrefixedPublisher';
 
 // Interfaces
 export type { default as IGripConfig } from './engine/IGripConfig';

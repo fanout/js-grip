@@ -5,7 +5,6 @@ import HttpResponseFormat from '../data/http/HttpResponseFormat';
 import IGripConfig from "./IGripConfig";
 import PublisherClient from "./PublisherClient";
 import IItem from "../data/IItem";
-import PrefixedPublisher from "../utilities/PrefixedPublisher";
 
 // The Publisher class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Publisher can be configured
@@ -40,10 +39,6 @@ export default class Publisher {
     // Add the specified PublisherClient instance.
     addClient(client: PublisherClient) {
         this.clients.push(client);
-    }
-
-    buildPrefixedPublisher(prefix: string) {
-        return new PrefixedPublisher(this, prefix);
     }
 
     // The publish method for publishing the specified item to the specified
