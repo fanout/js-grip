@@ -1,20 +1,6 @@
 // DEMO - Publishes test message to local Pushpin.
 // See README.md for directions on running this demo.
-const { Publisher, Item, Format } = require('../../..');
-
-// Define a data format.
-class HttpStreamFormat extends Format {
-    constructor(message) {
-        super();
-        this.message = message;
-    }
-    name() {
-        return 'http-stream';
-    }
-    export() {
-        return { content: this.message + '\n', };
-    }
-}
+const { Publisher } = require('@fanoutio/grip');
 
 const uri = "http://localhost:5561/";
 
@@ -30,14 +16,12 @@ console.log( 'Channel', channel );
 console.log( 'Message', message );
 
 // Instantiate PubControl publisher.
-const config = {
-    uri,
-};
-const pub = new Publisher(config);
+const pub = new Publisher({
+    control_uri: uri,
+});
 
 // Publish across all configured endpoints.
-const item = new Item(new HttpStreamFormat(message));
-pub.publish(channel, item)
+pub.publishHttpStream(channel, message + '\n')
     .then(() => {
         console.log('Publish successful!');
     })

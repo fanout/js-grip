@@ -1,6 +1,4 @@
-import PubControl from "pubcontrol";
-const { Item, Format, } = PubControl;
-import { inherits } from "util";
+import { Publisher } from "@fanoutio/grip";
 
 const defaultOpts = {
     uri: "http://api.webhookinbox.com/i/K1BiRnDW/in/",
@@ -10,20 +8,22 @@ const defaultOpts = {
 };
 
 export const testPubcontrol = async (opts = {}) => {
-    console.log("testPubcontrol", opts);
-    return await testFromReadme({
+    const o = {
         ...defaultOpts,
         ...opts
-    });
+    };
+    console.log("testPubcontrol", o);
+    return await testFromReadme(o);
 };
 
 async function testFromReadme({ uri, iss, key, defaultChannel }) {
-    // const pub = new PubControl({
-    //   'uri': 'https://api.fanout.io/realm/<myrealm>',
-    //   'iss': '<myrealm>',
+    // const pub = new Publisher({
+    //   'control_uri': 'https://api.fanout.io/realm/<myrealm>',
+    //   'control_iss': '<myrealm>',
     //   'key': Buffer.from('<myrealmkey', 'base64')
     // });
-    const pub = new PubControl({ uri, iss, key });
+    key = key != null ? Buffer.from(key, 'base64') : key;
+    const pub = new Publisher({ control_uri: uri, control_iss: iss, key });
     // var pubclient = new PubControlClient('<myendpoint_uri>');
     // // Optionally set JWT auth: pubclient.setAuthJwt(<claim>, '<key>');
     // // Optionally set basic auth: pubclient.setAuthBasic('<user>', '<password>');
@@ -31,10 +31,7 @@ async function testFromReadme({ uri, iss, key, defaultChannel }) {
 
     // Publish across all configured endpoints:
     try {
-        await pub.publish(
-            defaultChannel,
-            new Item(new HttpResponseFormat("Test Publish!"))
-        );
+        await pub.publishHttpResponse(defaultChannel, "Test Publish!\n");
         console.log("Publish successful!");
         return {
             message: "Publish successful!",
@@ -49,19 +46,3 @@ async function testFromReadme({ uri, iss, key, defaultChannel }) {
         throw error;
     }
 }
-
-const HttpResponseFormat = (() => {
-    const HttpResponseFormatConstructor = function(body) {
-        this.body = body;
-    };
-    inherits(HttpResponseFormatConstructor, Format);
-    Object.assign(HttpResponseFormatConstructor.prototype, {
-        name: function() {
-            return "http-response";
-        },
-        export: function() {
-            return { body: this.body };
-        }
-    });
-    return HttpResponseFormatConstructor;
-})();

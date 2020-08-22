@@ -3,7 +3,7 @@
  * This is meant to execute in a browser (it uses `window`)
  */
 
-import PubControl from "pubcontrol";
+import { Publisher } from "@fanoutio/grip";
 
 main().then(() => {
   console.log('browser-demo started.');
@@ -34,7 +34,7 @@ function render({ document }) {
     el.innerHTML = `
     <div>
       <h2>pubcontrol default export</h2>
-      <pre>${JSON.stringify(objectSchema(PubControl), null, 2)}</pre>
+      <pre>${JSON.stringify(objectSchema(Publisher), null, 2)}</pre>
     </div>
     `;
   });
@@ -96,6 +96,15 @@ function bootWebWorker({ Worker }) {
     uri: url.searchParams.get("epcp.uri"),
     defaultChannel: url.searchParams.get("epcp.defaultChannel")
   };
+  const iss = url.searchParams.get("epcp.iss");
+  if (iss != null) {
+    epcp.iss = iss;
+  }
+  const key = url.searchParams.get("epcp.key");
+  if (key != null) {
+    epcp.key = key;
+  }
+
   if (![epcp.uri, epcp.defaultChannel].every(Boolean)) {
     console.warn(
       "Missing one of ?epcp.uri or ?epcp.defaultChannel query params."

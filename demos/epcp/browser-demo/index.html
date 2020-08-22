@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="../../../browser/grip.js"></script>
+    <script src="node_modules/@fanoutio/grip/browser/grip.js"></script>
     <style>
         .label {
             display: inline-block;
@@ -80,29 +80,7 @@
 
 <script>
     (function() {
-        const { Publisher, Format, Item, Buffer } = Grip;
-
-        // Define a data format.
-        class HttpStreamFormat extends Format {
-            message;
-            constructor(message) {
-                super();
-                this.message = message;
-            }
-            name() {
-                return 'http-stream';
-            }
-            export() {
-                const data = {
-                    event: 'message',
-                    data: this.message,
-                };
-                const content = Object.entries(data)
-                    .map(([key, value]) => `${key}: ${value.replace('\n', '\\n')}`)
-                    .join('\n') + '\n\n';
-                return { content, };
-            }
-        }
+        const { Publisher, Buffer } = Grip;
 
         const form = document.getElementById('pubcontrol-form');
         form.addEventListener('submit', e => {
@@ -116,21 +94,20 @@
             const key = form.elements.key.value;
 
             const config = {
-                uri,
+                control_uri: uri,
             };
             if (iss !== '') {
-                config.iss = iss;
+                config.control_iss = iss;
             }
             if (key !== '') {
-                config.key = Buffer.from( key, 'base64' );;
+                config.key = Buffer.from( key, 'base64' );
             }
 
             // Instantiate PubControl publisher.
             const pub = new Publisher(config);
 
             // Publish across all configured endpoints.
-            const item = new Item(new HttpStreamFormat(message));
-            pub.publish(channel, item)
+            pub.publishHttpStream(channel, message + '\n')
                 .then(() => {
                     writeLine('Publish successful!');
                 })

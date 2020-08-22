@@ -3,8 +3,7 @@ default: dist
 
 SRCS = $(wildcard ./src/*.js)
 
-node_modules: package.json ../../package.json
-	(cd ../../ && npm i)
+node_modules: package.json
 	npm install
 	touch $@
 

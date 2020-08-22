@@ -1,26 +1,5 @@
-const Grip = require('../../..');
-const { Publisher, Item, Format, } = Grip;
-
-// Define a data format.
-class HttpStreamFormat extends Format {
-    constructor(message) {
-        super();
-        this.message = message;
-    }
-    name() {
-        return 'http-stream';
-    }
-    export() {
-        const data = {
-            event: 'message',
-            data: this.message,
-        };
-        const content = Object.entries(data)
-            .map(([key, value]) => `${key}: ${value.replace('\n', '\\n')}`)
-            .join('\n') + '\n\n';
-        return { content, };
-    }
-}
+const Grip = require('@fanoutio/grip');
+const { Publisher } = Grip;
 
 const [
     ,
@@ -39,10 +18,10 @@ console.log( 'Claim ISS (realm id)', iss );
 console.log( 'Claim Key (realm key)', key );
 
 const config = {
-    uri,
+    control_uri: uri,
 };
 if (iss != null && iss !== '') {
-    config.iss = iss;
+    config.control_iss = iss;
 }
 if (key != null && key !== '') {
     config.key = Buffer.from(key, 'base64');
@@ -52,8 +31,7 @@ if (key != null && key !== '') {
 const pub = new Publisher(config);
 
 // Publish across all configured endpoints.
-const item = new Item(new HttpStreamFormat(message));
-pub.publish(channel, item)
+pub.publishHttpStream(channel, message + '\n')
     .then(() => {
         console.log('Publish successful!');
     })

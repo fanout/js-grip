@@ -6,7 +6,7 @@ const sourceDir = path.join(projectRoot, "./src");
 // Since pubcontrol is defined in package.json as a symlink to parent directory
 // we must specifically exclude it from babel-loader by testing input files against
 // the directory it's in.
-const pubcontrolpath = path.dirname(require.resolve('pubcontrol'));
+const pubcontrolpath = path.dirname(require.resolve('@fanoutio/grip'));
 
 /**
  * webpack config for main browser-demo entrypoint, which doesn't do much but load the web worker.

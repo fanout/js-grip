@@ -1,0 +1,38 @@
+{
+  "name": "grip-browser-webworkers-demo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "sideEffects": false,
+  "dependencies": {
+    "acorn": "^6.4.1",
+    "core-js": "^3.4.8",
+    "@fanoutio/grip": "file:../../../",
+    "regenerator-runtime": "^0.13.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.7.6",
+    "babel-loader": "^8.0.6",
+    "buffer": "^5.4.3",
+    "copy-webpack-plugin": "^4.6.0",
+    "http-server": "^0.12.3",
+    "webpack": "^4.43.0",
+    "webpack-bundle-analyzer": "^3.7.0",
+    "webpack-cli": "^3.1.2"
+  },
+  "scripts": {
+    "build": "npm run build:webpack",
+    "build:webpack": "webpack --config etc/browser-demo.webpack.js",
+    "build:webpack:stats": "webpack --config etc/browser-demo.webpack.js --profile --json > dist/stats.json",
+    "build:webpack:watch": "webpack --config etc/browser-demo.webpack.js --watch",
+    "build:webpack:analyze": "webpack-bundle-analyzer dist/stats.json -m server",
+    "build:webpack:analyze-size": "webpack --config etc/browser-demo.webpack.js --profile --json | webpack-bundle-size-analyzer",
+    "dev": "npm run http-server",
+    "http-server": "http-server dist -p 8091",
+    "make:dist": "npm run build:webpack && cp src/index.html dist/index.html",
+    "watch": "concurrently 'npm:build:webpack:watch' 'npm:http-server'",
+    "workers-preview": "workers-preview < dist/pubcontrol-browser-demo.webworker.js"
+  }
+}
