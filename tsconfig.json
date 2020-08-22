@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "build",
-    "module": "esnext",
+    "module": "commonjs",
     "target": "es5",
     "lib": ["es5", "es2015", "dom"],
     "sourceMap": true,
@@ -16,11 +15,15 @@
     "suppressImplicitAnyIndexErrors": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strict": true
   },
   "include": [
-    "./src/**/*",
-    "./tests/**/*",
-    "./types/**/*"
+    "src",
+    "types"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/__tests__/*"
   ]
 }

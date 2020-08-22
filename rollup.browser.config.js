@@ -21,14 +21,7 @@ export default {
                 'crypto.createHmac': "require('create-hmac')",
             },
         }),
-        commonjs({
-            namedExports: {
-                // left-hand side can be an absolute path, a path
-                // relative to the current directory, or the name
-                // of a module in node_modules
-                'jwt-simple': ['encode', 'decode'],
-            }
-        }),
+        commonjs(),
         nodeGlobals(),
         nodeBuiltins(),
         nodeResolve({
@@ -36,8 +29,10 @@ export default {
         }),
         json(),
         typescript({
+            module: "es2015",
+            moduleResolution: "node",
+            sourceMap: false,
             declaration: false,
-            esModuleInterop: false,
         }),
     ],
 };
