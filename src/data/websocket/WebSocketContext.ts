@@ -157,7 +157,7 @@ export default class WebSocketContext {
 		// Find all items in wsContext.meta whose keys and values don't match
 		// any in wsContext.origMeta
 		const metaToSet = Object.entries(this.meta)
-			.reduce((acc, [nk, nv]) => {
+			.reduce((acc: { [name: string]: string }, [nk, nv]) => {
 				const lname = nk.toLowerCase();
 				if (Object.entries(this.origMeta)
 					.every(([k, v]) => lname !== k || nv !== v)
@@ -167,7 +167,7 @@ export default class WebSocketContext {
 				return acc;
 			}, {});
 
-		const headers = {
+		const headers: { [name: string]: string } = {
 			'Content-Type': 'application/websocket-events',
 		};
 

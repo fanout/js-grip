@@ -45,11 +45,11 @@ export function parseQueryString(query: string): { [key:string]: string } {
     const paramsObj = querystring.parse(query);
 
     // Flatten parsed query string
-    const params = {};
+    const params: { [key:string]: string } = {};
     for (const [key, val] of Object.entries(paramsObj)) {
         if (Array.isArray(val)) {
             params[key] = val[0];
-        } else {
+        } else if (val != null) {
             params[key] = val;
         }
     }

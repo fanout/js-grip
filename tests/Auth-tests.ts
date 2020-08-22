@@ -1,7 +1,7 @@
 import assert from "assert";
 import jwt from "jwt-simple";
 
-import auth from '../src/auth/index';
+import * as auth from '../src/auth/index';
 
 describe('auth', function () {
     describe('Basic', function () {

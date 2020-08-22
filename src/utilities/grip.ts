@@ -46,11 +46,11 @@ export function parseGripUri(uri: string): IGripConfig {
     if (qs != null && qs !== '') {
         controlUri = controlUri + '?' + qs;
     }
-    const out = {'control_uri': controlUri};
-    if (iss) {
+    const out: IGripConfig = {'control_uri': controlUri};
+    if (iss != null) {
         out['control_iss'] = iss;
     }
-    if (key) {
+    if (key != null) {
         out['key'] = key;
     }
     return out;

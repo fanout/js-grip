@@ -1,5 +1,4 @@
 import assert from 'assert';
-import 'mocha';
 
 import Channel from '../src/data/Channel';
 import GripInstruct from "../src/data/GripInstruct";
@@ -49,10 +48,13 @@ describe('GripInstruct', function () {
             assert(channels.length === 0);
             gripInstruct.addChannel('foo');
             assert(Array.isArray(channels));
+            // suppressing TS2367: This condition will always return 'false' since the types '0' and '1' have no overlap.
+            // @ts-ignore
             assert(channels.length === 1);
             assert(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');
             gripInstruct.addChannel(['bar', 'baz']);
+            // @ts-ignore
             assert(channels.length === 3);
             assert(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');
@@ -61,6 +63,7 @@ describe('GripInstruct', function () {
             assert(channels[2] instanceof Channel);
             assert.equal(channels[2].name, 'baz');
             gripInstruct.addChannel(new Channel('hoge'));
+            // @ts-ignore
             assert(channels.length === 4);
             assert(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');

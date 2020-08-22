@@ -1,10 +1,11 @@
 import { Buffer } from 'buffer';
 import IFormat from '../IFormat';
+import IFormatExport from "../IFormatExport";
 
 // The HttpStreamFormat class is the format used to publish messages to
 // HTTP stream clients connected to a GRIP proxy.
 export default class HttpStreamFormat implements IFormat {
-    content: string | Buffer;
+    content: string | Buffer | null;
     close: boolean;
 
     constructor(content: string | Buffer | null = null, close = false) {
@@ -14,9 +15,7 @@ export default class HttpStreamFormat implements IFormat {
         if (content == null && !close) {
             throw new Error('HttpStreamFormat requires content.');
         }
-        if (content != null) {
-            this.content = content;
-        }
+        this.content = content;
         this.close = close;
     }
 
@@ -27,14 +26,14 @@ export default class HttpStreamFormat implements IFormat {
     // message content is binary or not, or whether the connection should
     // be closed.
     export() {
-        const obj = {};
-        if(this.close) {
+        const obj: IFormatExport = {};
+        if (this.close) {
             obj['action'] = 'close';
             obj['content'] = '';
         } else {
-            if(Buffer.isBuffer(this.content)) {
+            if (Buffer.isBuffer(this.content)) {
                 obj['content-bin'] = this.content.toString('base64');
-            } else {
+            } else if (this.content != null) {
                 obj['content'] = this.content.toString();
             }
         }
