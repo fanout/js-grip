@@ -1,4 +1,4 @@
-import IFormatExport from "./IFormatExport";
+import IFormatExport from './IFormatExport';
 
 export default interface IFormat {
     name(): string;

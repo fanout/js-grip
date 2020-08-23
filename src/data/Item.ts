@@ -1,6 +1,6 @@
-import IFormat from "./IFormat";
-import IItem from "./IItem";
-import IItemExport from "./IItemExport";
+import IFormat from './IFormat';
+import IItem from './IItem';
+import IItemExport from './IItemExport';
 
 // The Item class is a container used to contain one or more format
 // implementation instances where each implementation instance is of a
@@ -13,11 +13,7 @@ export default class Item implements IItem {
     public id?: string;
     public prevId?: string;
 
-    constructor(
-        formats: IFormat | IFormat[],
-        id?: string,
-        prevId?: string
-    ) {
+    constructor(formats: IFormat | IFormat[], id?: string, prevId?: string) {
         // The initialize method can accept either a single Format implementation
         // instance or an array of Format implementation instances. Optionally
         // specify an ID and/or previous ID to be sent as part of the message
@@ -51,9 +47,7 @@ export default class Item implements IItem {
         for (const format of this.formats) {
             const name = format.name();
             if (alreadyUsedFormatNames.has(name)) {
-                throw new Error(
-                    "More than one instance of " + name + " specified"
-                );
+                throw new Error(`More than one instance of ${name} specified`);
             }
             alreadyUsedFormatNames.add(name);
             obj[name] = format.export();

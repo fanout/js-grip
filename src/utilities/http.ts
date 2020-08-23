@@ -1,5 +1,5 @@
-import * as querystring from "querystring";
-import { encodeCString, escapeQuotes, isString, } from "./string";
+import * as querystring from 'querystring';
+import { encodeCString, escapeQuotes, isString } from './string';
 
 export function createKeepAliveHeader(data: string | Buffer, timeout: number) {
     let output = null;
@@ -7,7 +7,7 @@ export function createKeepAliveHeader(data: string | Buffer, timeout: number) {
     if (isString(data)) {
         try {
             output = encodeCString(data) + '; format=cstring';
-        } catch(ex) {
+        } catch (ex) {
             output = null;
         }
     }
@@ -38,14 +38,14 @@ export function createNextLinkHeader(uri: string, timeout: number = 0) {
     return output;
 }
 
-export function parseQueryString(query: string): { [key:string]: string } {
+export function parseQueryString(query: string): { [key: string]: string } {
     // Input is expected to be URL-encoded. This means that spaces should be
     // represented as '+', and characters not safe for URLs (especially '+')
     // need to be represented with %XX encoding.
     const paramsObj = querystring.parse(query);
 
     // Flatten parsed query string
-    const params: { [key:string]: string } = {};
+    const params: { [key: string]: string } = {};
     for (const [key, val] of Object.entries(paramsObj)) {
         if (Array.isArray(val)) {
             params[key] = val[0];

@@ -5,9 +5,9 @@ import HttpAgent, { HttpsAgent } from 'agentkeepalive';
 import * as auth from '../auth/index';
 import PublishException from '../data/PublishException';
 
-import IAuth from "../auth/IAuth";
-import IItem from "../data/IItem";
-import IItemExport from "../data/IItemExport";
+import IAuth from '../auth/IAuth';
+import IItem from '../data/IItem';
+import IItemExport from '../data/IItemExport';
 
 interface IReqHeaders {
     [name: string]: string;
@@ -19,9 +19,9 @@ interface IReqParams {
     agent?: HttpAgent;
 }
 interface IContext {
-    statusCode: number,
-    headers?: object,
-    httpBody?: any,
+    statusCode: number;
+    headers?: object;
+    httpBody?: any;
 }
 interface FetchResponse {
     status: number;
@@ -42,7 +42,7 @@ export default class PublisherClient {
 
     constructor(uri: string) {
         // Initialize this class with a URL representing the publishing endpoint.
-        this.uri = uri.replace(/\/$/, "");
+        this.uri = uri.replace(/\/$/, '');
     }
 
     // Call this method and pass a username and password to use basic
@@ -76,30 +76,30 @@ export default class PublisherClient {
         const content = JSON.stringify({ items: items });
         // Build HTTP headers
         const headers: IReqHeaders = {
-            "Content-Type": "application/json",
-            "Content-Length": "" + Buffer.byteLength( content, "utf8"),
+            'Content-Type': 'application/json',
+            'Content-Length': String(Buffer.byteLength(content, 'utf8')),
         };
         if (authHeader != null) {
-            headers["Authorization"] = authHeader;
+            headers['Authorization'] = authHeader;
         }
         // Build HTTP request parameters
-        const publishUri = uri + "/publish/";
+        const publishUri = uri + '/publish/';
         const parsed = new URL(publishUri);
         const reqParams: IReqParams = {
-            method: "POST",
+            method: 'POST',
             headers: headers,
             body: content,
             agent: undefined,
         };
         switch (parsed.protocol) {
-            case "http:":
+            case 'http:':
                 reqParams.agent = this.httpKeepAliveAgent;
                 break;
-            case "https:":
+            case 'https:':
                 reqParams.agent = this.httpsKeepAliveAgent;
                 break;
             default:
-                await new Promise(resolve => setTimeout(resolve, 0));
+                await new Promise((resolve) => setTimeout(resolve, 0));
                 throw new PublishException('Bad URI', { statusCode: -2 });
         }
         await this._performHttpRequest(fetch, publishUri, reqParams);
@@ -112,7 +112,7 @@ export default class PublisherClient {
 
         try {
             res = await transport(uri, reqParams);
-        } catch(err) {
+        } catch (err) {
             throw new PublishException(err.message, { statusCode: -1 });
         }
 
@@ -123,10 +123,10 @@ export default class PublisherClient {
         let mode;
         let data;
         try {
-            mode = "end";
+            mode = 'end';
             data = await res.text();
-        } catch(err) {
-            mode = "close";
+        } catch (err) {
+            mode = 'close';
             data = err;
         }
         this._finishHttpRequest(mode, data, context);
@@ -136,12 +136,12 @@ export default class PublisherClient {
     // a message.
     _finishHttpRequest(mode: string, httpData: any, context: IContext) {
         context.httpBody = httpData;
-        if (mode === "end") {
+        if (mode === 'end') {
             if (context.statusCode < 200 || context.statusCode >= 300) {
                 throw new PublishException(JSON.stringify(context.httpBody), context);
             }
-        } else if (mode === "close") {
+        } else if (mode === 'close') {
             throw new PublishException('Connection closed unexpectedly', context);
         }
     }
-};
+}

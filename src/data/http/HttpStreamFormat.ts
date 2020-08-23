@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import IFormat from '../IFormat';
-import IFormatExport from "../IFormatExport";
+import IFormatExport from '../IFormatExport';
 
 // The HttpStreamFormat class is the format used to publish messages to
 // HTTP stream clients connected to a GRIP proxy.
@@ -20,7 +20,9 @@ export default class HttpStreamFormat implements IFormat {
     }
 
     // The name used when publishing this format.
-    name() { return 'http-stream'; }
+    name() {
+        return 'http-stream';
+    }
 
     // Exports the message in the required format depending on whether the
     // message content is binary or not, or whether the connection should

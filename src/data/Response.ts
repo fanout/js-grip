@@ -19,9 +19,9 @@ export default class Response {
         // is passed then treat it as a dictionary object containing all of
         // the data in the form of key/value pairs.
         if (args.length === 1) {
-            ({code = null, reason = null, headers = null, body = null,} = args[0]);
+            ({ code = null, reason = null, headers = null, body = null } = args[0]);
         } else {
-            [code = null, reason = null, headers = null, body = null,] = args;
+            [code = null, reason = null, headers = null, body = null] = args;
         }
         this.code = code;
         this.reason = reason;
@@ -44,7 +44,7 @@ export default class Response {
             obj.headers = this.headers;
         }
         if (this.body != null) {
-            if(Buffer.isBuffer(this.body)) {
+            if (Buffer.isBuffer(this.body)) {
                 obj['body-bin'] = this.body.toString('base64');
             } else {
                 obj['body'] = this.body.toString();

@@ -1,5 +1,5 @@
-import IFormat from "./IFormat";
-import IFormatExport from "./IFormatExport";
+import IFormat from './IFormat';
+import IFormatExport from './IFormatExport';
 
 // The Format class is provided as a base class for all publishing
 // formats that are included in the Item class. Examples of format

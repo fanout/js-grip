@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import IFormat from '../IFormat';
-import IFormatExport from "../IFormatExport";
+import IFormatExport from '../IFormatExport';
 
 // The WebSocketMessageFormat class is the format used to publish data to
 // WebSocket clients connected to GRIP proxies.
@@ -22,7 +22,9 @@ export default class WebSocketMessageFormat implements IFormat {
     }
 
     // The name used when publishing this format.
-    name() { return 'ws-message'; }
+    name() {
+        return 'ws-message';
+    }
 
     // Exports the message in the required format depending on whether the
     // message content is a buffer or not, or whether the connection should
@@ -31,7 +33,7 @@ export default class WebSocketMessageFormat implements IFormat {
         const obj: IFormatExport = {};
         if (this.close) {
             obj['action'] = 'close';
-            if(this.code != null) {
+            if (this.code != null) {
                 obj['code'] = this.code;
             }
         } else {

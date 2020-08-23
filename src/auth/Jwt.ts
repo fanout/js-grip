@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { encode } from 'jwt-simple';
 
-import Base from "./Base";
+import Base from './Base';
 
 // JWT authentication class used for building auth headers containing
 // JSON web token information in either the form of a claim and
@@ -24,7 +24,7 @@ export default class Jwt extends Base {
         } else {
             this.token = undefined;
             this.claim = args[0] as object;
-            this.key = args[1] instanceof Buffer ? args[1] : Buffer.from( String(args[1]), "utf8" );
+            this.key = args[1] instanceof Buffer ? args[1] : Buffer.from(String(args[1]), 'utf8');
         }
     }
 
@@ -35,14 +35,14 @@ export default class Jwt extends Base {
             token = this.token;
         } else {
             const claim =
-                this.claim != null && "exp" in this.claim ?
-                    this.claim :
-                    Object.assign({}, this.claim, {
-                        exp: Math.floor(new Date().getTime() / 1000) + 600
-                    });
+                this.claim != null && 'exp' in this.claim
+                    ? this.claim
+                    : Object.assign({}, this.claim, {
+                          exp: Math.floor(new Date().getTime() / 1000) + 600,
+                      });
             // @ts-ignore
             token = encode(claim, this.key);
         }
-        return "Bearer " + token;
+        return `Bearer ${token}`;
     }
 }

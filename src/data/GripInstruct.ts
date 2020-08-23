@@ -1,16 +1,8 @@
-import Channel from "./Channel";
-import {
-    createGripChannelHeader,
-    parseChannels,
-} from "../utilities/grip";
-import {
-    createKeepAliveHeader,
-    createMetaHeader,
-    createNextLinkHeader,
-} from "../utilities/http";
+import Channel from './Channel';
+import { createGripChannelHeader, parseChannels } from '../utilities/grip';
+import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader } from '../utilities/http';
 
 export default class GripInstruct {
-
     public status?: number;
     public hold?: string;
     public channels: Channel[] = [];

@@ -1,8 +1,8 @@
-import { Buffer } from "buffer";
+import { Buffer } from 'buffer';
 
-import IWebSocketEvent from "../data/websocket/IWebSocketEvent";
-import WebSocketEvent from "../data/websocket/WebSocketEvent";
-import { isString } from "./string";
+import IWebSocketEvent from '../data/websocket/IWebSocketEvent';
+import WebSocketEvent from '../data/websocket/WebSocketEvent';
+import { isString } from './string';
 
 // Encode the specified array of WebSocketEvent instances. The returned string
 // value should then be passed to a GRIP proxy in the body of an HTTP response
@@ -20,12 +20,17 @@ export function encodeWebSocketEvents(events: IWebSocketEvent[]) {
                     content = Buffer.from(content);
                 }
             }
-            out = Buffer.concat([out, Buffer.from(e.getType()), Buffer.from(' '),
+            out = Buffer.concat([
+                out,
+                Buffer.from(e.getType()),
+                Buffer.from(' '),
                 Buffer.from(content.length.toString(16)),
-                bufferNewLine, content, bufferNewLine]);
+                bufferNewLine,
+                content,
+                bufferNewLine,
+            ]);
         } else {
-            out = Buffer.concat([out, Buffer.from(e.getType()),
-                bufferNewLine]);
+            out = Buffer.concat([out, Buffer.from(e.getType()), bufferNewLine]);
         }
     }
     return out;
@@ -57,8 +62,7 @@ export function decodeWebSocketEvents(body: Buffer | string): IWebSocketEvent[] 
             const content = body.slice(start, start + clen);
             start = start + clen + 2;
             if (makeContentString) {
-                e = new WebSocketEvent(etype.toString(),
-                    content.toString());
+                e = new WebSocketEvent(etype.toString(), content.toString());
             } else {
                 e = new WebSocketEvent(etype.toString(), content);
             }

@@ -1,18 +1,18 @@
-import { Buffer } from "buffer";
-import * as querystring from "querystring";
-import * as url from "url";
+import { Buffer } from 'buffer';
+import * as querystring from 'querystring';
+import * as url from 'url';
 
-import IGripConfig from "../engine/IGripConfig";
-import Channel from "../data/Channel";
-import { parseQueryString, } from "./http";
-import { isString, } from "./string";
+import IGripConfig from '../engine/IGripConfig';
+import Channel from '../data/Channel';
+import { parseQueryString } from './http';
+import { isString } from './string';
 
 // An internal method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either
 // be a string, a Channel instance, or an array of Channel instances.
 export function parseChannels(inChannels: Channel | Channel[] | string | string[]) {
     const channels = !Array.isArray(inChannels) ? [inChannels] : inChannels;
-    return channels.map(channel => isString(channel) ? new Channel(channel) : channel);
+    return channels.map((channel) => (isString(channel) ? new Channel(channel) : channel));
 }
 
 // Parse the specified GRIP URI into a config object that can then be passed
@@ -46,7 +46,7 @@ export function parseGripUri(uri: string): IGripConfig {
     if (qs != null && qs !== '') {
         controlUri = controlUri + '?' + qs;
     }
-    const out: IGripConfig = {'control_uri': controlUri};
+    const out: IGripConfig = { control_uri: controlUri };
     if (iss != null) {
         out['control_iss'] = iss;
     }

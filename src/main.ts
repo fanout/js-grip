@@ -26,15 +26,10 @@ export type { default as IItem } from './data/IItem';
 export type { default as IItemExport } from './data/IItemExport';
 
 // Utility Functions
-export {
-    createGripChannelHeader,
-    parseGripUri,
-} from './utilities/grip';
+export { createGripChannelHeader, parseGripUri } from './utilities/grip';
 export {
     encodeWebSocketEvents,
     decodeWebSocketEvents,
     createWebSocketControlMessage,
 } from './utilities/webSocketEvents';
-export {
-    validateSig,
-} from './utilities/jwt';
+export { validateSig } from './utilities/jwt';
