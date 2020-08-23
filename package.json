@@ -23,8 +23,8 @@
   ],
   "types": "./build/main.d.ts",
   "scripts": {
-    "prepublishOnly": "npm run test && npm run lint && npm run build",
-    "build": "npm run build-commonjs && npm run build-esm && npm run build-browser",
+    "prepublishOnly": "npm run build",
+    "build": "npm run test && npm run lint && npm run build-commonjs && npm run build-esm && npm run build-browser",
     "build-commonjs": "npm run build-commonjs:clean && npm run build-commonjs:build",
     "build-commonjs:clean": "rimraf build",
     "build-commonjs:build": "tsc -d --outDir build",
