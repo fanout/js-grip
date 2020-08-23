@@ -38,7 +38,7 @@
     "build-browser:build-prod": "NODE_ENV=production webpack -p",
     "lint": "npm run lint:tslint",
     "lint:tslint": "tslint -p tsconfig.json",
-    "test": "jest --config jestconfig.json --verbose"
+    "test": "jest --config jestconfig.json --verbose --passWithNoTests"
   },
   "repository": {
     "type": "git",
