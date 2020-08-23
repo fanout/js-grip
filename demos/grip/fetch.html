@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pushpin Fetch Demo</title>
+</head>
+<body>
+
+    <h1>Pushpin Fetch Demo</h1>
+
+    <div>
+        <button id="button" type="button">Go</button>
+    </div>
+
+    <div>
+        <pre id="output" style="color: white; background: black;"></pre>
+    </div>
+
+    <script>
+        let reader = null;
+
+        const button = document.getElementById('button');
+        button.addEventListener('click', async () => {
+
+            if (reader == null) {
+                // We are not streaming yet.
+
+                // We disable the button while we start the fetch
+                button.disabled = true;
+
+                try {
+                    console.log("Fetching.");
+                    const res = await fetch('http://localhost:7999/stream');
+                    reader = res.body.getReader();
+                } catch(ex) {
+                    console.log("Fetch error.");
+                    reader = null;
+                } finally {
+                    button.disabled = false;
+                }
+
+                // If we failed at obtaining a reader then we bail out.
+                if (reader == null) {
+                    return;
+                }
+
+                // We are now streaming.
+                console.log("Streaming...");
+                button.innerText = 'Cancel';
+
+                // Use the ReadableStream interface to read from the
+                // response until the stream closes.
+                let total = 0;
+                while (true) {
+                    const { done, value } = await reader.read();
+
+                    if (done) {
+                        // Finished Streaming
+                        break;
+                    }
+
+                    total += value.length;
+                    console.log(total + " bytes so far...");
+
+                    document.getElementById('output').textContent +=
+                        new TextDecoder("utf-8").decode(value);
+                }
+
+                console.log("Finished Streaming.");
+                console.log("Read a total of " + total + " bytes.");
+
+                reader = null;
+                button.innerText = 'Go';
+
+            } else {
+
+                // If we are already streaming, cancel.
+                // This will cause the read promise above to resolve with
+                // a true value for "done", exiting the while loop.
+                reader.cancel();
+
+            }
+        });
+
+    </script>
+</body>
+</html>

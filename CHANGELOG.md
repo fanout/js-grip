@@ -5,18 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [Planned for 3.0.0]
+- Major update with great improvements in usability, with support for modern
+  language features such as `class` and `async`/`await`.
+- Collapsed `js-pubcontrol` into `js-grip`, simplifying use and deployment.
+- Reorganized utility functions into categorized files.
+- Rewritten in TypeScript and exporting types files to enable static type checking and
+  IDE completion. 
 
-## [Planned for 2.0.0]
-Major update with great improvements in usability, with support for modern
-language features such as `class` and `async`/`await`.  Now also uses
-`@fanoutio/pubcontrol@2`.
+### Added
+- `GripInstruct` class to handle generation of `Grip-*` headers
 
-### To be Added
-- To add Typescript annotations for IDE completion and static type checking.
+### Changed
+- `buildWebSocketControlMessage()` renamed to `createWebSocketControlMessage()`.
 
-### To be Changed
-### To be Removed
+### Removed
+- Removed `createHold*` functions in favor of `GripInstruct` class 
 
 ## [2.0.0-beta.0] - 2020-01-13
 ### Added
