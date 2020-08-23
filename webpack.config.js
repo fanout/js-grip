@@ -16,7 +16,7 @@ const config = {
     output: {
         path: PATHS.bundles,
         filename: fileName + (PROD ? '.min' : '') + '.js',
-        libraryTarget: 'umd',
+        libraryTarget: 'var',
         library: libName,
         umdNamedDefine: true
     },
