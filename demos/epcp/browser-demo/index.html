@@ -80,14 +80,37 @@
 
 <script>
     (function() {
-        const { Publisher, Buffer } = Grip;
+        /* globals Grip */
+        const { Publisher, Format, Buffer, } = Grip;
+
+        // Define a data format.
+        class ServerSentEventFormat extends Format {
+            message;
+            constructor(message) {
+                super();
+                this.message = message;
+            }
+            name() {
+                return 'http-stream';
+            }
+            export() {
+                const data = {
+                    event: 'message',
+                    data: this.message,
+                };
+                const content = Object.entries(data)
+                    .map(([key, value]) => `${key}: ${value.replace('\n', '\\n')}`)
+                    .join('\n') + '\n\n';
+                return { content, };
+            }
+        }
 
         const form = document.getElementById('pubcontrol-form');
         form.addEventListener('submit', e => {
             e.preventDefault();
 
             const channel = form.elements.channel.value !== '' ? form.elements.channel.value : 'test';
-            const message = form.elements.message.value !== '' ? form.elements.message.value : 'Hello, World!';
+            const message = (form.elements.message.value !== '' ? form.elements.message.value : 'Hello, World!');
 
             const uri = form.elements.uri.value;
             const iss = form.elements.iss.value;
@@ -107,7 +130,7 @@
             const pub = new Publisher(config);
 
             // Publish across all configured endpoints.
-            pub.publishHttpStream(channel, message + '\n')
+            pub.publishFormats(channel, new ServerSentEventFormat(message))
                 .then(() => {
                     writeLine('Publish successful!');
                 })

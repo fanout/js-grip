@@ -1,5 +1,26 @@
 const Grip = require('@fanoutio/grip');
-const { Publisher } = Grip;
+const { Publisher, Format, } = Grip;
+
+// Define a data format.
+class ServerSentEventFormat extends Format {
+    constructor(message) {
+        super();
+        this.message = message;
+    }
+    name() {
+        return 'http-stream';
+    }
+    export() {
+        const data = {
+            event: 'message',
+            data: this.message,
+        };
+        const content = Object.entries(data)
+            .map(([key, value]) => `${key}: ${value.replace('\n', '\\n')}`)
+            .join('\n') + '\n\n';
+        return { content, };
+    }
+}
 
 const [
     ,
@@ -31,7 +52,7 @@ if (key != null && key !== '') {
 const pub = new Publisher(config);
 
 // Publish across all configured endpoints.
-pub.publishHttpStream(channel, message + '\n')
+pub.publishFormats(channel, new ServerSentEventFormat(message))
     .then(() => {
         console.log('Publish successful!');
     })
