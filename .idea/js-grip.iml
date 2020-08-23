@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/browser" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
+      <excludeFolder url="file://$MODULE_DIR$/build-esm" />
       <excludeFolder url="file://$MODULE_DIR$/demos/epcp/browser-webworkers-demo/dist" />
       <excludeFolder url="file://$MODULE_DIR$/demos/epcp/cloudflare-worker-demo/dist" />
     </content>
