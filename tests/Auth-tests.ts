@@ -1,5 +1,5 @@
 import assert from "assert";
-import jwt from "jwt-simple";
+import jwt from "jsonwebtoken";
 
 import * as auth from '../src/auth/index';
 
@@ -28,15 +28,16 @@ describe('auth', function () {
             assert.equal(authJwt.key, null);
             assert.equal(authJwt.token, "token");
             assert.equal(authJwt.buildHeader(), "Bearer token");
-            authJwt = new auth.Jwt({ iss: "hello", exp: 1426106601 }, "key==");
+            const testToken = jwt.sign({ iss: "hello", exp: 1426106601 }, "key==", { noTimestamp: true });
+            authJwt = new auth.Jwt(testToken);
             assert.equal(
                 authJwt.buildHeader(),
-                "Bearer eyJ0eXAiOiJKV1QiLCJhbG" +
-                "ciOiJIUzI1NiJ9.eyJpc3MiOiJoZWxsbyIsImV4cCI6MT" +
-                "QyNjEwNjYwMX0.beCyAv3kUlIYomos527H1HrzKJbgSGewQjYzoAv0XNo"
+                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9." +
+                "eyJpc3MiOiJoZWxsbyIsImV4cCI6MTQyNjEwNjYwMX0." +
+                "qmFVZ3iS041fAhqHno0vYLykNycT40ntBuD3G7ISDJw"
             );
             authJwt = new auth.Jwt({ iss: "hello" }, "key==");
-            const claim = jwt.decode(authJwt.buildHeader().substring(7), "key==");
+            const claim = jwt.verify(authJwt.buildHeader().substring(7), "key==") as object;
             assert("exp" in claim);
             assert.equal(claim["iss"], "hello");
         });

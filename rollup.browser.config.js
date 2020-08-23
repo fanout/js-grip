@@ -2,7 +2,6 @@ import nodePolyfills from 'rollup-plugin-node-polyfills';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
-import replace from '@rollup/plugin-replace';
 import typescript from '@rollup/plugin-typescript';
 
 export default {
@@ -13,13 +12,6 @@ export default {
         name: 'Grip',
     },
     plugins: [
-        replace({
-            include: ['node_modules/jwt-simple/**'],
-            delimiters: ['', ''],
-            values: {
-                'crypto.createHmac': "require('create-hmac')",
-            },
-        }),
         commonjs(),
         nodePolyfills(),
         nodeResolve({

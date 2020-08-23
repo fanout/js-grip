@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { encode } from 'jwt-simple';
+import * as jwt from 'jsonwebtoken';
 
 import Base from './Base';
 
@@ -34,14 +34,7 @@ export default class Jwt extends Base {
         if (this.token != null) {
             token = this.token;
         } else {
-            const claim =
-                this.claim != null && 'exp' in this.claim
-                    ? this.claim
-                    : Object.assign({}, this.claim, {
-                          exp: Math.floor(new Date().getTime() / 1000) + 600,
-                      });
-            // @ts-ignore
-            token = encode(claim, this.key);
+            token = jwt.sign(this.claim as object, this.key as string | Buffer, { expiresIn: '10m' });
         }
         return `Bearer ${token}`;
     }
