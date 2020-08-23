@@ -1,6 +1,6 @@
-# GRIP Interface Library for JavaScript
+# js-grip
 
-A GRIP interface library for NodeJS.  For use with HTTP reverse proxy servers
+A GRIP interface library for JavaScript.  For use with HTTP reverse proxy servers
 that support the GRIP interface, such as Pushpin.
 
 Supported GRIP servers include:

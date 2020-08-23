@@ -5,18 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Planned for 3.0.0]
+## [3.0.0] - 2020-08-24
 - Major update with great improvements in usability, with support for modern
   language features such as `class` and `async`/`await`.
 - Collapsed `js-pubcontrol` into `js-grip`, simplifying use and deployment.
 - Reorganized utility functions into categorized files.
 - Rewritten in TypeScript and exporting types files to enable static type checking and
   IDE completion. 
+- CommonJS and ESM builds are standard TypeScript builds, so that they can be imported in
+  Node and in modern bundlers that offer features such as tree shaking.
+- Source code formatted with Prettier. 
 
 ### Added
 - `GripInstruct` class to handle generation of `Grip-*` headers
 
 ### Changed
+- Using `jsonwebtoken` library instead of `jwt-simple`. This is a more modern implementation that
+  does not depend on the `crypto` library from Node.   
 - `buildWebSocketControlMessage()` renamed to `createWebSocketControlMessage()`.
 
 ### Removed
