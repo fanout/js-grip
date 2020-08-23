@@ -1,4 +1,4 @@
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const path = require("path");
 const projectRoot = path.join(__dirname, "../");
 const sourceDir = path.join(projectRoot, "./src");
@@ -19,12 +19,14 @@ const browserDemoWebpackConfig = {
     path: path.resolve(projectRoot, "dist")
   },
   plugins: [
-    new CopyWebpackPlugin([
-      {
-        from: path.join(sourceDir, "./index.html"),
-        to: path.join(projectRoot, "./dist/index.html")
-      }
-    ])
+    new CopyPlugin({
+      patterns: [
+        {
+          from: path.join(sourceDir, "./index.html"),
+          to: path.join(projectRoot, "./dist/index.html"),
+        },
+      ],
+    })
   ],
   module: {
     rules: [
