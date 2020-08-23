@@ -73,7 +73,7 @@ export default class PublisherClient {
     // object, and optional callback as parameters.
     async _startPubCall(uri: string | undefined, authHeader: string | null, items: IItemExport[]) {
         // Prepare Request Body
-        const content = JSON.stringify({ items: items });
+        const content = JSON.stringify({ items });
         // Build HTTP headers
         const headers: IReqHeaders = {
             'Content-Type': 'application/json',
