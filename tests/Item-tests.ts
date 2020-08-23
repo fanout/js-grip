@@ -63,7 +63,7 @@ describe('Item', function () {
             assert(!("id" in itm.export()));
             assert(!("prev-id" in itm.export()));
             assert.equal(
-                JSON.stringify(itm.export()["testformat1"]),
+                JSON.stringify(itm.export().formats["testformat1"]),
                 JSON.stringify({ content: "body1a" })
             );
         });
@@ -72,11 +72,11 @@ describe('Item', function () {
             assert(!("id" in itm.export()));
             assert(!("prev-id" in itm.export()));
             assert.equal(
-                JSON.stringify(itm.export()["testformat1"]),
+                JSON.stringify(itm.export().formats["testformat1"]),
                 JSON.stringify({ content: "body1a" })
             );
             assert.equal(
-                JSON.stringify(itm.export()["testformat2"]),
+                JSON.stringify(itm.export().formats["testformat2"]),
                 JSON.stringify({ content: "body2a" })
             );
         });
@@ -91,7 +91,7 @@ describe('Item', function () {
             assert.equal(itm.export()["id"], "id");
             assert.equal(itm.export()["prev-id"], "prev-id");
             assert.equal(
-                JSON.stringify(itm.export()["testformat1"]),
+                JSON.stringify(itm.export().formats["testformat1"]),
                 JSON.stringify({ content: "body1a" })
             );
         });

@@ -34,7 +34,7 @@ export default class Item implements IItem {
     // an error will be raised.
     export(): IItemExport {
         const obj: IItemExport = {
-            exports: {},
+            formats: {},
         };
         if (this.id != null) {
             obj.id = this.id;
@@ -50,7 +50,7 @@ export default class Item implements IItem {
                 throw new Error(`More than one instance of ${name} specified`);
             }
             alreadyUsedFormatNames.add(name);
-            obj[name] = format.export();
+            obj.formats[name] = format.export();
         }
 
         return obj;
