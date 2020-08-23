@@ -1,5 +1,4 @@
-import nodeGlobals from 'rollup-plugin-node-globals';
-import nodeBuiltins from 'rollup-plugin-node-builtins';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 import commonjs from '@rollup/plugin-commonjs';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
@@ -22,8 +21,7 @@ export default {
             },
         }),
         commonjs(),
-        nodeGlobals(),
-        nodeBuiltins(),
+        nodePolyfills(),
         nodeResolve({
             browser: true,
         }),
