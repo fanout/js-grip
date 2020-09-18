@@ -40,7 +40,7 @@ export function parseGripUri(uri: string): IGripConfig {
         // and this segment of the URL contained '+' directly instead of properly
         // being URL-encoded as %2B, then they would have turned into spaces at
         // this point. Turn them back into pluses before decoding the key from base64.
-        key = key.replace(' ', '+');
+        key = key.replace(/ /g, '+');
         key = Buffer.from(key, 'base64');
     }
     const qs = querystring.stringify(params);
