@@ -35,7 +35,13 @@ export function parseGripUri(uri: string): IGripConfig {
         delete params['key'];
     }
     if (key != null && isString(key) && key.startsWith('base64:')) {
-        key = Buffer.from(key.substring(7), 'base64');
+        key = key.substring(7);
+        // When the key contains a '+' character, if the URL is built carelessly
+        // and this segment of the URL contained '+' directly instead of properly
+        // being URL-encoded as %2B, then they would have turned into spaces at
+        // this point. Turn them back into pluses before decoding the key from base64.
+        key = key.replace(' ', '+');
+        key = Buffer.from(key, 'base64');
     }
     const qs = querystring.stringify(params);
     let path = parsedUri.pathname;
