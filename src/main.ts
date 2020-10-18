@@ -14,6 +14,8 @@ export { default as HttpResponseFormat } from './data/http/HttpResponseFormat';
 export { default as WebSocketContext } from './data/websocket/WebSocketContext';
 export { default as WebSocketEvent } from './data/websocket/WebSocketEvent';
 export { default as WebSocketMessageFormat } from './data/websocket/WebSocketMessageFormat';
+export { default as WebSocketDecodeEventException } from './data/websocket/WebSocketDecodeEventException';
+export { default as ConnectionIdMissingException } from './data/websocket/ConnectionIdMissingException';
 
 // Interfaces
 export type { default as IGripConfig } from './engine/IGripConfig';
@@ -32,4 +34,8 @@ export {
     decodeWebSocketEvents,
     createWebSocketControlMessage,
 } from './utilities/webSocketEvents';
+export {
+    isWsOverHttp,
+    getWebSocketContextFromReq,
+} from './utilities/ws-over-http';
 export { validateSig } from './utilities/jwt';

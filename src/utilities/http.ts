@@ -56,3 +56,10 @@ export function parseQueryString(query: string): { [key: string]: string } {
 
     return params;
 }
+
+export function flattenHeader(value: undefined | string | string[]) {
+    if (Array.isArray(value)) {
+        return value[0];
+    }
+    return value;
+}
