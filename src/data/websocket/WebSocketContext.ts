@@ -156,9 +156,12 @@ export default class WebSocketContext {
 
     acceptSubprotocol(subprotocol: string | null) {
         if (subprotocol != null && !this.subprotocols.includes(subprotocol)) {
-            debug('[WARN] WebSocketContext.acceptSubprotocol: ' + subprotocol + ' not included in request subprotocol list: ' + this.subprotocols.join(','));
+            debug('WebSocketContext.acceptSubprotocol: Cannot accept subprotocol ' + subprotocol + '.');
+            debug('WebSocketContext.acceptSubprotocol: Request subprotocol list: ' + this.subprotocols.join(',') + ".");
+            return false;
         }
         this.acceptedSubprotocol = subprotocol;
+        return true;
     }
 
     getOutgoingEvents() {
