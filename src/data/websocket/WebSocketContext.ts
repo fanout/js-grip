@@ -7,6 +7,13 @@ import { createWebSocketControlMessage } from '../../utilities/webSocketEvents';
 
 import WebSocketEvent from './WebSocketEvent';
 import IWebSocketEvent from './IWebSocketEvent';
+import { isString } from "../../utilities/string";
+import debug from '../../utilities/debug';
+
+export interface IWebSocketContextOptions {
+    prefix?: string;
+    subprotocols?: string[];
+}
 
 export default class WebSocketContext {
     id: string;
@@ -20,13 +27,23 @@ export default class WebSocketContext {
     origMeta: object;
     meta: object;
     prefix: string;
+    subprotocols: string[];
+    acceptedSubprotocol: string | null;
 
-    constructor(id: string, meta: object, inEvents: IWebSocketEvent[], prefix = '') {
+    constructor(id: string, meta: object, inEvents: IWebSocketEvent[], optionsParam: IWebSocketContextOptions | string = '') {
         this.id = id;
         this.meta = JSON.parse(JSON.stringify(meta));
         this.origMeta = meta;
         this.inEvents = inEvents;
-        this.prefix = prefix;
+
+        const options = isString(optionsParam) ? {
+            prefix: optionsParam,
+        } : optionsParam;
+
+        this.prefix = options.prefix ?? '';
+        this.subprotocols = options.subprotocols ?? [];
+
+        this.acceptedSubprotocol = null;
     }
 
     isOpening() {
@@ -133,6 +150,17 @@ export default class WebSocketContext {
         this.sendControl(createWebSocketControlMessage('detach'));
     }
 
+    getReqSubprotocols() {
+        return this.subprotocols;
+    }
+
+    acceptSubprotocol(subprotocol: string | null) {
+        if (subprotocol != null && !this.subprotocols.includes(subprotocol)) {
+            debug('[WARN] WebSocketContext.acceptSubprotocol: ' + subprotocol + ' not included in request subprotocol list: ' + this.subprotocols.join(','));
+        }
+        this.acceptedSubprotocol = subprotocol;
+    }
+
     getOutgoingEvents() {
         const events = [];
         if (this.accepted) {
@@ -173,6 +201,9 @@ export default class WebSocketContext {
 
         if (this.accepted) {
             headers['Sec-WebSocket-Extensions'] = 'grip';
+        }
+        if (this.acceptedSubprotocol != null) {
+            headers['Sec-WebSocket-Protocol'] = this.acceptedSubprotocol;
         }
         for (const k of metaToRemove) {
             headers['Set-Meta-' + k] = '';

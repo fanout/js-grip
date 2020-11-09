@@ -49,6 +49,9 @@ export async function getWebSocketContextFromReq(req: ApiRequest, prefix: string
 
     debug("Connection ID", cid);
 
+    const subprotocols = ((req.headers['Sec-Websocket-Protocol'] ?? '') as string).split(',');
+    debug("Request subprotocols", subprotocols);
+
     // Handle meta keys
     debug("Handling Meta - start");
     const meta = {};
@@ -98,7 +101,7 @@ export async function getWebSocketContextFromReq(req: ApiRequest, prefix: string
     debug("Websocket Events", events);
 
     debug("Creating Websocket Context - start");
-    const wsContext = new WebSocketContext(cid, meta, events, prefix);
+    const wsContext = new WebSocketContext(cid, meta, events, { prefix, subprotocols });
     debug("Creating Websocket Context - end");
 
     return wsContext;
