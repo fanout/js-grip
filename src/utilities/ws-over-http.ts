@@ -49,7 +49,7 @@ export async function getWebSocketContextFromReq(req: ApiRequest, prefix: string
 
     debug("Connection ID", cid);
 
-    const subprotocols = ((req.headers['Sec-Websocket-Protocol'] ?? '') as string).split(',');
+    const subprotocols = ((req.headers['sec-websocket-protocol'] ?? '') as string).split(',');
     debug("Request subprotocols", subprotocols);
 
     // Handle meta keys
