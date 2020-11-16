@@ -1,7 +1,7 @@
 import { IncomingHttpHeaders, IncomingMessage } from "http";
 
 import debug from './debug';
-import { flattenHeader, readRequestBody } from "./http";
+import { readRequestBody } from "./http";
 import WebSocketContext from "../data/websocket/WebSocketContext";
 import { decodeWebSocketEvents } from "./webSocketEvents";
 import ConnectionIdMissingException from "../data/websocket/ConnectionIdMissingException";
@@ -10,7 +10,7 @@ import WebSocketDecodeEventException from "../data/websocket/WebSocketDecodeEven
 const CONTENT_TYPE_WEBSOCKET_EVENTS = 'application/websocket-events';
 
 export interface IRequest {
-    headers: IncomingHttpHeaders;
+    headers: IncomingHttpHeaders | NodeJS.Dict<string>;
     method?: string;
 }
 
@@ -29,13 +29,14 @@ export function isWsOverHttp(req: IRequest): boolean {
     }
 
     let contentTypeHeader = req.headers['content-type'];
+    if (contentTypeHeader != null) {
+        [ contentTypeHeader ] = contentTypeHeader.split(';');
+        contentTypeHeader = contentTypeHeader.trim();
+    }
     if (contentTypeHeader == null || contentTypeHeader === '') {
         debug("content-type header not present");
         return false;
     }
-
-    [ contentTypeHeader ] = contentTypeHeader.split(';');
-    contentTypeHeader = contentTypeHeader.trim();
     debug("content-type header", contentTypeHeader);
 
     const acceptTypesHeader = req.headers['accept'];
@@ -43,7 +44,6 @@ export function isWsOverHttp(req: IRequest): boolean {
         debug("accept header not present");
         return false;
     }
-
     debug("accept header", acceptTypesHeader);
 
     const acceptTypes = acceptTypesHeader.split(',')
@@ -71,14 +71,26 @@ export async function getWebSocketContextFromReq(req: IncomingMessage, prefix: s
 
 export async function getWebSocketContext(req: IRequest, body: string | Buffer, prefix: string = '') {
 
-    const cid = flattenHeader(req.headers['connection-id']);
-    if (cid == null) {
+    let cid = req.headers['connection-id'];
+    if (Array.isArray(cid)) {
+        cid = cid.join(',');
+    }
+    if (cid != null) {
+        [ cid ] = cid.split(',')
+            .map(item => item.trim());
+    }
+    if (cid == null || cid === '') {
         throw new ConnectionIdMissingException();
     }
 
-    debug("Connection ID", cid);
-
-    const subprotocols = ((req.headers['sec-websocket-protocol'] ?? '') as string).split(',');
+    let subprotocols = req.headers['sec-websocket-protocol'];
+    if (Array.isArray(subprotocols)) {
+        subprotocols = subprotocols.join(',');
+    }
+    if (subprotocols != null) {
+        subprotocols = subprotocols.split(',')
+            .map(item => item.trim());
+    }
     debug("Request subprotocols", subprotocols);
 
     // Handle meta keys
