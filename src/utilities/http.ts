@@ -1,5 +1,8 @@
 import * as querystring from 'querystring';
+import { IncomingMessage } from "http";
+
 import { encodeCString, escapeQuotes, isString } from './string';
+import debug from "./debug";
 
 export function createKeepAliveHeader(data: string | Buffer, timeout: number) {
     let output = null;
@@ -62,4 +65,37 @@ export function flattenHeader(value: undefined | string | string[]) {
         return value[0];
     }
     return value;
+}
+
+export async function readRequestBody(req: IncomingMessage & { body?: string | Buffer }) {
+
+    let body: string | Buffer | undefined;
+    if (req.body != null) {
+        body = req.body;
+    } else {
+        debug("Reading body - start");
+        body = await new Promise((resolve) => {
+            const bodySegments: any[] = [];
+            req.on('data', (chunk) => {
+                bodySegments.push(chunk);
+            });
+            req.on('end', () => {
+                const bodyBuffer = Buffer.concat(bodySegments);
+                resolve(bodyBuffer);
+            });
+        });
+        if (body != null) {
+            if (body instanceof Buffer) {
+                debug("body (Buffer)", body.toString('base64'));
+            } else {
+                debug("body (string)", body);
+            }
+        } else {
+            debug("body is null");
+        }
+        debug("Reading body - end");
+    }
+
+    return body;
+
 }

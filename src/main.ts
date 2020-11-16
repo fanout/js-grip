@@ -36,6 +36,7 @@ export {
 } from './utilities/webSocketEvents';
 export {
     isWsOverHttp,
+    getWebSocketContext,
     getWebSocketContextFromReq,
 } from './utilities/ws-over-http';
 export { validateSig } from './utilities/jwt';
