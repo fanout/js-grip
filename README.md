@@ -10,7 +10,7 @@ Supported GRIP servers include:
 
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
-## [Planned for 3.0.0]
+## New for 3.0.0
 - Major update with great improvements in usability, with support for modern
   language features such as `class` and `async`/`await`.
 - Collapsed `js-pubcontrol` into `js-grip`, simplifying use and deployment.
