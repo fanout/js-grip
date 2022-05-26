@@ -31,7 +31,9 @@ const config = {
             exclude: /node_modules/,
             options: {
                 compilerOptions: {
+                    composite: false,
                     declaration: false,
+                    declarationMap: false,
                 },
             },
         }],

@@ -14,32 +14,28 @@
       "email": "kon@fanout.io"
     }
   ],
-  "main": "./build/main.js",
-  "module": "./build-esm/main.js",
+  "main": "./build/src/main.js",
+  "module": "./build/esm/main.js",
   "files": [
     "browser/**/*",
     "build/**/*",
-    "build-esm/**/*",
     "types/**/*"
   ],
-  "types": "./build/main.d.ts",
+  "types": "./build/src/main.d.ts",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "npm run test && npm run lint && npm run build-commonjs && npm run build-esm && npm run build-browser",
-    "build-commonjs": "npm run build-commonjs:clean && npm run build-commonjs:build",
-    "build-commonjs:clean": "rimraf build",
-    "build-commonjs:build": "tsc -d --outDir build",
-    "build-esm": "npm run build-esm:clean && npm run build-esm:build",
-    "build-esm:clean": "rimraf build-esm",
-    "build-esm:build": "tsc -m es6 --outDir build-esm",
-    "format": "prettier --write \"src/**/*.{js,ts}\"",
-    "build-browser": "npm run build-browser:clean && npm run build-browser:build-dev && npm run build-browser:build-prod",
+    "build": "yarn test && yarn lint && yarn build-package && yarn build-browser",
+    "build-browser": "yarn build-browser:clean && yarn build-browser:build-dev && yarn build-browser:build-prod",
     "build-browser:clean": "rimraf browser",
     "build-browser:build-dev": "NODE_ENV=development webpack",
     "build-browser:build-prod": "NODE_ENV=production webpack -p",
-    "lint": "npm run lint:tslint",
-    "lint:tslint": "tslint -p tsconfig.json",
-    "test": "jest --config jestconfig.json --verbose --passWithNoTests"
+    "build-package": "yarn build-package:clean && yarn build-package:compile",
+    "build-package:clean": "rimraf build",
+    "build-package:compile": "tsc --build tsconfig.json && tsc --build tsconfig.esm.json",
+    "format": "prettier --write \"src/**/*.{js,ts}\"",
+    "lint": "yarn lint:tslint",
+    "lint:tslint": "tslint -p tsconfig.base.json",
+    "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
   },
   "repository": {
     "type": "git",
