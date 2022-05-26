@@ -1,13 +1,13 @@
-import assert from 'assert';
+import * as assert from "assert";
 import {encodeCString, escapeQuotes, isString,} from '../src/utilities/string';
 
 describe('utilities/string', function() {
     describe('#isString', function() {
         it('test case', function() {
-            assert(isString('hello'));
-            assert(!(isString(123)));
-            assert(!(isString(() => {})));
-            assert(!(isString([])));
+            assert.ok(isString('hello'));
+            assert.ok(!(isString(123)));
+            assert.ok(!(isString(() => {})));
+            assert.ok(!(isString([])));
         });
     });
     describe('#encodeCString', function() {
@@ -34,7 +34,7 @@ describe('utilities/string', function() {
             assert.throws(() => {
                 encodeCString(input);
             }, err => {
-                assert(err instanceof Error);
+                assert.ok(err instanceof Error);
                 assert.equal(err.message, "can't encode");
                 return true;
             });

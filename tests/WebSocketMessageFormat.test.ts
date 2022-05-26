@@ -1,4 +1,4 @@
-import assert from "assert";
+import * as assert from "assert";
 
 import WebSocketMessageFormat from "../src/data/websocket/WebSocketMessageFormat";
 

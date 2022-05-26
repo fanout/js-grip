@@ -1,4 +1,4 @@
-import assert from "assert";
+import * as assert from "assert";
 
 import Item from '../src/data/Item';
 import Format from '../src/data/Format';
@@ -72,7 +72,7 @@ describe('PublisherClient', function() {
             };
             pcc.setAuthBasic("user", "pass");
             await pcc.publish("channel", itm);
-            assert(wasWorkerCalled);
+            assert.ok(wasWorkerCalled);
         });
         it('no auth', async function() {
             let wasWorkerCalled = false;
@@ -87,7 +87,7 @@ describe('PublisherClient', function() {
                 wasWorkerCalled = true;
             };
             await pcc.publish("channel", itm);
-            assert(wasWorkerCalled);
+            assert.ok(wasWorkerCalled);
         });
         it('fail', async function() {
             const itm = new Item(new TestFormat("bodyval"));
@@ -104,7 +104,7 @@ describe('PublisherClient', function() {
                 resultEx = ex;
                 return true;
             });
-            assert(resultEx instanceof PublishException);
+            assert.ok(resultEx instanceof PublishException);
             assert.strictEqual(resultEx.message, "fail");
         });
     });
@@ -128,7 +128,7 @@ describe('PublisherClient', function() {
                 wasPerformHttpRequestCalled = true;
             };
             await pcc._startPubCall("http://uri.com", "authHeader", testItems);
-            assert(wasPerformHttpRequestCalled);
+            assert.ok(wasPerformHttpRequestCalled);
         });
         it('https', async function() {
             const pcc = new PublisherClient("https://uri.com");
@@ -142,13 +142,13 @@ describe('PublisherClient', function() {
                     reqParams.headers["Content-Length"],
                     Buffer.byteLength(reqParams.body, "utf8")
                 );
-                assert(!("Authorization" in reqParams.headers));
+                assert.ok(!("Authorization" in reqParams.headers));
                 assert.equal(uri, "https://uri.com/publish/");
                 assert.equal(pcc.httpsKeepAliveAgent, reqParams.agent);
                 wasPerformHttpRequestCalled = true;
             };
             await pcc._startPubCall("https://uri.com", null, testItems);
-            assert(wasPerformHttpRequestCalled);
+            assert.ok(wasPerformHttpRequestCalled);
         });
         it('bad uri', async function() {
             const pcc = new PublisherClient("https://uri.com");
@@ -160,7 +160,7 @@ describe('PublisherClient', function() {
                 resultEx = ex;
                 return true;
             });
-            assert(resultEx instanceof PublishException);
+            assert.ok(resultEx instanceof PublishException);
             assert.equal(resultEx.message, "Bad URI");
             assert.equal(resultEx.context.statusCode, -2);
         });
@@ -243,8 +243,8 @@ describe('PublisherClient', function() {
             assert.ok(resultEx instanceof PublishException);
             assert.equal(resultEx.message, "message");
             assert.equal(resultEx.context.statusCode, -1);
-            assert(!wasFinishHttpRequestCalled);
-            assert(!wasFinishHttpRequestCalledForClose);
+            assert.ok(!wasFinishHttpRequestCalled);
+            assert.ok(!wasFinishHttpRequestCalledForClose);
         });
         it('close', async function() {
             const closeTransport = async (_uri: any, opts: any) => {
@@ -264,8 +264,8 @@ describe('PublisherClient', function() {
                 method: "",
                 body: "content"
             });
-            assert(!wasFinishHttpRequestCalled);
-            assert(wasFinishHttpRequestCalledForClose);
+            assert.ok(!wasFinishHttpRequestCalled);
+            assert.ok(wasFinishHttpRequestCalledForClose);
         });
         it('success', async function() {
             const successTransport = async (_uri: any, opts: any) => {
@@ -285,8 +285,8 @@ describe('PublisherClient', function() {
                 method: "",
                 body: "content"
             });
-            assert(wasFinishHttpRequestCalled);
-            assert(!wasFinishHttpRequestCalledForClose);
+            assert.ok(wasFinishHttpRequestCalled);
+            assert.ok(!wasFinishHttpRequestCalledForClose);
         });
     });
 });

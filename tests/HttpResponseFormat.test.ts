@@ -1,17 +1,17 @@
-import assert from 'assert';
-import Response from '../src/data/Response';
+import * as assert from "assert";
+import HttpResponseFormat from "../src/data/http/HttpResponseFormat";
 
-describe('Response', function () {
+describe('HttpResponseFormat', function () {
     describe('#constructor', function () {
         it('test case', function () {
-            const hf = new Response();
+            const hf = new HttpResponseFormat();
             assert.equal(hf.code, null);
             assert.equal(hf.reason, null);
             assert.equal(hf.headers, null);
             assert.equal(hf.body, null);
         });
         it('test case', function () {
-            const hf = new Response('code', 'reason',
+            const hf = new HttpResponseFormat('code', 'reason',
                 'headers', 'body');
             assert.equal(hf.code, 'code');
             assert.equal(hf.reason, 'reason');
@@ -19,7 +19,7 @@ describe('Response', function () {
             assert.equal(hf.body, 'body');
         });
         it('test case', function () {
-            const hf = new Response({ code: 'code',
+            const hf = new HttpResponseFormat({ code: 'code',
                 reason: 'reason', headers: 'headers', body: 'body' });
             assert.equal(hf.code, 'code');
             assert.equal(hf.reason, 'reason');
@@ -27,19 +27,25 @@ describe('Response', function () {
             assert.equal(hf.body, 'body');
         });
     });
+    describe('#name', function () {
+        it('test case', function () {
+            const hf = new HttpResponseFormat('body');
+            assert.equal(hf.name(), 'http-response');
+        });
+    });
     describe('#export', function () {
         it('test case', function () {
-            const hf = new Response({ body: 'body' });
+            const hf = new HttpResponseFormat({ body: 'body' });
             assert.equal(JSON.stringify(hf.export()), JSON.stringify({ body: 'body' }));
         });
         it('test case', function () {
-            const hf = new Response({ code: 'code',
+            const hf = new HttpResponseFormat({ code: 'code',
                 reason: 'reason', headers: 'headers', body: 'body' });
             assert.equal(JSON.stringify(hf.export()), JSON.stringify(
                 { code: 'code', reason: 'reason', headers: 'headers', body: 'body' }));
         });
         it('test case', function () {
-            const hf = new Response({ code: 'code',
+            const hf = new HttpResponseFormat({ code: 'code',
                 reason: 'reason', headers: 'headers', body: Buffer.from('body') });
             assert.equal(JSON.stringify(hf.export()), JSON.stringify(
                 { code: 'code', reason: 'reason', headers: 'headers', 'body-bin':

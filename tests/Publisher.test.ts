@@ -1,4 +1,4 @@
-import assert from "assert";
+import * as assert from "assert";
 
 import Item from '../src/data/Item';
 import IItem from '../src/data/IItem';
@@ -148,7 +148,7 @@ describe('Publisher', function () {
                 }
             });
             await pc.publish("chan", testItem);
-            assert(wasPublishCalled);
+            assert.ok(wasPublishCalled);
         });
         it('async', async function() {
             const testItem = <Item>{};
@@ -243,7 +243,7 @@ describe('Publisher', function () {
             });
             await pc.publishHttpResponse('chan', new HttpResponseFormat(
                 '1', '2', '3', '4'));
-            assert(wasPublishCalled);
+            assert.ok(wasPublishCalled);
         });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
@@ -286,7 +286,7 @@ describe('Publisher', function () {
             });
             await pc.publishHttpStream('chan', new HttpStreamFormat(
                 '1'));
-            assert(wasPublishCalled);
+            assert.ok(wasPublishCalled);
         });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;

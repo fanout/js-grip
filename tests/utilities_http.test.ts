@@ -1,4 +1,4 @@
-import assert from "assert";
+import * as assert from "assert";
 import {createKeepAliveHeader, createMetaHeader, createNextLinkHeader, parseQueryString} from "../src/utilities/http";
 
 describe('utilities/http', function() {

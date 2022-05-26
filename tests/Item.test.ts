@@ -1,4 +1,4 @@
-import assert from "assert";
+import * as assert from "assert";
 
 import Item from '../src/data/Item';
 import Format from '../src/data/Format';
@@ -60,8 +60,8 @@ describe('Item', function () {
     describe('#export', function () {
         it('test case', function () {
             const itm = new Item(fmt1a);
-            assert(!("id" in itm.export()));
-            assert(!("prev-id" in itm.export()));
+            assert.ok(!("id" in itm.export()));
+            assert.ok(!("prev-id" in itm.export()));
             assert.equal(
                 JSON.stringify(itm.export().formats["testformat1"]),
                 JSON.stringify({ content: "body1a" })
@@ -69,8 +69,8 @@ describe('Item', function () {
         });
         it('test case', function () {
             const itm = new Item([fmt1a, fmt2a]);
-            assert(!("id" in itm.export()));
-            assert(!("prev-id" in itm.export()));
+            assert.ok(!("id" in itm.export()));
+            assert.ok(!("prev-id" in itm.export()));
             assert.equal(
                 JSON.stringify(itm.export().formats["testformat1"]),
                 JSON.stringify({ content: "body1a" })

@@ -1,4 +1,4 @@
-import assert from "assert";
+import * as assert from "assert";
 
 import WebSocketEvent from '../src/data/websocket/WebSocketEvent';
 import {

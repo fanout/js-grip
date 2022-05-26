@@ -1,4 +1,4 @@
-import assert from 'assert';
+import * as assert from "assert";
 
 import Channel from '../src/data/Channel';
 import GripInstruct from "../src/data/GripInstruct";
@@ -9,33 +9,33 @@ describe('GripInstruct', function () {
         it('should allow creating a GripInstruct with no channels', function () {
             const gripInstruct = new GripInstruct();
             const channels = gripInstruct.channels;
-            assert(Array.isArray(channels));
-            assert(channels.length === 0);
+            assert.ok(Array.isArray(channels));
+            assert.ok(channels.length === 0);
         });
         it('should allow creating a GripInstruct with a channel name', function () {
             const gripInstruct = new GripInstruct('foo');
             const channels = gripInstruct.channels;
-            assert(Array.isArray(channels));
-            assert(channels.length === 1);
-            assert(channels[0] instanceof Channel);
+            assert.ok(Array.isArray(channels));
+            assert.ok(channels.length === 1);
+            assert.ok(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');
         });
         it('should allow creating a GripInstruct with channel names', function () {
             const gripInstruct = new GripInstruct(['foo', 'bar']);
             const channels = gripInstruct.channels;
-            assert(Array.isArray(channels));
-            assert(channels.length === 2);
-            assert(channels[0] instanceof Channel);
+            assert.ok(Array.isArray(channels));
+            assert.ok(channels.length === 2);
+            assert.ok(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');
-            assert(channels[1] instanceof Channel);
+            assert.ok(channels[1] instanceof Channel);
             assert.equal(channels[1].name, 'bar');
         });
         it('should allow creating a GripInstruct with a Channel object', function () {
             const channel = new Channel('foo');
             const gripInstruct = new GripInstruct(channel);
             const channels = gripInstruct.channels;
-            assert(Array.isArray(channels));
-            assert(channels.length === 1);
+            assert.ok(Array.isArray(channels));
+            assert.ok(channels.length === 1);
             assert.strictEqual(channels[0], channel);
         });
     });
@@ -44,34 +44,34 @@ describe('GripInstruct', function () {
         it('addChannel() with a channel name/names/Channel', function () {
             const gripInstruct = new GripInstruct();
             const channels = gripInstruct.channels;
-            assert(Array.isArray(channels));
-            assert(channels.length === 0);
+            assert.ok(Array.isArray(channels));
+            assert.ok(channels.length === 0);
             gripInstruct.addChannel('foo');
-            assert(Array.isArray(channels));
+            assert.ok(Array.isArray(channels));
             // suppressing TS2367: This condition will always return 'false' since the types '0' and '1' have no overlap.
             // @ts-ignore
-            assert(channels.length === 1);
-            assert(channels[0] instanceof Channel);
+            assert.ok(channels.length === 1);
+            assert.ok(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');
             gripInstruct.addChannel(['bar', 'baz']);
             // @ts-ignore
-            assert(channels.length === 3);
-            assert(channels[0] instanceof Channel);
+            assert.ok(channels.length === 3);
+            assert.ok(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');
-            assert(channels[1] instanceof Channel);
+            assert.ok(channels[1] instanceof Channel);
             assert.equal(channels[1].name, 'bar');
-            assert(channels[2] instanceof Channel);
+            assert.ok(channels[2] instanceof Channel);
             assert.equal(channels[2].name, 'baz');
             gripInstruct.addChannel(new Channel('hoge'));
             // @ts-ignore
-            assert(channels.length === 4);
-            assert(channels[0] instanceof Channel);
+            assert.ok(channels.length === 4);
+            assert.ok(channels[0] instanceof Channel);
             assert.equal(channels[0].name, 'foo');
-            assert(channels[1] instanceof Channel);
+            assert.ok(channels[1] instanceof Channel);
             assert.equal(channels[1].name, 'bar');
-            assert(channels[2] instanceof Channel);
+            assert.ok(channels[2] instanceof Channel);
             assert.equal(channels[2].name, 'baz');
-            assert(channels[3] instanceof Channel);
+            assert.ok(channels[3] instanceof Channel);
             assert.equal(channels[3].name, 'hoge');
         });
     });
@@ -102,14 +102,14 @@ describe('GripInstruct', function () {
         it('setKeepAlive with string', function () {
             const gripInstruct = new GripInstruct();
             gripInstruct.setKeepAlive('foo', 100);
-            assert(typeof gripInstruct.keepAlive === 'string');
+            assert.ok(typeof gripInstruct.keepAlive === 'string');
             assert.equal(gripInstruct.keepAlive, 'foo');
             assert.equal(gripInstruct.keepAliveTimeout, 100);
         });
         it('setKeepAlive with Buffer', function () {
             const gripInstruct = new GripInstruct();
             gripInstruct.setKeepAlive(Buffer.from('foo'), 100);
-            assert(gripInstruct.keepAlive instanceof Buffer);
+            assert.ok(gripInstruct.keepAlive instanceof Buffer);
             assert.equal((gripInstruct.keepAlive as Buffer).toString(), 'foo');
             assert.equal(gripInstruct.keepAliveTimeout, 100);
         });
