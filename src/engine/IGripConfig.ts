@@ -1,5 +1,4 @@
-export interface IGripConfig {
-    control_uri: string;
-    control_iss?: string;
-    key?: string | Buffer;
+import { IGripConfigBase } from "./index";
+
+export interface IGripConfig extends IGripConfigBase {
 }

@@ -1,31 +1,17 @@
 import { Buffer } from 'buffer';
-import 'isomorphic-fetch';
-import HttpAgent, { HttpsAgent } from 'agentkeepalive';
 
 import * as Auth from '../auth/index';
 import { IItem, IItemExport, PublishException } from '../data';
 
-interface IReqHeaders {
+import { IPublisherTransport } from "./IPublisherTransport";
+export interface IReqHeaders {
     [name: string]: string;
-}
-interface IReqParams {
-    method: string;
-    headers: IReqHeaders;
-    body: string;
-    agent?: HttpAgent;
 }
 interface IContext {
     statusCode: number;
     headers?: object;
     httpBody?: any;
 }
-interface FetchResponse {
-    status: number;
-    headers: object;
-    httpBody?: any;
-    text: () => Promise<string>;
-}
-type Transport = (url: string, reqParams: IReqParams) => Promise<FetchResponse>;
 
 declare global {
     interface Object {
@@ -37,14 +23,11 @@ declare global {
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method.
 export class PublisherClient {
-    public uri?: string;
+    public transport: IPublisherTransport;
     public auth?: Auth.IAuth;
-    public httpKeepAliveAgent?: HttpAgent = new HttpAgent();
-    public httpsKeepAliveAgent?: HttpsAgent = new HttpsAgent();
 
-    constructor(uri: string) {
-        // Initialize this class with a URL representing the publishing endpoint.
-        this.uri = uri.replace(/\/$/, '');
+    constructor(transport: IPublisherTransport) {
+        this.transport = transport;
     }
 
     // Call this method and pass a username and password to use basic
@@ -67,13 +50,13 @@ export class PublisherClient {
         const i = item.export();
         i.channel = channel;
         const authHeader = this.auth != null ? this.auth.buildHeader() : null;
-        await this._startPubCall(this.uri, authHeader, [i]);
+        await this._startPubCall(authHeader, [i]);
     }
 
     // An internal method for starting the work required for publishing
     // a message. Accepts the URI endpoint, authorization header, items
     // object, and optional callback as parameters.
-    async _startPubCall(uri: string | undefined, authHeader: string | null, items: IItemExport[]) {
+    async _startPubCall(authHeader: string | null, items: IItemExport[]) {
         // Prepare Request Body
         const content = JSON.stringify({ items });
         // Build HTTP headers
@@ -84,36 +67,16 @@ export class PublisherClient {
         if (authHeader != null) {
             headers['Authorization'] = authHeader;
         }
-        // Build HTTP request parameters
-        const publishUri = uri + '/publish/';
-        const parsed = new URL(publishUri);
-        const reqParams: IReqParams = {
-            method: 'POST',
-            headers: headers,
-            body: content,
-            agent: undefined,
-        };
-        switch (parsed.protocol) {
-            case 'http:':
-                reqParams.agent = this.httpKeepAliveAgent;
-                break;
-            case 'https:':
-                reqParams.agent = this.httpsKeepAliveAgent;
-                break;
-            default:
-                await new Promise((resolve) => setTimeout(resolve, 0));
-                throw new PublishException('Bad URI', { statusCode: -2 });
-        }
-        await this._performHttpRequest(fetch, publishUri, reqParams);
+        await this._performHttpRequest(headers, content);
     }
 
     // An internal method for performing the HTTP request for publishing
     // a message with the specified parameters.
-    async _performHttpRequest(transport: Transport, uri: string, reqParams: IReqParams) {
+    async _performHttpRequest(headers: IReqHeaders, content: string) {
         let res = null;
 
         try {
-            res = await transport(uri, reqParams);
+            res = await this.transport.publish(headers, content);
         } catch (err) {
             throw new PublishException(err != null && typeof err === 'object' && err.hasOwnProperty('message') && typeof err.message === 'string' ? err.message : String(err), { statusCode: -1 });
         }

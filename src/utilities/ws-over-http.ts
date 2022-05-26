@@ -38,7 +38,28 @@ export function isWsOverHttp(req: IncomingMessage) {
     );
 }
 
-export async function getWebSocketContextFromReq(req: ApiRequest, prefix: string = '') {
+export async function getBodyFromReq(req: ApiRequest): Promise<Buffer | string> {
+    debug("Reading body - start");
+    const body = await new Promise<Buffer>((resolve) => {
+        const bodySegments: any[] = [];
+        req.on('data', (chunk) => {
+            bodySegments.push(chunk);
+        });
+        req.on('end', () => {
+            const bodyBuffer = Buffer.concat(bodySegments);
+            resolve(bodyBuffer);
+        });
+    });
+    if (body != null) {
+        debug("body (Buffer)", body.toString('base64'));
+    } else {
+        debug("body is null");
+    }
+    debug("Reading body - end");
+    return body;
+}
+
+export async function getWebSocketContextFromReq(req: ApiRequest, prefix: string = '', getBodyFromReqFn: typeof getBodyFromReq = getBodyFromReq) {
 
     const cid = flattenHeader(req.headers['connection-id']);
     if (cid == null) {
@@ -61,27 +82,7 @@ export async function getWebSocketContextFromReq(req: ApiRequest, prefix: string
     debug("Handling Meta - end");
 
     if (req.body == null) {
-        debug("Reading body - start");
-        req.body = await new Promise((resolve) => {
-            const bodySegments: any[] = [];
-            req.on('data', (chunk) => {
-                bodySegments.push(chunk);
-            });
-            req.on('end', () => {
-                const bodyBuffer = Buffer.concat(bodySegments);
-                resolve(bodyBuffer);
-            });
-        });
-        if (req.body != null) {
-            if (req.body instanceof Buffer) {
-                debug("body (Buffer)", req.body.toString('base64'));
-            } else {
-                debug("body (string)", req.body);
-            }
-        } else {
-            debug("body is null");
-        }
-        debug("Reading body - end");
+        req.body = await getBodyFromReqFn(req);
     }
 
     debug("Decode body - start");
