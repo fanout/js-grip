@@ -31,6 +31,12 @@ interface FetchResponse {
 }
 type Transport = (url: string, reqParams: IReqParams) => Promise<FetchResponse>;
 
+declare global {
+    interface Object {
+        hasOwnProperty<K extends PropertyKey>(key: K): this is Record<K, unknown>;
+    }
+}
+
 // The PublisherClient class allows consumers to publish to an endpoint of
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method.
@@ -113,7 +119,7 @@ export default class PublisherClient {
         try {
             res = await transport(uri, reqParams);
         } catch (err) {
-            throw new PublishException(err.message, { statusCode: -1 });
+            throw new PublishException(err != null && typeof err === 'object' && err.hasOwnProperty('message') && typeof err.message === 'string' ? err.message : String(err), { statusCode: -1 });
         }
 
         const context: IContext = {
