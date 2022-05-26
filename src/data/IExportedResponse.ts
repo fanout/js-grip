@@ -1,4 +1,4 @@
-export default interface IExportedResponse {
+export interface IExportedResponse {
     code?: string;
     reason?: string;
     headers?: object;

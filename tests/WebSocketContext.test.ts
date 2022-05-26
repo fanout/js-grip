@@ -4,8 +4,7 @@ import jspackModule from "jspack";
 const { jspack } = jspackModule;
 /// <reference path="../types/jspack.d.ts" />
 
-import WebSocketContext from "../src/data/websocket/WebSocketContext";
-import WebSocketEvent from "../src/data/websocket/WebSocketEvent";
+import { WebSocketContext, WebSocketEvent } from "../src";
 
 describe('WebSocketContext', function () {
 	describe('open', function () {

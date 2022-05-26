@@ -1,6 +1,6 @@
 import * as assert from "assert";
 
-import Channel from '../src/data/Channel';
+import { Channel } from '../src';
 
 describe('Channel', function () {
 

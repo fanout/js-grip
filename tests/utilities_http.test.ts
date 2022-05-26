@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import {createKeepAliveHeader, createMetaHeader, createNextLinkHeader, parseQueryString} from "../src/utilities/http";
+import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader, parseQueryString } from "../src/utilities/http";
 
 describe('utilities/http', function() {
     describe('#createKeepAliveHeader', function() {

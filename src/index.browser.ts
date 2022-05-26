@@ -1,4 +1,4 @@
 import { Buffer } from 'buffer';
-import * as main from './main';
+import * as main from './index';
 
 export = Object.assign({}, main, { Buffer });

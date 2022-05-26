@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 
 import { validateSig } from "../src/utilities/jwt";
 

@@ -1,10 +1,10 @@
 import { Buffer } from 'buffer';
-import IFormat from '../IFormat';
-import IFormatExport from '../IFormatExport';
+import { IFormat } from '../IFormat';
+import { IFormatExport } from '../IFormatExport';
 
 // The WebSocketMessageFormat class is the format used to publish data to
 // WebSocket clients connected to GRIP proxies.
-export default class WebSocketMessageFormat implements IFormat {
+export class WebSocketMessageFormat implements IFormat {
     content: string | Buffer | null;
     close: boolean;
     code?: number;

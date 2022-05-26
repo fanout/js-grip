@@ -1,6 +1,6 @@
 import * as assert from "assert";
 
-import WebSocketEvent from "../src/data/websocket/WebSocketEvent";
+import { WebSocketEvent } from "../src";
 
 describe('WebSocketEvent', function () {
     describe('#constructor', function () {

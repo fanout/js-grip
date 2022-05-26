@@ -1,16 +1,13 @@
-import Item from '../data/Item';
-import IFormat from '../data/IFormat';
-import HttpStreamFormat from '../data/http/HttpStreamFormat';
-import HttpResponseFormat from '../data/http/HttpResponseFormat';
-import IGripConfig from './IGripConfig';
-import PublisherClient from './PublisherClient';
-import IItem from '../data/IItem';
-import { parseGripUri } from '../utilities/grip';
+import { IFormat, IItem, Item } from '../data';
+import { HttpResponseFormat, HttpStreamFormat } from '../data';
+import { IGripConfig } from './IGripConfig';
+import { PublisherClient } from './PublisherClient';
+import { parseGripUri } from '../utilities';
 
 // The Publisher class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. Publisher can be configured
 // using IGripConfig objects.
-export default class Publisher {
+export class Publisher {
     public clients: PublisherClient[] = [];
 
     constructor(config: string | IGripConfig | IGripConfig[] = []) {

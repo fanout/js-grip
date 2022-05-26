@@ -1,4 +1,4 @@
-export default interface IWebSocketEvent {
+export interface IWebSocketEvent {
     type: string;
     content: Buffer | number[] | string | null;
 

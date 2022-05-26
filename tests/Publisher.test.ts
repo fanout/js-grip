@@ -1,13 +1,14 @@
 import * as assert from "assert";
 
-import Item from '../src/data/Item';
-import IItem from '../src/data/IItem';
-import PublisherClient from "../src/engine/PublisherClient";
-
-import Publisher from "../src/engine/Publisher";
-import HttpResponseFormat from "../src/data/http/HttpResponseFormat";
-import HttpStreamFormat from "../src/data/http/HttpStreamFormat";
-import PublishException from "../src/data/PublishException";
+import {
+    Item,
+    IItem,
+    PublisherClient,
+    Publisher,
+    HttpResponseFormat,
+    HttpStreamFormat,
+    PublishException
+} from '../src';
 
 describe('Publisher', function () {
     describe('#constructor', function () {

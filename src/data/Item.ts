@@ -1,6 +1,6 @@
-import IFormat from './IFormat';
-import IItem from './IItem';
-import IItemExport from './IItemExport';
+import { IFormat } from './IFormat';
+import { IItem } from './IItem';
+import { IItemExport } from './IItemExport';
 
 // The Item class is a container used to contain one or more format
 // implementation instances where each implementation instance is of a
@@ -8,7 +8,7 @@ import IItemExport from './IItemExport';
 // implementations of the same type of format. An Item instance is then
 // serialized into a hash that is used for publishing to clients.
 
-export default class Item implements IItem {
+export class Item implements IItem {
     public formats: IFormat[];
     public id?: string;
     public prevId?: string;

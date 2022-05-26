@@ -1,12 +1,6 @@
 import * as assert from "assert";
 
-import Item from '../src/data/Item';
-import Format from '../src/data/Format';
-import PublisherClient from "../src/engine/PublisherClient";
-import PublishException from "../src/data/PublishException";
-import Basic from "../src/auth/Basic";
-import Jwt from "../src/auth/Jwt";
-import IItemExport from "../src/data/IItemExport";
+import { Auth, Item, Format, PublisherClient, PublishException, IItemExport } from "../src";
 
 class TestFormat extends Format {
     content: string;
@@ -36,8 +30,8 @@ describe('PublisherClient', function() {
         it('test case', function() {
             const pcc = new PublisherClient("uri");
             pcc.setAuthBasic("user", "pass");
-            assert.equal((<Basic>pcc.auth).user, "user");
-            assert.equal((<Basic>pcc.auth).pass, "pass");
+            assert.equal((<Auth.Basic>pcc.auth).user, "user");
+            assert.equal((<Auth.Basic>pcc.auth).pass, "pass");
         });
     });
     describe('#setAuthJwt', function() {
@@ -45,13 +39,13 @@ describe('PublisherClient', function() {
             const pcc = new PublisherClient("uri");
             const claim = {};
             pcc.setAuthJwt(claim, "key");
-            assert.equal((<Jwt>pcc.auth).claim, claim);
-            assert.equal((<Jwt>pcc.auth).key, "key");
+            assert.equal((<Auth.Jwt>pcc.auth).claim, claim);
+            assert.equal((<Auth.Jwt>pcc.auth).key, "key");
         });
         it('token', function() {
             const pcc = new PublisherClient("uri");
             pcc.setAuthJwt("token");
-            assert.equal((<Jwt>pcc.auth).token, "token");
+            assert.equal((<Auth.Jwt>pcc.auth).token, "token");
         });
     });
     describe('#publish', function() {

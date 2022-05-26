@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import Response from '../src/data/Response';
+import { Response } from '../src';
 
 describe('Response', function () {
     describe('#constructor', function () {

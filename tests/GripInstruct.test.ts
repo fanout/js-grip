@@ -1,7 +1,6 @@
 import * as assert from "assert";
 
-import Channel from '../src/data/Channel';
-import GripInstruct from "../src/data/GripInstruct";
+import { Channel, GripInstruct } from '../src';
 
 describe('GripInstruct', function () {
 

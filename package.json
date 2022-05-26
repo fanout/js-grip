@@ -14,14 +14,14 @@
       "email": "kon@fanout.io"
     }
   ],
-  "main": "./build/src/main.js",
-  "module": "./build/esm/main.js",
+  "main": "./build/src/index.js",
+  "module": "./build/esm/index.js",
   "files": [
     "browser/**/*",
     "build/**/*",
     "types/**/*"
   ],
-  "types": "./build/src/main.d.ts",
+  "types": "./build/src/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "yarn test && yarn lint && yarn build-package && yarn build-browser",

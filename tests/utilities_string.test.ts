@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import {encodeCString, escapeQuotes, isString,} from '../src/utilities/string';
+import { encodeCString, escapeQuotes, isString, } from '../src/utilities/string';
 
 describe('utilities/string', function() {
     describe('#isString', function() {

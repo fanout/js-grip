@@ -1,4 +1,4 @@
-export default interface IItemExport {
+export interface IItemExport {
     channel?: string;
     id?: string;
     'prev-id'?: string;

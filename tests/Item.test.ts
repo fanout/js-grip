@@ -1,7 +1,6 @@
 import * as assert from "assert";
 
-import Item from '../src/data/Item';
-import Format from '../src/data/Format';
+import { Item, Format } from '../src';
 
 class TestFormat1 extends Format {
     content: string;

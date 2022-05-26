@@ -1,3 +1,3 @@
-export default interface IFormatExport {
+export interface IFormatExport {
     [format: string]: any;
 }

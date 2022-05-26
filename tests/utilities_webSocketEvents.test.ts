@@ -1,11 +1,11 @@
 import * as assert from "assert";
 
-import WebSocketEvent from '../src/data/websocket/WebSocketEvent';
 import {
+    WebSocketEvent,
     decodeWebSocketEvents,
     encodeWebSocketEvents,
     createWebSocketControlMessage,
-} from "../src/utilities/webSocketEvents";
+} from "../src";
 
 describe('gripUtilities', function () {
     describe('#encodeWebSocketEvents', function () {

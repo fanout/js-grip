@@ -2,10 +2,8 @@ import { IncomingMessage } from "http";
 
 import debug from './debug';
 import { flattenHeader } from "./http";
-import WebSocketContext from "../data/websocket/WebSocketContext";
+import { WebSocketContext, ConnectionIdMissingException, WebSocketDecodeEventException } from "../data/websocket";
 import { decodeWebSocketEvents } from "./webSocketEvents";
-import ConnectionIdMissingException from "../data/websocket/ConnectionIdMissingException";
-import WebSocketDecodeEventException from "../data/websocket/WebSocketDecodeEventException";
 
 const CONTENT_TYPE_WEBSOCKET_EVENTS = 'application/websocket-events';
 

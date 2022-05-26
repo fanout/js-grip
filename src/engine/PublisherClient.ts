@@ -2,12 +2,8 @@ import { Buffer } from 'buffer';
 import 'isomorphic-fetch';
 import HttpAgent, { HttpsAgent } from 'agentkeepalive';
 
-import * as auth from '../auth/index';
-import PublishException from '../data/PublishException';
-
-import IAuth from '../auth/IAuth';
-import IItem from '../data/IItem';
-import IItemExport from '../data/IItemExport';
+import * as Auth from '../auth/index';
+import { IItem, IItemExport, PublishException } from '../data';
 
 interface IReqHeaders {
     [name: string]: string;
@@ -40,9 +36,9 @@ declare global {
 // The PublisherClient class allows consumers to publish to an endpoint of
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method.
-export default class PublisherClient {
+export class PublisherClient {
     public uri?: string;
-    public auth?: IAuth;
+    public auth?: Auth.IAuth;
     public httpKeepAliveAgent?: HttpAgent = new HttpAgent();
     public httpsKeepAliveAgent?: HttpsAgent = new HttpsAgent();
 
@@ -54,7 +50,7 @@ export default class PublisherClient {
     // Call this method and pass a username and password to use basic
     // authentication with the configured endpoint.
     setAuthBasic(username: string, password: string) {
-        this.auth = new auth.Basic(username, password);
+        this.auth = new Auth.Basic(username, password);
     }
 
     // Call this method and pass a claim and key to use JWT authentication
@@ -62,7 +58,7 @@ export default class PublisherClient {
     setAuthJwt(token: string): void;
     setAuthJwt(claim: object, key?: Buffer | string): void;
     setAuthJwt(...args: [any]): void {
-        this.auth = new auth.Jwt(...args);
+        this.auth = new Auth.Jwt(...args);
     }
 
     // The publish method for publishing the specified item to the specified

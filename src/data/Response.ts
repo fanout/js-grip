@@ -1,12 +1,12 @@
 import { Buffer } from 'buffer';
-import IExportedResponse from './IExportedResponse';
+import { IExportedResponse } from './IExportedResponse';
 
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed
 // to the GRIP proxy in the body. The GRIP proxy then parses the message
 // and deserialized the JSON into an HTTP response that is passed back
 // to the client.
-export default class Response {
+export class Response {
     code: string | null;
     reason: string | null;
     headers: object | null;

@@ -1,9 +1,9 @@
-import IWebSocketEvent from './IWebSocketEvent';
+import { IWebSocketEvent } from './IWebSocketEvent';
 
 // The WebSocketEvent class represents WebSocket event information that is
 // used with the GRIP WebSocket-over-HTTP protocol. It includes information
 // about the type of event as well as an optional content field.
-export default class WebSocketEvent implements IWebSocketEvent {
+export class WebSocketEvent implements IWebSocketEvent {
     type: string;
     content: Buffer | number[] | string | null;
 

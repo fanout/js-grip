@@ -2,12 +2,12 @@ import { Buffer } from 'buffer';
 import * as querystring from 'querystring';
 import * as url from 'url';
 
-import IGripConfig from '../engine/IGripConfig';
-import Channel from '../data/Channel';
+import { IGripConfig } from '../engine';
+import { Channel } from '../data';
 import { parseQueryString } from './http';
 import { isString } from './string';
 
-// An internal method for parsing the specified parameter into an
+// Method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either
 // be a string, a Channel instance, or an array of Channel instances.
 export function parseChannels(inChannels: Channel | Channel[] | string | string[]) {
