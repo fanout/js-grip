@@ -34,7 +34,7 @@
   },
   "include": [
     "src/**/*.ts",
-    // "test/**/*.ts",
+    // "tests/**/*.ts",
     "types/**/*.ts"
   ],
   "exclude": [

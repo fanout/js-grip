@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { toBuffer } from "../src/utilities/buffer";
+import { toBuffer } from "../../src/utilities/buffer";
 
 describe('utilities/buffer', function () {
     describe('#toBuffer', function () {

@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { HttpStreamFormat } from "../src";
+import { HttpStreamFormat } from "../../../src";
 
 describe('HttpStreamFormat', function () {
     describe('#constructor', function () {

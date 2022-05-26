@@ -8,7 +8,7 @@ import {
     HttpResponseFormat,
     HttpStreamFormat,
     PublishException
-} from '../src';
+} from '../../src';
 
 describe('Publisher', function () {
     describe('#constructor', function () {

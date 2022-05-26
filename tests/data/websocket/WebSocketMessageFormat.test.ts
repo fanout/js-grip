@@ -1,6 +1,6 @@
 import * as assert from "assert";
 
-import { WebSocketMessageFormat } from "../src";
+import { WebSocketMessageFormat } from "../../../src";
 
 describe('WebSocketMessageFormat', function () {
     describe('#constructor', function () {

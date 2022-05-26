@@ -1,11 +1,11 @@
 import * as assert from "assert";
 
-import { Channel } from '../src';
+import { Channel } from '../../src';
 import {
     parseChannels,
     parseGripUri,
     createGripChannelHeader,
-} from "../src/utilities/grip";
+} from "../../src/utilities/grip";
 
 describe('utilities/grip', function () {
     describe('#parseChannels', function () {

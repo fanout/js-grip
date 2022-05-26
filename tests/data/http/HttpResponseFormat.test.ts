@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { HttpResponseFormat } from "../src";
+import { HttpResponseFormat } from "../../../src";
 
 describe('HttpResponseFormat', function () {
     describe('#constructor', function () {

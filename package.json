@@ -35,7 +35,7 @@
     "format": "prettier --write \"src/**/*.{js,ts}\"",
     "lint": "yarn lint:eslint",
     "lint:eslint": "eslint src",
-    "test": "ts-mocha -p tsconfig.json tests/**/*.test.ts"
+    "test": "ts-mocha -p tsconfig.json \"tests/**/*.test.ts\""
   },
   "repository": {
     "type": "git",

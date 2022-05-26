@@ -1,6 +1,6 @@
 import * as assert from "assert";
 
-import { Auth, Item, Format, PublisherClient, PublishException, IItemExport } from "../src";
+import { Auth, Item, Format, PublisherClient, PublishException, IItemExport } from "../../src";
 
 class TestFormat extends Format {
     content: string;

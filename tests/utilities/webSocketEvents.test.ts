@@ -5,7 +5,7 @@ import {
     decodeWebSocketEvents,
     encodeWebSocketEvents,
     createWebSocketControlMessage,
-} from "../src";
+} from "../../src";
 
 describe('gripUtilities', function () {
     describe('#encodeWebSocketEvents', function () {

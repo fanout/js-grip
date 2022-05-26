@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as jwt from "jsonwebtoken";
 
-import { Auth } from '../src';
+import { Auth } from '../../src';
 
 describe('auth', function () {
     describe('Basic', function () {

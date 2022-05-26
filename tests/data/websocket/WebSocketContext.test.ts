@@ -2,9 +2,9 @@ import * as assert from "assert";
 
 import jspackModule from "jspack";
 const { jspack } = jspackModule;
-/// <reference path="../types/jspack.d.ts" />
+/// <reference path="../../../types/jspack.d.ts" />
 
-import { WebSocketContext, WebSocketEvent } from "../src";
+import { WebSocketContext, WebSocketEvent } from "../../../src";
 
 describe('WebSocketContext', function () {
 	describe('open', function () {

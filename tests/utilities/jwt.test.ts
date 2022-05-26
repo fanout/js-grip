@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import * as jwt from 'jsonwebtoken';
 
-import { validateSig } from "../src/utilities/jwt";
+import { validateSig } from "../../src/utilities/jwt";
 
 describe('utilities/jwt', function () {
     describe('#validateSig', function () {
