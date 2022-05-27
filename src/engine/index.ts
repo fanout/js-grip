@@ -1,3 +1,5 @@
+export * from './IApiRequest';
+export * from './IApiResponse';
 export * from './IGripConfig';
 export * from './IGripConfigBase';
 export * from './IPublisherTransport';
