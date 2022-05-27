@@ -48,7 +48,7 @@ export function parseGripUri(uri: string): IGripConfigBase {
     if (path != null && path.endsWith('/')) {
         path = path.substring(0, path.length - 1);
     }
-    let controlUri = parsedUri.protocol + '//' + parsedUri.host + path;
+    let controlUri = String(parsedUri.protocol) + '//' + String(parsedUri.host) + String(path);
     if (qs != null && qs !== '') {
         controlUri = controlUri + '?' + qs;
     }

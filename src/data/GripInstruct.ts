@@ -1,5 +1,5 @@
 import { Channel } from './Channel';
-import { createGripChannelHeader, parseChannels } from '../utilities/grip';
+import { createGripChannelHeader, parseChannels } from '../utilities';
 import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader } from '../utilities/http';
 
 export class GripInstruct {

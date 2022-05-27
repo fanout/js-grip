@@ -78,7 +78,7 @@ export class PublisherClient {
         try {
             res = await this.transport.publish(headers, content);
         } catch (err) {
-            throw new PublishException(err != null && typeof err === 'object' && err.hasOwnProperty('message') && typeof err.message === 'string' ? err.message : String(err), { statusCode: -1 });
+            throw new PublishException(err != null && typeof err === 'object' && Object.prototype.hasOwnProperty.call(err, 'message') && typeof err.message === 'string' ? err.message : String(err), { statusCode: -1 });
         }
 
         const context: IContext = {
