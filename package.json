@@ -24,7 +24,8 @@
   "types": "./build/src/index.d.ts",
   "scripts": {
     "prepublishOnly": "npm run build",
-    "build": "yarn test && yarn lint && yarn build-package && yarn build-browser",
+    "build-TEMPORARY_BACKUP": "yarn test && yarn lint && yarn build-package && yarn build-browser",
+    "build": "yarn build-package",
     "build-browser": "yarn build-browser:clean && yarn build-browser:build-dev && yarn build-browser:build-prod",
     "build-browser:clean": "rimraf browser",
     "build-browser:build-dev": "NODE_ENV=development webpack",
