@@ -17,7 +17,7 @@ export class NodeApiRequest implements IApiRequest<IncomingMessage> {
     return apiRequest;
   }
 
-  private _body?: Buffer | string;
+  private _body?: Buffer;
   constructor(private _req: IncomingMessage) {}
 
   getWrapped(): IncomingMessage {
@@ -28,7 +28,7 @@ export class NodeApiRequest implements IApiRequest<IncomingMessage> {
     return this._req.method;
   }
 
-  async getBody(): Promise<Buffer | string> {
+  async getBody(): Promise<Buffer> {
     if(this._body != null) {
       debug("Reading body - body already known, returning it");
       return this._body;

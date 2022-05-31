@@ -3,5 +3,5 @@ export interface IApiRequest<T> {
   getMethod(): string | undefined;
   getHeaders(): Record<string, string>;
   getHeaderValue(key: string): string | undefined;
-  getBody(): Promise<Buffer | string>;
+  getBody(): Promise<Buffer>;
 }
