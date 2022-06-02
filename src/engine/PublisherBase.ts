@@ -1,8 +1,8 @@
 import { IFormat, IItem, Item } from '../data';
 import { HttpResponseFormat, HttpStreamFormat } from '../data';
 import { PublisherClient } from './PublisherClient';
-import { parseGripUri } from '../utilities';
 import { IGripConfigBase } from "./IGripConfigBase";
+import { parseGripUriCustomParams } from "../utilities";
 
 // The PublisherBase class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. PublisherBase can be configured
@@ -22,7 +22,7 @@ export abstract class PublisherBase<TConfig extends IGripConfigBase> {
     applyConfig(config: string | TConfig | TConfig[]) {
         const configsAsArray = Array.isArray(config) ? config : [config];
         for (const entry of configsAsArray) {
-            const parsed = typeof entry === 'string' ? this.additionalParseGripUri(parseGripUri(entry), entry) : entry;
+            const parsed = typeof entry === 'string' ? this.parseGripUri(entry) : entry;
             const client = this.buildPublisherClient(parsed);
             const { control_iss: iss, key } = parsed;
             if (iss != null) {
@@ -33,7 +33,10 @@ export abstract class PublisherBase<TConfig extends IGripConfigBase> {
         }
     }
 
-    abstract additionalParseGripUri(parsed: IGripConfigBase, uri: string): TConfig;
+    parseGripUri(uri: string): TConfig {
+        return parseGripUriCustomParams<TConfig>(uri);
+    }
+
     abstract buildPublisherClient(config: TConfig): PublisherClient;
 
     // Add the specified PublisherClient instance.

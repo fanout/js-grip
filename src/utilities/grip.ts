@@ -20,7 +20,18 @@ export function parseChannels(inChannels: Channel | Channel[] | string | string[
 // authentication query parameters as well as any other required query string
 // parameters. The JWT 'key' query parameter can be provided as-is or in base64
 // encoded format.
-export function parseGripUri(uri: string): IGripConfigBase {
+export function parseGripUri(uri: string) {
+  return parseGripUriCustomParams<IGripConfigBase>(uri);
+}
+
+export function parseGripUriCustomParams<
+  TGripConfig extends IGripConfigBase,
+  TContext = {}
+>(
+  uri: string,
+  fnParamsToContext?: (params: Record<string, string>) => TContext,
+  fnContextToOut?: (configBase: IGripConfigBase, ctx: TContext) => TGripConfig
+): TGripConfig {
     const parsedUri = url.parse(uri);
     let iss: string | null = null;
     let key: Buffer | string | null = null;
@@ -34,6 +45,9 @@ export function parseGripUri(uri: string): IGripConfigBase {
         key = params['key'];
         delete params['key'];
     }
+
+    const ctx: TContext | null = fnParamsToContext != null ? fnParamsToContext(params) : null;
+
     if (key != null && isString(key) && key.startsWith('base64:')) {
         key = key.substring(7);
         // When the key contains a '+' character, if the URL is built carelessly
@@ -52,12 +66,18 @@ export function parseGripUri(uri: string): IGripConfigBase {
     if (qs != null && qs !== '') {
         controlUri = controlUri + '?' + qs;
     }
-    const out: IGripConfigBase = { control_uri: controlUri };
+    const configBase: IGripConfigBase = { control_uri: controlUri };
     if (iss != null) {
-        out['control_iss'] = iss;
+        configBase['control_iss'] = iss;
     }
     if (key != null) {
-        out['key'] = key;
+        configBase['key'] = key;
+    }
+    let out: TGripConfig;
+    if(fnContextToOut != null && ctx != null) {
+        out = fnContextToOut(configBase, ctx);
+    } else {
+        out = configBase as TGripConfig;
     }
     return out;
 }
