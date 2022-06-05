@@ -1,6 +1,6 @@
 import * as assert from "assert";
 
-import { Auth, Item, Format, PublisherClient, PublishException, IItemExport } from "../../src";
+import { Auth, Item, Format, PublisherClient, PublishException, IItemExport, IPublisherTransport } from "../../src";
 
 class TestFormat extends Format {
     content: string;
@@ -19,16 +19,23 @@ class TestFormat extends Format {
 describe('PublisherClient', function() {
     describe('#constructor', function() {
         it('test case', function() {
-            const pcc = new PublisherClient("uri");
-            assert.equal(pcc.uri, "uri");
-            assert.equal(pcc.auth, null);
-            assert.notEqual(pcc.httpKeepAliveAgent, null);
-            assert.notEqual(pcc.httpsKeepAliveAgent, null);
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            assert.equal(pcc.transport, publisherTransport);
         });
     });
     describe('#setAuthBasic', function() {
         it('test case', function() {
-            const pcc = new PublisherClient("uri");
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
             pcc.setAuthBasic("user", "pass");
             assert.equal((<Auth.Basic>pcc.auth).user, "user");
             assert.equal((<Auth.Basic>pcc.auth).pass, "pass");
@@ -36,14 +43,24 @@ describe('PublisherClient', function() {
     });
     describe('#setAuthJwt', function() {
         it('key and claim', function() {
-            const pcc = new PublisherClient("uri");
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
             const claim = {};
             pcc.setAuthJwt(claim, "key");
             assert.equal((<Auth.Jwt>pcc.auth).claim, claim);
             assert.equal((<Auth.Jwt>pcc.auth).key, "key");
         });
         it('token', function() {
-            const pcc = new PublisherClient("uri");
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
             pcc.setAuthJwt("token");
             assert.equal((<Auth.Jwt>pcc.auth).token, "token");
         });
@@ -54,9 +71,13 @@ describe('PublisherClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const pcc = new PublisherClient("uri");
-            pcc._startPubCall = async function(uri, authHeader, items) {
-                assert.equal(uri, "uri");
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc._startPubCall = async function(authHeader, items) {
                 assert.equal(
                     authHeader,
                     "Basic " + Buffer.from("user:pass").toString("base64")
@@ -73,9 +94,13 @@ describe('PublisherClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const pcc = new PublisherClient("uri");
-            pcc._startPubCall = async function(uri, authHeader, items) {
-                assert.equal(uri, "uri");
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc._startPubCall = async function(authHeader, items) {
                 assert.equal(authHeader, null);
                 assert.equal(JSON.stringify(items), JSON.stringify([exportedItem]));
                 wasWorkerCalled = true;
@@ -87,7 +112,12 @@ describe('PublisherClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const pcc = new PublisherClient("uri");
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
             pcc._startPubCall = async function() {
                 throw new PublishException('fail', null);
             };
@@ -104,63 +134,36 @@ describe('PublisherClient', function() {
     });
     describe('#_startPubCall', function() {
         it('test', async function() {
-            const pcc = new PublisherClient("http://uri.com");
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
             const testItems: IItemExport[] = [];
             let wasPerformHttpRequestCalled = false;
-            pcc._performHttpRequest = async function(_transport, uri, reqParams) {
-                assert.equal(reqParams.body, JSON.stringify({ items: testItems }));
-                assert.equal(reqParams.method, "POST");
-                assert.notEqual(reqParams.headers, null);
-                assert.equal(reqParams.headers["Content-Type"], "application/json");
+            pcc._performHttpRequest = async function(headers, content) {
+                assert.equal(content, JSON.stringify({ items: testItems }));
+                assert.notEqual(headers, null);
+                assert.equal(headers["Content-Type"], "application/json");
                 assert.equal(
-                    reqParams.headers["Content-Length"],
-                    Buffer.byteLength(reqParams.body, "utf8")
+                    headers["Content-Length"],
+                    Buffer.byteLength(content, "utf8")
                 );
-                assert.equal(reqParams.headers["Authorization"], "authHeader");
-                assert.equal(uri, "http://uri.com/publish/");
-                assert.equal(pcc.httpKeepAliveAgent, reqParams.agent);
+                assert.equal(headers["Authorization"], "authHeader");
                 wasPerformHttpRequestCalled = true;
             };
-            await pcc._startPubCall("http://uri.com", "authHeader", testItems);
+            await pcc._startPubCall("authHeader", testItems);
             assert.ok(wasPerformHttpRequestCalled);
-        });
-        it('https', async function() {
-            const pcc = new PublisherClient("https://uri.com");
-            const testItems: IItemExport[] = [];
-            let wasPerformHttpRequestCalled = false;
-            pcc._performHttpRequest = async function(_transport, uri, reqParams) {
-                assert.equal(reqParams.body, JSON.stringify({ items: testItems }));
-                assert.equal(reqParams.method, "POST");
-                assert.equal(reqParams.headers["Content-Type"], "application/json");
-                assert.equal(
-                    reqParams.headers["Content-Length"],
-                    Buffer.byteLength(reqParams.body, "utf8")
-                );
-                assert.ok(!("Authorization" in reqParams.headers));
-                assert.equal(uri, "https://uri.com/publish/");
-                assert.equal(pcc.httpsKeepAliveAgent, reqParams.agent);
-                wasPerformHttpRequestCalled = true;
-            };
-            await pcc._startPubCall("https://uri.com", null, testItems);
-            assert.ok(wasPerformHttpRequestCalled);
-        });
-        it('bad uri', async function() {
-            const pcc = new PublisherClient("https://uri.com");
-            const testItems: IItemExport[] = [];
-            let resultEx: any = null;
-            await assert.rejects(async () => {
-                await pcc._startPubCall("file://uri.com", null, testItems);
-            }, ex => {
-                resultEx = ex;
-                return true;
-            });
-            assert.ok(resultEx instanceof PublishException);
-            assert.equal(resultEx.message, "Bad URI");
-            assert.equal(resultEx.context.statusCode, -2);
         });
     });
     describe('#_finishHttpRequest', function() {
-        const pcc = new PublisherClient("https://uri.com");
+        const publisherTransport: IPublisherTransport = {
+            publish(_headers, _content): Promise<any> {
+                return Promise.resolve(undefined);
+            }
+        };
+        const pcc = new PublisherClient(publisherTransport);
         it('test', async function() {
             assert.doesNotThrow(() => {
                 pcc._finishHttpRequest(
@@ -198,38 +201,34 @@ describe('PublisherClient', function() {
     describe('#_performHttpRequest', function() {
         let wasFinishHttpRequestCalled: boolean;
         let wasFinishHttpRequestCalledForClose: boolean;
-        const pcc = new PublisherClient("https://uri.com");
-        pcc._finishHttpRequest = (mode, httpData) => {
-            wasFinishHttpRequestCalled = false;
-            wasFinishHttpRequestCalledForClose = false;
-            if (mode === "end") {
-                wasFinishHttpRequestCalled = true;
-                assert.equal(httpData, "result");
-            }
-            if (mode === "close") {
-                wasFinishHttpRequestCalledForClose = true;
-            }
-        };
-
         beforeEach(function() {
             wasFinishHttpRequestCalled = false;
             wasFinishHttpRequestCalledForClose = false;
         });
 
         it('fail', async function() {
-            const failTransport = async (_ur: any, opts: any) => {
-                assert.equal(opts.body, "content");
-                throw {message: "message"};
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, content): Promise<any> {
+                    assert.equal(content, "content");
+                    return Promise.reject("message");
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc._finishHttpRequest = (mode, httpData) => {
+                wasFinishHttpRequestCalled = false;
+                wasFinishHttpRequestCalledForClose = false;
+                if (mode === "end") {
+                    wasFinishHttpRequestCalled = true;
+                    assert.equal(httpData, "result");
+                }
+                if (mode === "close") {
+                    wasFinishHttpRequestCalledForClose = true;
+                }
             };
 
             let resultEx: any = null;
             await assert.rejects(async () => {
-                await pcc._performHttpRequest(failTransport, "https://uri.com/publish/", {
-                    agent: undefined,
-                    headers: {},
-                    method: "",
-                    body: "content"
-                });
+                await pcc._performHttpRequest({}, "content");
             }, ex => {
                 resultEx = ex;
                 return true;
@@ -241,44 +240,62 @@ describe('PublisherClient', function() {
             assert.ok(!wasFinishHttpRequestCalledForClose);
         });
         it('close', async function() {
-            const closeTransport = async (_uri: any, opts: any) => {
-                assert.equal(opts.body, "content");
-                return {
-                    status: 200,
-                    headers: {},
-                    text: async () => {
-                        throw "error";
-                    },
-                };
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, content): Promise<any> {
+                    assert.equal(content, "content");
+                    return Promise.resolve({
+                        status: 200,
+                        headers: {},
+                        text: async () => {
+                            throw "error";
+                        },
+                    });
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc._finishHttpRequest = (mode, httpData) => {
+                wasFinishHttpRequestCalled = false;
+                wasFinishHttpRequestCalledForClose = false;
+                if (mode === "end") {
+                    wasFinishHttpRequestCalled = true;
+                    assert.equal(httpData, "result");
+                }
+                if (mode === "close") {
+                    wasFinishHttpRequestCalledForClose = true;
+                }
             };
 
-            await pcc._performHttpRequest(closeTransport, "https://uri.com/publish/", {
-                agent: undefined,
-                headers: {},
-                method: "",
-                body: "content"
-            });
+            await pcc._performHttpRequest({}, 'content');
             assert.ok(!wasFinishHttpRequestCalled);
             assert.ok(wasFinishHttpRequestCalledForClose);
         });
         it('success', async function() {
-            const successTransport = async (_uri: any, opts: any) => {
-                assert.equal(opts.body, "content");
-                return {
-                    status: 200,
-                    headers: {},
-                    text: async () => {
-                        return "result";
-                    },
-                };
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, content): Promise<any> {
+                    assert.equal(content, "content");
+                    return Promise.resolve({
+                        status: 200,
+                        headers: {},
+                        text: async () => {
+                            return "result";
+                        },
+                    });
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc._finishHttpRequest = (mode, httpData) => {
+                wasFinishHttpRequestCalled = false;
+                wasFinishHttpRequestCalledForClose = false;
+                if (mode === "end") {
+                    wasFinishHttpRequestCalled = true;
+                    assert.equal(httpData, "result");
+                }
+                if (mode === "close") {
+                    wasFinishHttpRequestCalledForClose = true;
+                }
             };
 
-            await pcc._performHttpRequest(successTransport, "https://uri.com/publish/", {
-                agent: undefined,
-                headers: {},
-                method: "",
-                body: "content"
-            });
+            await pcc._performHttpRequest({}, 'content');
             assert.ok(wasFinishHttpRequestCalled);
             assert.ok(!wasFinishHttpRequestCalledForClose);
         });
