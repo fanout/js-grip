@@ -4,7 +4,7 @@ import { IExportedChannel } from './IExportedChannel';
 // tracks the previous ID of the last message.
 
 export class Channel {
-    public name?: string;
+    public name: string;
     public prevId: string | null;
 
     constructor(name: string, prevId: string | null = null) {
