@@ -10,13 +10,9 @@ Supported GRIP servers include:
 
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
-## New for 3.0.0
-- Major update with great improvements in usability, with support for modern
-  language features such as `class` and `async`/`await`.
-- Collapsed `js-pubcontrol` into `js-grip`, simplifying use and deployment.
-- Reorganized utility functions into categorized files.
-- Rewritten in TypeScript and exporting types files to enable static type checking and
-  IDE completion. 
+## New for 3.1.0
+- Now uses pnpm instead of npm
+- Pluggable architecture for Publishers that need to use a different transport mechanism
 
 ## Installation
 
