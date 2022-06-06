@@ -5,6 +5,9 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: ['./tsconfig.json'],
   },
+  ignorePatterns: [
+    '/src/index.browser.ts',
+  ],
   plugins: [
     '@typescript-eslint',
   ],
