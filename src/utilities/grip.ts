@@ -26,7 +26,7 @@ export function parseGripUri(uri: string) {
 
 export function parseGripUriCustomParams<
   TGripConfig extends IGripConfigBase,
-  TContext = {}
+  TContext = Record<string, unknown>,
 >(
   uri: string,
   fnParamsToContext?: (params: Record<string, string>) => TContext,
