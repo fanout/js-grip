@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 
-import Base from './Base';
+import { Base } from './Base';
 
-export default class Basic extends Base {
+export class Basic extends Base {
     public user: string;
     public pass: string;
 

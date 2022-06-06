@@ -1,8 +1,9 @@
 {
   "name": "@fanoutio/grip",
-  "version": "3.0.6",
+  "version": "3.1.0",
   "author": "Fanout, Inc. <info@fanout.io>",
   "description": "GRIP Interface Library",
+  "packageManager": "pnpm@7.1.9",
   "contributors": [
     {
       "name": "Katsuyuki Ohmuro",
@@ -13,32 +14,28 @@
       "email": "kon@fanout.io"
     }
   ],
-  "main": "./build/main.js",
-  "module": "./build-esm/main.js",
+  "main": "./build/src/index.js",
+  "module": "./build/esm/index.js",
   "files": [
     "browser/**/*",
     "build/**/*",
-    "build-esm/**/*",
     "types/**/*"
   ],
-  "types": "./build/main.d.ts",
+  "types": "./build/src/index.d.ts",
   "scripts": {
-    "prepublishOnly": "npm run build",
-    "build": "npm run test && npm run lint && npm run build-commonjs && npm run build-esm && npm run build-browser",
-    "build-commonjs": "npm run build-commonjs:clean && npm run build-commonjs:build",
-    "build-commonjs:clean": "rimraf build",
-    "build-commonjs:build": "tsc -d --outDir build",
-    "build-esm": "npm run build-esm:clean && npm run build-esm:build",
-    "build-esm:clean": "rimraf build-esm",
-    "build-esm:build": "tsc -m es6 --outDir build-esm",
-    "format": "prettier --write \"src/**/*.{js,ts}\"",
-    "build-browser": "npm run build-browser:clean && npm run build-browser:build-dev && npm run build-browser:build-prod",
+    "prepack": "pnpm build",
+    "build": "pnpm test && pnpm lint && pnpm build-package && pnpm build-browser",
+    "build-browser": "pnpm build-browser:clean && pnpm build-browser:build-dev && pnpm build-browser:build-prod",
     "build-browser:clean": "rimraf browser",
     "build-browser:build-dev": "NODE_ENV=development webpack",
     "build-browser:build-prod": "NODE_ENV=production webpack -p",
-    "lint": "npm run lint:tslint",
-    "lint:tslint": "tslint -p tsconfig.json",
-    "test": "jest --config jestconfig.json --verbose --passWithNoTests"
+    "build-package": "pnpm build-package:clean && pnpm build-package:compile",
+    "build-package:clean": "rimraf build",
+    "build-package:compile": "tsc --build tsconfig.json && tsc --build tsconfig.esm.json",
+    "format": "prettier --write \"src/**/*.{js,ts}\"",
+    "lint": "pnpm lint:eslint",
+    "lint:eslint": "eslint src",
+    "test": "ts-mocha -p tsconfig.json \"tests/**/*.test.ts\""
   },
   "repository": {
     "type": "git",
@@ -57,17 +54,18 @@
   "license": "MIT",
   "devDependencies": {
     "@types/debug": "^4.1.5",
-    "@types/jest": "^26.0.10",
     "@types/jsonwebtoken": "^8.5.0",
+    "@types/mocha": "^9.1.1",
     "@types/node": "^14.6.0",
-    "jest": "^26.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "eslint": "^8.16.0",
+    "mocha": "^10.0.0",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.2.0",
     "ts-loader": "^8.0.2",
-    "tslint": "^6.1.3",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.9.7",
+    "ts-mocha": "^10.0.0",
+    "typescript": "^4.7.2",
     "webpack": "^4.44.1",
     "webpack-bundle-analyzer": "^3.9.0",
     "webpack-cli": "^3.3.12"

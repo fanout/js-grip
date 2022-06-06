@@ -1,4 +1,4 @@
-import WebSocketException from "./WebSocketException";
+import { WebSocketException } from "./WebSocketException";
 
-export default class ConnectionIdMissingException extends WebSocketException {
+export class ConnectionIdMissingException extends WebSocketException {
 }

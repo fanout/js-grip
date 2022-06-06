@@ -1,3 +1,3 @@
-export default interface IAuth {
+export interface IAuth {
     buildHeader(): string;
 }

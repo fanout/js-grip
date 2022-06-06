@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
 
-import IWebSocketEvent from '../data/websocket/IWebSocketEvent';
-import WebSocketEvent from '../data/websocket/WebSocketEvent';
+import { IWebSocketEvent, WebSocketEvent } from '../data';
 import { isString } from './string';
 
 // Encode the specified array of WebSocketEvent instances. The returned string

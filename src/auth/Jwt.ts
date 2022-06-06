@@ -1,12 +1,12 @@
 import { Buffer } from 'buffer';
 import * as jwt from 'jsonwebtoken';
 
-import Base from './Base';
+import { Base } from './Base';
 
 // JWT authentication class used for building auth headers containing
 // JSON web token information in either the form of a claim and
 // corresponding key, or the literal token itself.
-export default class Jwt extends Base {
+export class Jwt extends Base {
     public token?: string;
     public claim?: object;
     public key?: Buffer;

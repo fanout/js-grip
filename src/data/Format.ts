@@ -1,5 +1,5 @@
-import IFormat from './IFormat';
-import IFormatExport from './IFormatExport';
+import { IFormat } from './IFormat';
+import { IFormatExport } from './IFormatExport';
 
 // The Format class is provided as a base class for all publishing
 // formats that are included in the Item class. Examples of format
@@ -9,7 +9,7 @@ import IFormatExport from './IFormatExport';
 // only need to implement IFormat), but since this needs to be consumable
 // from JavaScript, we are exporting this class.
 
-export default abstract class Format implements IFormat {
+export abstract class Format implements IFormat {
     // The name of the format which should return a string. Examples
     // include 'json-object' and 'http-response'
     abstract name(): string;

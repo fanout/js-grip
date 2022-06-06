@@ -1,4 +1,4 @@
-export default class PublishException {
+export class PublishException {
     message: string;
     context: any;
 

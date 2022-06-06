@@ -15,8 +15,8 @@ To run the demo:
 
 1. Clone this repository, then build the commonjs build of this library
 ```
-npm install
-npm run build-commonjs
+pnpm install
+pnpm build-package
 ```
 
 2. Install Pushpin (see https://pushpin.org/docs/install/)

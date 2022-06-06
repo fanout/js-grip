@@ -1,3 +1,3 @@
-export default class WebSocketException extends Error {
+export class WebSocketException extends Error {
 }
 

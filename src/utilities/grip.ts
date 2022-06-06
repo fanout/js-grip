@@ -2,12 +2,12 @@ import { Buffer } from 'buffer';
 import * as querystring from 'querystring';
 import * as url from 'url';
 
-import IGripConfig from '../engine/IGripConfig';
-import Channel from '../data/Channel';
+import { IGripConfigBase } from '../engine';
+import { Channel } from '../data';
 import { parseQueryString } from './http';
 import { isString } from './string';
 
-// An internal method for parsing the specified parameter into an
+// Method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either
 // be a string, a Channel instance, or an array of Channel instances.
 export function parseChannels(inChannels: Channel | Channel[] | string | string[]) {
@@ -16,11 +16,22 @@ export function parseChannels(inChannels: Channel | Channel[] | string | string[
 }
 
 // Parse the specified GRIP URI into a config object that can then be passed
-// to the Publisher class. The URI can include 'iss' and 'key' JWT
+// to the PublisherBase class. The URI can include 'iss' and 'key' JWT
 // authentication query parameters as well as any other required query string
 // parameters. The JWT 'key' query parameter can be provided as-is or in base64
 // encoded format.
-export function parseGripUri(uri: string): IGripConfig {
+export function parseGripUri(uri: string) {
+  return parseGripUriCustomParams<IGripConfigBase>(uri);
+}
+
+export function parseGripUriCustomParams<
+  TGripConfig extends IGripConfigBase,
+  TContext = Record<string, unknown>,
+>(
+  uri: string,
+  fnParamsToContext?: (params: Record<string, string>) => TContext,
+  fnContextToOut?: (configBase: IGripConfigBase, ctx: TContext) => TGripConfig
+): TGripConfig {
     const parsedUri = url.parse(uri);
     let iss: string | null = null;
     let key: Buffer | string | null = null;
@@ -34,6 +45,9 @@ export function parseGripUri(uri: string): IGripConfig {
         key = params['key'];
         delete params['key'];
     }
+
+    const ctx: TContext | null = fnParamsToContext != null ? fnParamsToContext(params) : null;
+
     if (key != null && isString(key) && key.startsWith('base64:')) {
         key = key.substring(7);
         // When the key contains a '+' character, if the URL is built carelessly
@@ -48,16 +62,22 @@ export function parseGripUri(uri: string): IGripConfig {
     if (path != null && path.endsWith('/')) {
         path = path.substring(0, path.length - 1);
     }
-    let controlUri = parsedUri.protocol + '//' + parsedUri.host + path;
+    let controlUri = String(parsedUri.protocol) + '//' + String(parsedUri.host) + String(path);
     if (qs != null && qs !== '') {
         controlUri = controlUri + '?' + qs;
     }
-    const out: IGripConfig = { control_uri: controlUri };
+    const configBase: IGripConfigBase = { control_uri: controlUri };
     if (iss != null) {
-        out['control_iss'] = iss;
+        configBase['control_iss'] = iss;
     }
     if (key != null) {
-        out['key'] = key;
+        configBase['key'] = key;
+    }
+    let out: TGripConfig;
+    if(fnContextToOut != null && ctx != null) {
+        out = fnContextToOut(configBase, ctx);
+    } else {
+        out = configBase as TGripConfig;
     }
     return out;
 }

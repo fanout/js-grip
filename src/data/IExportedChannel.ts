@@ -1,4 +1,4 @@
-export default interface IExportedChannel {
+export interface IExportedChannel {
     name: string;
     prevId?: string;
 }

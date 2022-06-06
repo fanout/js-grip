@@ -1,4 +1,4 @@
-import WebSocketException from "./WebSocketException";
+import { WebSocketException } from "./WebSocketException";
 
-export default class WebSocketDecodeEventException extends WebSocketException {
+export class WebSocketDecodeEventException extends WebSocketException {
 }
