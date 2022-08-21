@@ -45,7 +45,6 @@ export class PublisherTransport implements IPublisherTransport {
       body: content,
       agent: this.getAgent(),
     };
-    console.log('fetch!', this.publishUri, reqParams);
     return await fetch(this.publishUri, reqParams);
   }
 }
