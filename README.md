@@ -10,9 +10,9 @@ Supported GRIP servers include:
 
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
-## New for 3.1.0
-- Now uses pnpm instead of npm
-- Pluggable architecture for Publishers that need to use a different transport mechanism
+## New for 3.2.0
+- Revert to npm instead of pnpm
+- Removed unneeded log message
 
 ## Installation
 
