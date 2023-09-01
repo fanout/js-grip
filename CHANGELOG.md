@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [3.3.0] - 2023-09-02
+
 ### Added
 - Support for `verify_iss` and `verify_key` GRIP configurations and parsing them from GRIP_URLs.
 - Support for Bearer tokens, using the new `Auth.Bearer` class.
