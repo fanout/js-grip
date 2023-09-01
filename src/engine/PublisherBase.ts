@@ -24,11 +24,17 @@ export abstract class PublisherBase<TConfig extends IGripConfigBase> {
         for (const entry of configsAsArray) {
             const parsed = typeof entry === 'string' ? this.parseGripUri(entry) : entry;
             const client = this.buildPublisherClient(parsed);
-            const { control_iss: iss, key } = parsed;
+            const { control_iss: iss, key, verify_key: verifyKey, verify_iss: verifyIss } = parsed;
             if (iss != null) {
                 client.setAuthJwt({ iss }, key ?? '');
             } else if (typeof key === 'string') {
                 client.setAuthBearer(key);
+            }
+            if (verifyIss != null || verifyKey != null) {
+                client.setVerifyComponents({
+                    verifyIss,
+                    verifyKey,
+                });
             }
 
             this.addClient(client);

@@ -33,6 +33,8 @@ describe('Publisher', function () {
                     'control_uri': 'https://www.example.com/uri2',
                     'control_iss': 'iss2',
                     'key': 'key==2',
+                    'verify_iss': 'v_iss2',
+                    'verify_key': 'v_key==2',
                 },
                 {
                     'control_uri': 'https://www.example.com/uri3',
@@ -45,9 +47,12 @@ describe('Publisher', function () {
             assert.equal(pc.clients[0].transport.publishUri, 'https://www.example.com/uri2/publish/');
             assert.equal(pc.clients[0].auth.claim['iss'], 'iss2');
             assert.equal(pc.clients[0].auth.key, 'key==2');
+            assert.equal(pc.clients[0].verifyComponents.verifyIss, 'v_iss2');
+            assert.equal(pc.clients[0].verifyComponents.verifyKey, 'v_key==2');
             assert.equal(pc.clients[1].transport.publishUri, 'https://www.example.com/uri3/publish/');
             assert.equal(pc.clients[1].auth.claim['iss'], 'iss3');
             assert.equal(pc.clients[1].auth.key, 'key==3');
+            assert.equal(pc.clients[1].verifyComponents, undefined);
         });
     });
     describe('#applyConfig', function () {
@@ -68,6 +73,8 @@ describe('Publisher', function () {
                     'control_uri': 'https://www.example.com/uri2',
                     'control_iss': 'iss2',
                     'key': 'key==2',
+                    'verify_iss': 'v_iss2',
+                    'verify_key': 'v_key==2',
                 },
                 {
                     'control_uri': 'https://www.example.com/uri3',
@@ -79,12 +86,16 @@ describe('Publisher', function () {
             assert.equal(pc.clients[0].transport.publishUri, 'https://www.example.com/uri/publish/');
             assert.equal(pc.clients[0].auth.claim['iss'], 'iss');
             assert.equal(pc.clients[0].auth.key, 'key==');
+            assert.equal(pc.clients[0].verifyComponents, undefined);
             assert.equal(pc.clients[1].transport.publishUri, 'https://www.example.com/uri2/publish/');
             assert.equal(pc.clients[1].auth.claim['iss'], 'iss2');
             assert.equal(pc.clients[1].auth.key, 'key==2');
+            assert.equal(pc.clients[1].verifyComponents.verifyIss, 'v_iss2');
+            assert.equal(pc.clients[1].verifyComponents.verifyKey, 'v_key==2');
             assert.equal(pc.clients[2].transport.publishUri, 'https://www.example.com/uri3/publish/');
             assert.equal(pc.clients[2].auth.claim['iss'], 'iss3');
             assert.equal(pc.clients[2].auth.key, 'key==3');
+            assert.equal(pc.clients[2].verifyComponents, undefined);
         });
     });
     describe('#addClients', function () {

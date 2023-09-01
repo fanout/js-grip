@@ -19,12 +19,18 @@ declare global {
     }
 }
 
+export type VerifyComponents = {
+    verifyIss?: string;
+    verifyKey?: Buffer | string;
+}
+
 // The PublisherClient class allows consumers to publish to an endpoint of
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method.
 export class PublisherClient {
     public transport: IPublisherTransport;
     public auth?: Auth.IAuth;
+    public verifyComponents?: VerifyComponents;
 
     constructor(transport: IPublisherTransport) {
         this.transport = transport;
@@ -46,6 +52,20 @@ export class PublisherClient {
     // with the configured endpoint.
     setAuthBearer(token: string): void {
         this.auth = new Auth.Bearer(token);
+    }
+
+    // Call this method and pass a verify key and/or verify iss to set them
+    // for this client
+    setVerifyComponents(verifyComponents: VerifyComponents) {
+        this.verifyComponents = verifyComponents;
+    }
+
+    getVerifyIss() {
+        return this.verifyComponents?.verifyIss;
+    }
+
+    getVerifyKey() {
+        return this.verifyComponents?.verifyKey ?? (this.auth instanceof Auth.Jwt ? this.auth.key : undefined);
     }
 
     // The publish method for publishing the specified item to the specified

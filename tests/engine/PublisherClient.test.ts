@@ -65,6 +65,82 @@ describe('PublisherClient', function() {
             assert.equal((pcc.auth as Auth.Bearer).token, "token");
         });
     });
+    describe('#setVerifyComponents', function() {
+        it("not calling it doesn't set a value", function() {
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            assert.equal(pcc.verifyComponents, undefined);
+        });
+        it("calling it with sets the value", function() {
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key' });
+            assert.equal(pcc.verifyComponents?.verifyIss, 'iss');
+            assert.equal(pcc.verifyComponents?.verifyKey, 'key');
+        });
+    });
+    describe('#getVerifyIss', function() {
+        it("has no value if #setVerifyComponents is not called", function() {
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            assert.equal(pcc.getVerifyIss(), undefined);
+        });
+        it("has the value if #setVerifyComponents is called", function() {
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key' });
+            assert.equal(pcc.getVerifyIss(), 'iss');
+        });
+    });
+    describe('#getVerifyKey', function() {
+        it("has no value if #setVerifyComponents is not called and auth isn't set", function() {
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            assert.equal(pcc.getVerifyKey(), undefined);
+        });
+        it("has the value if #setAuthJwt is called", function() {
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc.setAuthJwt({}, 'key');
+            assert.equal(pcc.getVerifyKey(), 'key');
+        });
+        it("has the value if #setVerifyComponents is called", function() {
+            const publisherTransport: IPublisherTransport = {
+                publish(_headers, _content): Promise<any> {
+                    return Promise.resolve(undefined);
+                }
+            };
+            const pcc = new PublisherClient(publisherTransport);
+            pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key1' });
+            pcc.setAuthJwt({}, 'key2');
+            // the verifyKey should win when both are provided
+            assert.equal(pcc.getVerifyKey(), 'key1');
+        });
+    });
     describe('#publish', function() {
         it('auth', async function() {
             let wasWorkerCalled = false;
