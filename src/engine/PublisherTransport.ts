@@ -9,15 +9,15 @@ export class PublisherTransport implements IPublisherTransport {
 
   constructor(uri: string) {
     // Initialize this class with a URL representing the publishing endpoint.
-    if(!uri.endsWith('/')) {
+    const url = new URL(uri);
+    if (!url.pathname.endsWith('/')) {
       // To avoid breaking previous implementation, if the URL does
       // not end in a slash then we add one.
       // e.g. if URI is 'https://www.example.com/foo' then the
       // publishing URI is 'https://www.example.com/foo/publish'
-      uri += '/';
+      url.pathname += '/';
     }
-
-    this.publishUri = String(new URL('./publish/', uri));
+    this.publishUri = String(new URL('./publish/', url));
   }
 
   getAgent() {
