@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [unreleased]
 
 ### Added
+- Support for `verify_iss` and `verify_key` GRIP configurations and parsing them from GRIP_URLs.
 - Support for Bearer tokens, using the new `Auth.Bearer` class.
-- Use a Bearer token by creating IGripConfig with `key`, but without a `control_iss`. This can also be parsed from
-  `GRIP_URL` that have a `key` without an `iss`. 
+  - Use a Bearer token by creating IGripConfig with `key`, but without a `control_iss`. This can also be parsed from
+    `GRIP_URL` that have a `key` without an `iss`. 
+- Updated with full support for Fastly Fanout.
 
 ## [3.2.0] - 2022-11-06
 - Revert to npm instead of pnpm

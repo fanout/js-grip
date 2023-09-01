@@ -6,13 +6,18 @@ that support the GRIP interface, such as Pushpin.
 Supported GRIP servers include:
 
 * [Pushpin](http://pushpin.org/)
-* [Fanout Cloud](https://fanout.io/cloud/)
+* [Fastly Fanout](https://docs.fastly.com/products/fanout)
+
+This library also supports legacy services hosted by [Fanout](https://fanout.io/) Cloud.
 
 Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
 
-## New for 3.2.0
-- Revert to npm instead of pnpm
-- Removed unneeded log message
+## New for 3.3.0
+- Support for `verify_iss` and `verify_key` GRIP configurations and parsing them from GRIP_URLs.
+- Support for Bearer tokens, using the new `Auth.Bearer` class.
+  - Use a Bearer token by creating IGripConfig with `key`, but without a `control_iss`. This can also be parsed from
+    `GRIP_URL` that have a `key` without an `iss`.
+- Updated with full support for Fastly Fanout.
 
 ## Installation
 
@@ -33,6 +38,13 @@ const { Publisher, PublishException } = require('@fanoutio/grip');
 // Each endpoint can include optional JWT authentication info.
 // Multiple endpoints can be included in a single configuration.
 
+// Fastly Fanout example
+const publisher = new Publisher({
+    'control_uri': 'https://api.fastly.com/service/<service-id>',
+    'key': '<fastly-api-key>',
+});
+
+// Fanout.io example
 const publisher = new Publisher({
     'control_uri': 'https://api.fanout.io/realm/<myrealm>',
     'control_iss': '<myrealm>',
@@ -83,13 +95,29 @@ try {
 When the client connects to a GRIP proxy over HTTP, the proxy forwards the request to the origin and adds the `Grip-Sig`
 header to the proxied request. 
 
-Validate the `Grip-Sig` request header from incoming GRIP messages. This ensures that the message was sent from a valid
-source and is not expired. Note that when using Fanout.io the key is the realm key, and when using Pushpin the key
-is configurable in Pushpin's settings.
+Use the `validateSig()` function to validate the `Grip-Sig` request header from incoming GRIP messages. This ensures that
+the message was sent from the GRIP proxy that you expect, and that it is not expired.
+
+* When using Pushpin, the `key` is configurable using the `sig_key` value in Pushpin settings.
+* When using Fastly Fanout:
+  * The key is the following public key value.
+    ```
+    -----BEGIN PUBLIC KEY-----
+    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECKo5A1ebyFcnmVV8SE5On+8G81Jy
+    BjSvcrx4VLetWCjuDAmppTo3xM/zz763COTCgHfp/6lPdCyYjjqc+GM7sw==
+    -----END PUBLIC KEY-----
+    ```
+  * In this case, the Grip-Sig encodes an `iss` value equal to `fastly:<service-id>`. Pass this value as the third
+    parameter to `validateSig`.
+* When using a legacy fanout.io service, the `key` is your realm key.
 
 ```javascript
-var { validateSig } = require('grip');
+var { validateSig } = require('@fanoutio/grip');
 
+// If the GRIP signature also encodes an ISS (verify-key is usually a public key in this case)
+var isValid = validateSig(req.headers['grip-sig'], '<verify-key>', '<verify-iss>');
+
+// If the GRIP signature is signed by a service-specific key
 var isValid = validateSig(req.headers['grip-sig'], '<key>');
 ```
 
@@ -375,11 +403,13 @@ Interface `IGripConfig`
 
 Represents the configuration for a GRIP client, such as Pushpin or Fanout Cloud.
 
-| Field | Description |
-| --- | --- |
-| `control_uri` | The Control URI of the GRIP client. |
-| `control_iss` | (optional) The Control ISS, if required by the GRIP client. |
-| `key` | (optional) The key to use with the Control ISS, if required by the GRIP client. |
+| Field         | Description                                                                     |
+|---------------|---------------------------------------------------------------------------------|
+| `control_uri` | The Control URI of the GRIP client.                                             |
+| `control_iss` | (optional) The Control ISS, if required by the GRIP client.                     |
+| `key`         | (optional) The key to use with the Control ISS, if required by the GRIP client. |
+| `verify_iss`  | (optional) The ISS to use when validating a GRIP signature.                     |
+| `verify_key`  | (optional) The key to use when validating a GRIP signature.                     |
 
 Class `Format`
 
@@ -395,13 +425,14 @@ the consumer rarely needs to use them directly.
 | --- | --- |
 | `createGripChannelHeader(channels)` | Create a GRIP channel header for the specified channels. |
 
-| Class | Description |
-| --- | --- |
-| `Auth.Base` | Base class for authentication to be used with `Publisher`. |
-| `Auth.Basic` | Represents Basic authentication to be used with `Publisher`. |
-| `Auth.Jwt` | Represents JWT authentication to be used with `Publisher`. |
-| `Channel` | Represents a channel used by a GRIP proxy. |
-| `Response` | Represents a set of HTTP response data. |
+| Class             | Description                                                                                 |
+|-------------------|---------------------------------------------------------------------------------------------|
+| `Auth.Base`       | Base class for authentication to be used with `Publisher`.                                  |
+| `Auth.Basic`      | Represents Basic authentication to be used with `Publisher`.                                |
+| `Auth.Bearer`     | Represents Bearer authentication to be used with `Publisher`.                               |
+| `Auth.Jwt`        | Represents JWT authentication to be used with `Publisher`.                                  |
+| `Channel`         | Represents a channel used by a GRIP proxy.                                                  |
+| `Response`        | Represents a set of HTTP response data.                                                     |
 | `PublisherClient` | Represents an endpoint and its attributes, including authentication, used with `Publisher`. |
 
 | Interfaces | Description |
@@ -420,6 +451,10 @@ Class `Auth.Basic`
 
 Represents Basic authentication to be used with a `PublisherClient`.
 
+Class `Auth.Bearer`
+
+Represents Bearer authentication to be used with a `PublisherClient`.
+
 Class `Auth.Jwt`
 
 Represents JWT (JSON Web Tokens) authentication to be used with a `PublisherClient`.
@@ -431,21 +466,42 @@ is used by `Publisher` to publish messages to.  This class is typically not used
 directly, but you may instantiate this on your own if you wish to set up authentication
 directly.
 
-| Method | Description |
-| --- | --- |
-| constructor(`uri`) | Create a `PublisherClient` instance, initializing it with the given publishing endpoint. |
-| `setAuthBasic(username, password)` | Configure this instance with Basic authentication with the specified username and password. |
-| `setAuthJwt(token)`<br />`setAuthJwt(claim, key?)` | Configure this instance with Jwt authentication with the specified claim and key, or with the specified token. |
-| `async publish(channel, item)` | Publish a specified item to the specified channel. |  
+| Method                                          | Description                                                                                                              |
+|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| constructor(`transport`)                        | Create a `PublisherClient` instance, initializing it with the given `IPublisherTransport` instance.                      |
+| `setAuthBasic(username, password)`              | Configure this instance with Basic authentication with the specified username and password.                              |
+| `setAuthBearer(token)`                          | Configure this instance with Bearer authentication with the specified token.                                             |
+| `setAuthJwt(claim, key)`                        | Configure this instance with Jwt authentication with the specified claim and key.                                        |
+| `setVerifyComponents({ verifyIss, verifyKey })` | Configure this instance to use the provided iss and/or key to validate a Grip-Sig.                                       |
+| `getVerifyIss()`                                | Returns the iss value to use to validate a Grip-Sig.                                                                     | 
+| `getVerifyKey()`                                | Returns the key value to use to validate a Grip-Sig. If not set, and Jwt auth is used, then falls back to the JWT `key`. | 
+| `async publish(channel, item)`                  | Publish a specified item to the specified channel.                                                                       |  
+
+Interface `IPublisherTransport`
+
+Represents a transport mechanism by which to deliver publishes.
+
+| Method                     | Description                                                          |
+|----------------------------|----------------------------------------------------------------------|
+| publish(headers, content)  | Delivers a publish message using HTTP and returns the HTTP response. |
+
+Class `PublisherTransport`
+
+An implementation of `IPublisherTransport` that uses the Fetch API to deliver publishes. Also supports keep-alive.
+
+| Method                     | Description                                                                                 |
+|----------------------------|---------------------------------------------------------------------------------------------|
+| constructor(`uri`)         | Create a `PublisherTransport` instance, initializing it with the given publishing endpoint. |
+| publish(headers, content)  | Delivers a publish message using the Fetch API, and returns the HTTP response.              |
 
 ## Configuring the GRIP endpoint
 
-Parse a GRIP URI to extract the URI, ISS, and key values. The values will be returned in a dictionary containing 'control_uri', 'control_iss', and 'key' keys.
+Parse a GRIP URI to extract the URI, ISS, and key values. The values will be returned in a JavaScript object containing `control_uri`, `control_iss`, `key`, `verify_iss`, and `verify_key` fields.
 
 ```javascript
 var grip = require('@fanoutio/grip');
-var config = grip.parseGripUri('http://api.fanout.io/realm/<myrealm>' +
-        '?iss=<myrealm>&key=base64:<myrealmkey>');
+var config = grip.parseGripUri('https://api.fastly.com/service/<service-id>' +
+        '?verify-iss=fastly:<service-id>&key=<fastly-api-key>');
 ```
 
 ## Consuming this library
