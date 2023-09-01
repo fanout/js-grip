@@ -36,6 +36,9 @@ export function parseGripUriCustomParams<
     let iss: string | null = null;
     let key: Buffer | string | null = null;
 
+    let verify_iss: string | null = null;
+    let verify_key: Buffer | string | null = null;
+
     const params = parseQueryString(parsedUri.query || '');
     if ('iss' in params) {
         iss = params['iss'];
@@ -44,6 +47,14 @@ export function parseGripUriCustomParams<
     if ('key' in params) {
         key = params['key'];
         delete params['key'];
+    }
+    if ('verify-iss' in params) {
+        verify_iss = params['verify-iss'];
+        delete params['verify-iss'];
+    }
+    if ('verify-key' in params) {
+        verify_key = params['verify-key'];
+        delete params['verify-key'];
     }
 
     const ctx: TContext | null = fnParamsToContext != null ? fnParamsToContext(params) : null;
@@ -56,6 +67,15 @@ export function parseGripUriCustomParams<
         // this point. Turn them back into pluses before decoding the key from base64.
         key = key.replace(/ /g, '+');
         key = Buffer.from(key, 'base64');
+    }
+    if (verify_key != null && isString(verify_key) && verify_key.startsWith('base64:')) {
+        verify_key = verify_key.substring(7);
+        // When the key contains a '+' character, if the URL is built carelessly
+        // and this segment of the URL contained '+' directly instead of properly
+        // being URL-encoded as %2B, then they would have turned into spaces at
+        // this point. Turn them back into pluses before decoding the key from base64.
+        verify_key = verify_key.replace(/ /g, '+');
+        verify_key = Buffer.from(verify_key, 'base64');
     }
     const qs = querystring.stringify(params);
     let path = parsedUri.pathname;
@@ -72,6 +92,12 @@ export function parseGripUriCustomParams<
     }
     if (key != null) {
         configBase['key'] = key;
+    }
+    if (verify_iss != null) {
+        configBase['verify_iss'] = verify_iss;
+    }
+    if (verify_key != null) {
+        configBase['verify_key'] = verify_key;
     }
     let out: TGripConfig;
     if(fnContextToOut != null && ctx != null) {

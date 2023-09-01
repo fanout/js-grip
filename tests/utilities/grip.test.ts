@@ -74,6 +74,16 @@ describe('utilities/grip', function () {
             const config = parseGripUri(uri)
             assert.equal(config['key'], 'geag121321=')
         });
+        it('test case', function() {
+            const uri = 'https://api.fastly.com/service/service?' +
+              'key=apikey&verify-iss=fastly:service&verify-key=base64:geag121321=';
+            const config = parseGripUri(uri);
+            assert.equal(config['control_uri'], 'https://api.fastly.com/service/service')
+            assert.equal(config['control_iss'], undefined)
+            assert.equal(config['key'], 'apikey');
+            assert.equal(config['verify_iss'], 'fastly:service');
+            assert.equal(config['verify_key'], Buffer.from('geag121321=', 'base64').toString());
+        });
     });
     describe('#createGripChannelHeader', function () {
         it('test case', function() {
