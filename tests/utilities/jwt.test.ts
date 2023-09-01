@@ -29,5 +29,31 @@ describe('utilities/jwt', function () {
             });
             assert.ok(!validateSig(token, 'key==='));
         });
+        it("check the ISS of a claim", function() {
+            const token = jwt.sign({
+                'claim': 'hello',
+                'iss': 'foo',
+            }, 'key==', {
+                expiresIn: '1h',
+            });
+            assert.ok(validateSig(token, 'key==', 'foo'));
+        });
+        it("check claim with missing ISS won't validate", function() {
+            const token = jwt.sign({
+                'claim': 'hello',
+            }, 'key==', {
+                expiresIn: '1h',
+            });
+            assert.ok(!validateSig(token, 'key==', 'foo'));
+        });
+        it("check claim with mismatched ISS won't validate", function() {
+            const token = jwt.sign({
+                'claim': 'hello',
+                'iss': 'bar',
+            }, 'key==', {
+                expiresIn: '1h',
+            });
+            assert.ok(!validateSig(token, 'key==', 'foo'));
+        });
     });
 });
