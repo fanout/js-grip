@@ -26,7 +26,9 @@ export abstract class PublisherBase<TConfig extends IGripConfigBase> {
             const client = this.buildPublisherClient(parsed);
             const { control_iss: iss, key } = parsed;
             if (iss != null) {
-                client.setAuthJwt({ iss }, key);
+                client.setAuthJwt({ iss }, key ?? '');
+            } else if (typeof key === 'string') {
+                client.setAuthBearer(key);
             }
 
             this.addClient(client);

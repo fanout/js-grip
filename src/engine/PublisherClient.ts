@@ -38,10 +38,14 @@ export class PublisherClient {
 
     // Call this method and pass a claim and key to use JWT authentication
     // with the configured endpoint.
-    setAuthJwt(token: string): void;
-    setAuthJwt(claim: object, key?: Buffer | string): void;
-    setAuthJwt(...args: [any]): void {
-        this.auth = new Auth.Jwt(...args);
+    setAuthJwt(claim: object, key: Buffer | string): void {
+        this.auth = new Auth.Jwt(claim, key);
+    }
+
+    // Call this method and pass a token use Bearer authentication
+    // with the configured endpoint.
+    setAuthBearer(token: string): void {
+        this.auth = new Auth.Bearer(token);
     }
 
     // The publish method for publishing the specified item to the specified
