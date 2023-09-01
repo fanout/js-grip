@@ -70,7 +70,7 @@ describe('WebSocketContext', function () {
 	});
 	describe('close', function () {
 		it('test case', function () {
-			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('CLOSE', jspack.Pack('>H', [100]) as Array<any>)]);
+			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('CLOSE', jspack.Pack('>H', [100]) as any[])]);
 			assert.ok(!ws.isOpening());
 			assert.ok(ws.canRecv());
 			const msg = ws.recv();

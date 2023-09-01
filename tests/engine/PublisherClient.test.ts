@@ -37,8 +37,8 @@ describe('PublisherClient', function() {
             };
             const pcc = new PublisherClient(publisherTransport);
             pcc.setAuthBasic("user", "pass");
-            assert.equal((<Auth.Basic>pcc.auth).user, "user");
-            assert.equal((<Auth.Basic>pcc.auth).pass, "pass");
+            assert.equal((pcc.auth as Auth.Basic).user, "user");
+            assert.equal((pcc.auth as Auth.Basic).pass, "pass");
         });
     });
     describe('#setAuthJwt', function() {
@@ -51,8 +51,8 @@ describe('PublisherClient', function() {
             const pcc = new PublisherClient(publisherTransport);
             const claim = {};
             pcc.setAuthJwt(claim, "key");
-            assert.equal((<Auth.Jwt>pcc.auth).claim, claim);
-            assert.equal((<Auth.Jwt>pcc.auth).key, "key");
+            assert.equal((pcc.auth as Auth.Jwt).claim, claim);
+            assert.equal((pcc.auth as Auth.Jwt).key, "key");
         });
         it('token', function() {
             const publisherTransport: IPublisherTransport = {
@@ -61,8 +61,8 @@ describe('PublisherClient', function() {
                 }
             };
             const pcc = new PublisherClient(publisherTransport);
-            pcc.setAuthJwt("token");
-            assert.equal((<Auth.Jwt>pcc.auth).token, "token");
+            pcc.setAuthBearer("token");
+            assert.equal((pcc.auth as Auth.Bearer).token, "token");
         });
     });
     describe('#publish', function() {
