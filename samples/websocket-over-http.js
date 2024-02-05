@@ -77,6 +77,8 @@ http.createServer(async (req, res) => {
             PUBLISHER.publishFormats(CHANNEL, new WebSocketMessageFormat('Test WebSocket Publish!!'));
         }, 5000);
     } else {
+        // Here we emulate some sort of echoing to demonstrate
+        // how an origin could react to incoming websocket messages
         const [command, payload] = inEventsEncoded.split("\n").map(s => s.trim());
         const messageToClient = JSON.stringify({command, payload});
         PUBLISHER.publishFormats(CHANNEL, new WebSocketMessageFormat(messageToClient));
