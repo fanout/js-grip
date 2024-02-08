@@ -1,2 +1,2 @@
-export * from "./NodeApiRequest";
-export * from "./NodeApiResponse";
+export * from './NodeApiRequest.js';
+export * from './NodeApiResponse.js';

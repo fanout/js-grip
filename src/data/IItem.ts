@@ -1,4 +1,4 @@
-import { IItemExport } from './IItemExport';
+import { IItemExport } from './IItemExport.js';
 
 export interface IItem {
     export(): IItemExport;

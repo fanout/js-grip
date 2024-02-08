@@ -1,11 +1,13 @@
-import * as assert from "assert";
-import * as jwt from 'jsonwebtoken';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
-import { validateSig } from "../../src/utilities/jwt";
+import jwt from 'jsonwebtoken';
 
-describe('utilities/jwt', function () {
-    describe('#validateSig', function () {
-        it('check that a signature can be validated', function() {
+import { validateSig } from '../../../src/index.js';
+
+describe('utilities/jwt', () => {
+    describe('#validateSig', () => {
+        it('check that a signature can be validated', () => {
             const token = jwt.sign({
                 'claim': 'hello',
             }, 'key==', {
@@ -13,7 +15,7 @@ describe('utilities/jwt', function () {
             });
             assert.ok(validateSig(token, 'key=='));
         });
-        it("check that a signature can't be validated if it's expired", function() {
+        it("check that a signature can't be validated if it's expired", () => {
             const token = jwt.sign({
                 'claim': 'hello',
             }, 'key==', {
@@ -21,7 +23,7 @@ describe('utilities/jwt', function () {
             });
             assert.ok(!validateSig(token, 'key=='));
         });
-        it("check that a signature can't be validated if the key doesn't match", function() {
+        it("check that a signature can't be validated if the key doesn't match", () => {
             const token = jwt.sign({
                 'claim': 'hello',
             }, 'key==', {
@@ -29,7 +31,7 @@ describe('utilities/jwt', function () {
             });
             assert.ok(!validateSig(token, 'key==='));
         });
-        it("check the ISS of a claim", function() {
+        it("check the ISS of a claim", () => {
             const token = jwt.sign({
                 'claim': 'hello',
                 'iss': 'foo',
@@ -38,7 +40,7 @@ describe('utilities/jwt', function () {
             });
             assert.ok(validateSig(token, 'key==', 'foo'));
         });
-        it("check claim with missing ISS won't validate", function() {
+        it("check claim with missing ISS won't validate", () => {
             const token = jwt.sign({
                 'claim': 'hello',
             }, 'key==', {
@@ -46,7 +48,7 @@ describe('utilities/jwt', function () {
             });
             assert.ok(!validateSig(token, 'key==', 'foo'));
         });
-        it("check claim with mismatched ISS won't validate", function() {
+        it("check claim with mismatched ISS won't validate", () => {
             const token = jwt.sign({
                 'claim': 'hello',
                 'iss': 'bar',

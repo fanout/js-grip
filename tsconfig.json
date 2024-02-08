@@ -1,9 +1,29 @@
 {
-  "extends": "./tsconfig.base.json",
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
     "rootDir": ".",
     "outDir": "build",
     "skipLibCheck": true,
-    "tsBuildInfoFile": "build/src/tsconfig.src.tsbuildinfo"
-  }
+    "target": "ESNext",
+    "strict": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
+    "types": [
+      "jspack",
+      "node"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+  ]
 }

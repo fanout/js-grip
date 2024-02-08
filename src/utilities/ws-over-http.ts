@@ -1,11 +1,11 @@
-import type { IncomingMessage } from "http";
+import type { IncomingMessage } from 'node:http';
 
-import debug from './debug';
+import debug from './debug.js';
 
-import { decodeWebSocketEvents } from "./webSocketEvents";
-import { IApiRequest } from "../engine";
-import { ConnectionIdMissingException, WebSocketContext, WebSocketDecodeEventException } from "../data";
-import { NodeApiRequest } from "../node";
+import { decodeWebSocketEvents } from './webSocketEvents.js';
+import { IApiRequest } from '../engine/index.js';
+import { ConnectionIdMissingException, WebSocketContext, WebSocketDecodeEventException } from '../data/index.js';
+import { NodeApiRequest } from '../node/index.js';
 
 const CONTENT_TYPE_WEBSOCKET_EVENTS = 'application/websocket-events';
 
@@ -47,7 +47,7 @@ export async function getWebSocketContextFromApiRequest(req: IApiRequest<any>, p
 
     // Handle meta keys
     debug("Handling Meta - start");
-    const meta = {};
+    const meta: Record<string, string> = {};
     for (const [key, value] of Object.entries(req.getHeaders())) {
         const lKey = key.toLowerCase();
         if (lKey.startsWith('meta-')) {

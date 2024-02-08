@@ -1,7 +1,8 @@
-import type { IncomingMessage } from "http";
+import type { IncomingMessage } from 'node:http';
+import { Buffer } from 'node:buffer';
 
-import { IApiRequest } from "../engine";
-import debug from "../utilities/debug";
+import { IApiRequest } from '../engine/index.js';
+import debug from '../utilities/debug.js';
 
 export class NodeApiRequest implements IApiRequest<IncomingMessage> {
   static _map = new WeakMap<IncomingMessage, IApiRequest<IncomingMessage>>();

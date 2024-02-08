@@ -1,6 +1,7 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
-import { WebSocketEvent } from "../../../src";
+import { WebSocketEvent } from '../../../../src/index.js';
 
 describe('WebSocketEvent', function () {
     describe('#constructor', function () {

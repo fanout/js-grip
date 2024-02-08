@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer';
+
 export interface IApiRequest<T> {
   getWrapped(): T;
   getMethod(): string | undefined;

@@ -1,7 +1,7 @@
-import 'isomorphic-fetch';
-import { FetchResponse, IPublisherTransport, IReqHeaders } from "./index";
-import HttpAgent, { HttpsAgent } from "agentkeepalive";
-import { PublishException } from "../data";
+import HttpAgent, { HttpsAgent } from 'agentkeepalive';
+
+import { FetchResponse, IPublisherTransport, IReqHeaders } from './index.js';
+import { PublishException } from '../data/index.js';
 
 export class PublisherTransport implements IPublisherTransport {
   publishUri: string;

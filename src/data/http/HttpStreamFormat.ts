@@ -1,6 +1,7 @@
-import { Buffer } from 'buffer';
-import { IFormat } from '../IFormat';
-import { IFormatExport } from '../IFormatExport';
+import { Buffer } from 'node:buffer';
+
+import { IFormat } from '../IFormat.js';
+import { IFormatExport } from '../IFormatExport.js';
 
 // The HttpStreamFormat class is the format used to publish messages to
 // HTTP stream clients connected to a GRIP proxy.

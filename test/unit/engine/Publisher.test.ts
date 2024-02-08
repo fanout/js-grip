@@ -1,4 +1,5 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
 import {
     Item,
@@ -9,7 +10,7 @@ import {
     HttpStreamFormat,
     PublishException,
     IPublisherTransport,
-} from '../../src';
+} from '../../../src/index.js';
 
 describe('Publisher', function () {
     describe('#constructor', function () {

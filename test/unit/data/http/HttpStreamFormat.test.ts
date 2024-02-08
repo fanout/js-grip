@@ -1,5 +1,8 @@
-import * as assert from "assert";
-import { HttpStreamFormat } from "../../../src";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
+
+import { HttpStreamFormat } from '../../../../src/index.js';
 
 describe('HttpStreamFormat', function () {
     describe('#constructor', function () {

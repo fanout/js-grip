@@ -1,5 +1,6 @@
-import { Buffer } from 'buffer';
-import { IExportedResponse } from './IExportedResponse';
+import { Buffer } from 'node:buffer';
+
+import { IExportedResponse } from './IExportedResponse.js';
 
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed

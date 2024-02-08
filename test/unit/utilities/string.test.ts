@@ -1,35 +1,37 @@
-import * as assert from "assert";
-import { encodeCString, escapeQuotes, isString, } from '../../src/utilities/string';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
-describe('utilities/string', function() {
-    describe('#isString', function() {
-        it('test case', function() {
+import { encodeCString, escapeQuotes, isString, } from '../../../src/index.js';
+
+describe('utilities/string', () => {
+    describe('#isString', () => {
+        it('test case', () => {
             assert.ok(isString('hello'));
             assert.ok(!(isString(123)));
             assert.ok(!(isString(() => {})));
             assert.ok(!(isString([])));
         });
     });
-    describe('#encodeCString', function() {
-        it('simple string', function() {
+    describe('#encodeCString', () => {
+        it('simple string', () => {
             const input = 'simple';
             assert.equal(encodeCString(input), 'simple');
         });
-        it('backslashes in string', function() {
+        it('backslashes in string', () => {
             // The \\ in the input string resolves to a single backslash
             const input = 'string\\with\\backslashes';
             // The \\\\ in the test string resolves to a double backslash
             assert.equal(encodeCString(input), 'string\\\\with\\\\backslashes');
         });
-        it('carriage-return', function() {
+        it('carriage-return', () => {
             const input = 'multi\rline';
             assert.equal(encodeCString(input), 'multi\\rline');
         });
-        it('new-line', function() {
+        it('new-line', () => {
             const input = 'multi\nline';
             assert.equal(encodeCString(input), 'multi\\nline');
         });
-        it('string that cannot be encoded', function() {
+        it('string that cannot be encoded', () => {
             const input = 'unprintable' + String.fromCharCode(7) + 'string';
             assert.throws(() => {
                 encodeCString(input);
@@ -40,16 +42,16 @@ describe('utilities/string', function() {
             });
         });
     });
-    describe('#escapeQuotes', function() {
-        it('simple string', function() {
+    describe('#escapeQuotes', () => {
+        it('simple string', () => {
             const input = 'simple string';
             assert.equal(escapeQuotes(input), 'simple string');
         });
-        it('single-quoted string', function() {
+        it('single-quoted string', () => {
             const input = '\'single-quoted string\'';
             assert.equal(escapeQuotes(input), '\'single-quoted string\'');
         });
-        it('double-quoted string', function() {
+        it('double-quoted string', () => {
             const input = '"double-quoted string"';
             assert.equal(escapeQuotes(input), '\\"double-quoted string\\"');
         });

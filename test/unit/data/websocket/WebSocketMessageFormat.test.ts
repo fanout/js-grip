@@ -1,6 +1,8 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
 
-import { WebSocketMessageFormat } from "../../../src";
+import { WebSocketMessageFormat } from '../../../../src/index.js';
 
 describe('WebSocketMessageFormat', function () {
     describe('#constructor', function () {

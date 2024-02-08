@@ -1,4 +1,4 @@
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 // Validate the specified JWT token and key. This method is used to validate
 // the GRIP-SIG header coming from GRIP proxies such as Pushpin or Fanout.io.

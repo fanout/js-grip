@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
-import * as main from './index';
+import { Buffer } from 'node:buffer';
+import * as main from './index.js';
 
-export = Object.assign({}, main, { Buffer });
+export default Object.assign({}, main, { Buffer });

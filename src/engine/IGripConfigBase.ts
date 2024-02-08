@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer';
+
 export interface IGripConfigBase {
     control_uri: string;
     control_iss?: string;

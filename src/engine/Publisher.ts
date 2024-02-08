@@ -1,7 +1,7 @@
-import { PublisherTransport } from "./PublisherTransport";
-import { PublisherBase } from "./PublisherBase";
-import { IGripConfig } from "./IGripConfig";
-import { PublisherClient } from "./PublisherClient";
+import { PublisherTransport } from './PublisherTransport.js';
+import { PublisherBase } from './PublisherBase.js';
+import { IGripConfig } from './IGripConfig.js';
+import { PublisherClient } from './PublisherClient.js';
 
 export class Publisher extends PublisherBase<IGripConfig> {
   buildPublisherClient(config: IGripConfig): PublisherClient {

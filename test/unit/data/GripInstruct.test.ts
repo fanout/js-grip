@@ -1,6 +1,8 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
 
-import { Channel, GripInstruct } from '../../src';
+import { Channel, GripInstruct } from '../../../src/index.js';
 
 describe('GripInstruct', function () {
 

@@ -1,12 +1,11 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 import { jspack } from 'jspack';
-/// <reference path="../../../types/jspack.d.ts" />
 
-import { createWebSocketControlMessage } from '../../utilities';
+import { createWebSocketControlMessage } from '../../utilities/index.js';
 
-import { WebSocketEvent } from './WebSocketEvent';
-import { IWebSocketEvent } from './IWebSocketEvent';
+import { WebSocketEvent } from './WebSocketEvent.js';
+import { IWebSocketEvent } from './IWebSocketEvent.js';
 
 export class WebSocketContext {
     id: string;

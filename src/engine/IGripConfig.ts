@@ -1,4 +1,4 @@
-import { IGripConfigBase } from "./index";
+import { IGripConfigBase } from './IGripConfigBase.js';
 
 export interface IGripConfig extends IGripConfigBase {
 }

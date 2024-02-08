@@ -1,5 +1,8 @@
-import * as assert from "assert";
-import { toBuffer } from "../../src/utilities/buffer";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
+
+import { toBuffer } from '../../../src/index.js';
 
 describe('utilities/buffer', function () {
     describe('#toBuffer', function () {

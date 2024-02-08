@@ -1,4 +1,4 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
 // Check if input is a buffer. If not, turn it into a string and then
 // encode the bits of its UTF-8 representation into a new Buffer.

@@ -1,3 +1,4 @@
+const webpack = require("webpack");
 const path = require("path");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -16,12 +17,27 @@ const config = {
     output: {
         path: PATHS.bundles,
         filename: fileName + (PROD ? '.min' : '') + '.js',
-        libraryTarget: 'var',
-        library: libName,
+        library: {
+            name: libName,
+            type: 'var',
+            export: 'default',
+        },
         umdNamedDefine: true
     },
     resolve: {
-        extensions: ['.ts', '.js']
+        extensions: ['.ts', '.js'],
+        extensionAlias: {
+            '.js': ['.js', '.ts'],
+        },
+        fallback: {
+            "buffer": require.resolve("buffer/"),
+            "crypto": require.resolve("crypto-browserify"),
+            "process": require.resolve("process/browser"),
+            "querystring": require.resolve("querystring-es3"),
+            "stream": require.resolve("stream-browserify"),
+            "url": require.resolve("url/"),
+            "util": require.resolve("util/"),
+        }
     },
     devtool: PROD ? 'source-map' : 'inline-source-map',
     module: {
@@ -39,6 +55,9 @@ const config = {
         }],
     },
     plugins: [
+        new webpack.ProvidePlugin({
+            process: ['process'],
+        }),
         new BundleAnalyzerPlugin({
             analyzerMode: 'static',
             openAnalyzer: false,

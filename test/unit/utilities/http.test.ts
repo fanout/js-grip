@@ -1,5 +1,8 @@
-import * as assert from "assert";
-import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader, parseQueryString } from "../../src/utilities/http";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
+
+import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader, parseQueryString } from '../../../src/index.js';
 
 describe('utilities/http', function() {
     describe('#createKeepAliveHeader', function() {

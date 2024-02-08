@@ -1,6 +1,8 @@
-import { Channel } from './Channel';
-import { createGripChannelHeader, parseChannels } from '../utilities';
-import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader } from '../utilities/http';
+import { Buffer } from 'node:buffer';
+
+import { Channel } from './Channel.js';
+import { createGripChannelHeader, parseChannels } from '../utilities/index.js';
+import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader } from '../utilities/http.js';
 
 export class GripInstruct {
     public status?: number;

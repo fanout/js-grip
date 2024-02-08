@@ -1,11 +1,13 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
 
-import { Channel } from '../../src';
 import {
+    Channel,
     parseChannels,
     parseGripUri,
     createGripChannelHeader,
-} from "../../src/utilities/grip";
+} from '../../../src/index.js';
 
 describe('utilities/grip', function () {
     describe('#parseChannels', function () {

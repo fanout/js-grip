@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
-import { Base } from './Base';
+import { Base } from './Base.js';
 
 export class Basic extends Base {
     public user: string;

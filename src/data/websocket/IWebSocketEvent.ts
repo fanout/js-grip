@@ -1,3 +1,5 @@
+import { Buffer } from 'node:buffer';
+
 export interface IWebSocketEvent {
     type: string;
     content: Buffer | number[] | string | null;

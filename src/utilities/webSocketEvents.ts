@@ -1,7 +1,7 @@
-import { Buffer } from 'buffer';
+import { Buffer } from 'node:buffer';
 
-import { IWebSocketEvent, WebSocketEvent } from '../data';
-import { isString } from './string';
+import { IWebSocketEvent, WebSocketEvent } from '../data/index.js';
+import { isString } from './string.js';
 
 // Encode the specified array of WebSocketEvent instances. The returned string
 // value should then be passed to a GRIP proxy in the body of an HTTP response

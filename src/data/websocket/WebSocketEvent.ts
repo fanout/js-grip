@@ -1,4 +1,6 @@
-import { IWebSocketEvent } from './IWebSocketEvent';
+import { Buffer } from 'node:buffer';
+
+import { IWebSocketEvent } from './IWebSocketEvent.js';
 
 // The WebSocketEvent class represents WebSocket event information that is
 // used with the GRIP WebSocket-over-HTTP protocol. It includes information

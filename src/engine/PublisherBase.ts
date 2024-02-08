@@ -1,8 +1,8 @@
-import { IFormat, IItem, Item } from '../data';
-import { HttpResponseFormat, HttpStreamFormat } from '../data';
-import { PublisherClient } from './PublisherClient';
-import { IGripConfigBase } from "./IGripConfigBase";
-import { parseGripUriCustomParams } from "../utilities";
+import { IFormat, IItem, Item } from '../data/index.js';
+import { HttpResponseFormat, HttpStreamFormat } from '../data/index.js';
+import { PublisherClient } from './PublisherClient.js';
+import { IGripConfigBase } from './IGripConfigBase.js';
+import { parseGripUriCustomParams } from '../utilities/index.js';
 
 // The PublisherBase class allows consumers to easily publish HTTP response
 // and HTTP stream format messages to GRIP proxies. PublisherBase can be configured

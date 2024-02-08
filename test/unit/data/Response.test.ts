@@ -1,5 +1,8 @@
-import * as assert from "assert";
-import { Response } from '../../src';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
+
+import { Response } from '../../../src/index.js';
 
 describe('Response', function () {
     describe('#constructor', function () {

@@ -1,11 +1,11 @@
-import { Buffer } from 'buffer';
-import * as querystring from 'querystring';
-import * as url from 'url';
+import { Buffer } from 'node:buffer';
+import querystring from 'node:querystring';
+import url from 'node:url';
 
-import { IGripConfigBase } from '../engine';
-import { Channel } from '../data';
-import { parseQueryString } from './http';
-import { isString } from './string';
+import { IGripConfigBase } from '../engine/index.js';
+import { Channel } from '../data/index.js';
+import { parseQueryString } from './http.js';
+import { isString } from './string.js';
 
 // Method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either

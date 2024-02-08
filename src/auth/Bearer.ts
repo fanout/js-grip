@@ -1,4 +1,4 @@
-import { Base } from './Base';
+import { Base } from './Base.js';
 
 // Bearer authentication class used for building auth headers containing a literal token.
 export class Bearer extends Base {

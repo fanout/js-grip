@@ -1,4 +1,4 @@
-import { IReqHeaders } from "./PublisherClient";
+import { IReqHeaders } from './PublisherClient.js';
 
 export interface FetchResponse {
   status: number;

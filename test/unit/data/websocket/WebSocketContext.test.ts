@@ -1,10 +1,10 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
 
-import jspackModule from "jspack";
-const { jspack } = jspackModule;
-/// <reference path="../../../types/jspack.d.ts" />
+import { jspack } from 'jspack';
 
-import { WebSocketContext, WebSocketEvent } from "../../../src";
+import { WebSocketContext, WebSocketEvent } from '../../../../src/index.js';
 
 describe('WebSocketContext', function () {
 	describe('open', function () {

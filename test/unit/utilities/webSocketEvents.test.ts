@@ -1,11 +1,12 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
 import {
     WebSocketEvent,
     decodeWebSocketEvents,
     encodeWebSocketEvents,
     createWebSocketControlMessage,
-} from "../../src";
+} from '../../../src/index.js';
 
 describe('gripUtilities', function () {
     describe('#encodeWebSocketEvents', function () {

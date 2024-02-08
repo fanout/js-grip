@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
-import { Base } from './Base';
+import { Base } from './Base.js';
 
 // JWT authentication class used for building auth headers containing
 // JSON web token information in the form of a claim and corresponding key.

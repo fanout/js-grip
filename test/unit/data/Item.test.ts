@@ -1,6 +1,7 @@
-import * as assert from "assert";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
-import { Item, Format } from '../../src';
+import { Item, Format } from '../../../src/index.js';
 
 class TestFormat1 extends Format {
     content: string;

@@ -1,5 +1,7 @@
-import * as querystring from 'querystring';
-import { encodeCString, escapeQuotes, isString } from './string';
+import { Buffer } from 'node:buffer';
+import querystring from 'node:querystring';
+
+import { encodeCString, escapeQuotes, isString } from './string.js';
 
 export function createKeepAliveHeader(data: string | Buffer, timeout: number) {
     let output = null;

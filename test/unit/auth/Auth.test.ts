@@ -1,11 +1,14 @@
-import * as assert from "assert";
-import * as jwt from "jsonwebtoken";
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
 
-import { Auth } from '../../src';
+import jwt from 'jsonwebtoken';
 
-describe('auth', function () {
-    describe('Basic', function () {
-        it('test case', function () {
+import * as Auth from '../../../src/auth/index.js';
+
+describe('auth', () => {
+    describe('Basic', () => {
+        it('test case', () => {
             const authBasic = new Auth.Basic("user", "pass");
             assert.equal(authBasic.user, "user");
             assert.equal(authBasic.pass, "pass");
@@ -15,22 +18,23 @@ describe('auth', function () {
             );
         });
     });
-    describe('Bearer', function () {
-        it('test case', function () {
+    describe('Bearer', () => {
+        it('test case', () => {
             let authBearer = new Auth.Bearer("token");
             assert.equal(authBearer.token, "token");
             assert.equal(authBearer.buildHeader(), "Bearer token");
         });
     });
-    describe('Jwt', function () {
-        it('test case', function () {
+    describe('Jwt', () => {
+        it('test case', () => {
             const cl = {};
             let authJwt = new Auth.Jwt(cl, "key");
             assert.equal(authJwt.claim, cl);
             assert.equal(authJwt.key, "key");
             assert.ok(Buffer.isBuffer(authJwt.key));
             authJwt = new Auth.Jwt({ iss: "hello" }, "key==");
-            const claim = jwt.verify(authJwt.buildHeader().substring(7), "key==") as object;
+            const claim = jwt.verify(authJwt.buildHeader().substring(7), "key==");
+            assert.ok(typeof claim === 'object');
             assert.ok("exp" in claim);
             assert.equal(claim["iss"], "hello");
         });

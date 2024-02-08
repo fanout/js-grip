@@ -1,6 +1,8 @@
-import * as assert from "assert";
+import { describe, it, beforeEach } from 'node:test';
+import assert from 'node:assert';
+import { Buffer } from 'node:buffer';
 
-import { Auth, Item, Format, PublisherClient, PublishException, IItemExport, IPublisherTransport } from "../../src";
+import { Auth, Item, Format, PublisherClient, PublishException, IItemExport, IPublisherTransport } from '../../../src/index.js';
 
 class TestFormat extends Format {
     content: string;

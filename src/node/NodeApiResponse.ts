@@ -1,6 +1,6 @@
-import type { ServerResponse } from "http";
+import type { ServerResponse } from 'node:http';
 
-import { IApiResponse } from "../engine";
+import { IApiResponse } from '../engine/index.js';
 
 export class NodeApiResponse implements IApiResponse<ServerResponse> {
   static _map = new WeakMap<ServerResponse, IApiResponse<ServerResponse>>();

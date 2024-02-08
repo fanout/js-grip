@@ -1,9 +1,9 @@
 import { Buffer } from 'buffer';
 
-import * as Auth from '../auth/index';
-import { IItem, IItemExport, PublishException } from '../data';
+import * as Auth from '../auth/index.js';
+import { IItem, IItemExport, PublishException } from '../data/index.js';
+import { IPublisherTransport } from './IPublisherTransport.js';
 
-import { IPublisherTransport } from "./IPublisherTransport";
 export interface IReqHeaders {
     [name: string]: string;
 }
@@ -102,7 +102,7 @@ export class PublisherClient {
         try {
             res = await this.transport.publish(headers, content);
         } catch (err) {
-            throw new PublishException(err != null && typeof err === 'object' && Object.prototype.hasOwnProperty.call(err, 'message') && typeof err.message === 'string' ? err.message : String(err), { statusCode: -1 });
+            throw new PublishException(err instanceof Error ? err.message : String(err), { statusCode: -1 });
         }
 
         const context: IContext = {
