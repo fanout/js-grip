@@ -1,4 +1,5 @@
-import { ServerResponse } from "http";
+import type { ServerResponse } from "http";
+
 import { IApiResponse } from "../engine";
 
 export class NodeApiResponse implements IApiResponse<ServerResponse> {

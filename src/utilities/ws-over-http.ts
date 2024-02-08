@@ -1,9 +1,10 @@
+import type { IncomingMessage } from "http";
+
 import debug from './debug';
 
 import { decodeWebSocketEvents } from "./webSocketEvents";
 import { IApiRequest } from "../engine";
 import { ConnectionIdMissingException, WebSocketContext, WebSocketDecodeEventException } from "../data";
-import { IncomingMessage } from "http";
 import { NodeApiRequest } from "../node";
 
 const CONTENT_TYPE_WEBSOCKET_EVENTS = 'application/websocket-events';

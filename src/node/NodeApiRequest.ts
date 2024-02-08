@@ -1,4 +1,4 @@
-import { IncomingMessage } from "http";
+import type { IncomingMessage } from "http";
 
 import { IApiRequest } from "../engine";
 import debug from "../utilities/debug";
