@@ -1,7 +1,7 @@
 export interface IWebSocketEvent {
     type: string;
-    content: Uint8Array | number[] | string | null;
+    content: Uint8Array | string | null;
 
     getType(): string;
-    getContent(): Uint8Array | number[] | string | null;
+    getContent(): Uint8Array | string | null;
 }

@@ -88,7 +88,9 @@ describe('WebSocketContext', function () {
 	});
 	describe('close', function () {
 		it('test case', function () {
-			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('CLOSE', jspack.Pack('>H', [100]) as any[])]);
+			const data = jspack.Pack('>H', [100]);
+			assert.ok(data);
+			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('CLOSE', new Uint8Array(data))]);
 			assert.ok(!ws.isOpening());
 			assert.ok(ws.canRecv());
 			const msg = ws.recv();

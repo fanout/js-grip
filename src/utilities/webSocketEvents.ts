@@ -15,8 +15,6 @@ export function encodeWebSocketEvents(events: IWebSocketEvent[]) {
         if (content != null) {
             if (typeof content === 'string') {
                 content = textEncoder.encode(content);
-            } else if (Array.isArray(content)) {
-                content = new Uint8Array(content);
             }
             eventSegments.push(
               textEncoder.encode(e.getType() + ' ' + content.length.toString(16)),
