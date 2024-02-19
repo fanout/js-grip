@@ -73,7 +73,7 @@ export class PublisherClient {
     async publish(channel: string, item: IItem): Promise<void> {
         const i = item.export();
         i.channel = channel;
-        const authHeader = this.auth != null ? this.auth.buildHeader() : null;
+        const authHeader = this.auth != null ? await this.auth.buildHeader() : null;
         await this._startPubCall(authHeader, [i]);
     }
 

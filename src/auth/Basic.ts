@@ -1,13 +1,12 @@
 import { Buffer } from 'node:buffer';
 
-import { Base } from './Base.js';
+import { IAuth } from './IAuth.js';
 
-export class Basic extends Base {
+export class Basic implements IAuth {
     public user: string;
     public pass: string;
 
     constructor(user: string, pass: string) {
-        super();
         // Initialize with a username and password.
         this.user = user;
         this.pass = pass;

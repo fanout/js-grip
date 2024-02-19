@@ -1,11 +1,10 @@
-import { Base } from './Base.js';
+import { IAuth } from './IAuth.js';
 
 // Bearer authentication class used for building auth headers containing a literal token.
-export class Bearer extends Base {
+export class Bearer implements IAuth {
     public token: string;
 
     constructor(token: string) {
-        super();
         // Initialize with the specified literal token.
         this.token = token;
     }
