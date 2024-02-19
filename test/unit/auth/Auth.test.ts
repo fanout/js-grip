@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import { Buffer } from 'node:buffer';
 
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 import * as Auth from '../../../src/auth/index.js';
 
@@ -34,10 +34,14 @@ describe('auth', () => {
             assert.equal(authJwt.claim, cl);
             assert.deepStrictEqual(authJwt.key, textEncoder.encode("key"));
             authJwt = new Auth.Jwt({ iss: "hello" }, "key==");
-            const claim = jwt.verify(authJwt.buildHeader().slice(7), "key==");
-            assert.ok(typeof claim === 'object');
-            assert.ok("exp" in claim);
-            assert.equal(claim["iss"], "hello");
+
+            const claim = await jose.jwtVerify(
+              (await authJwt.buildHeader()).slice(7),
+              textEncoder.encode("key==")
+            );
+
+            assert.ok(claim.payload.exp != null);
+            assert.equal(claim.payload.iss, 'hello');
         });
     });
 });

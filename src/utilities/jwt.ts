@@ -1,22 +1,25 @@
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
+
+const textEncoder = new TextEncoder();
 
 // Validate the specified JWT token and key. This method is used to validate
 // the GRIP-SIG header coming from GRIP proxies such as Pushpin or Fanout.io.
 // Note that the token expiration is also verified.
-export function validateSig(token: string, key: string | Buffer, iss?: string) {
-    let claim;
+export async function validateSig(token: string, key: string | Uint8Array, iss?: string) {
+
+    if (typeof key === 'string') {
+        key = textEncoder.encode(key);
+    }
+
+    let claim: jose.JWTVerifyResult;
     try {
-        claim = jwt.verify(token, key);
+        claim = await jose.jwtVerify(token, key);
     } catch (e) {
         return false;
     }
 
-    if (claim == null) {
-        return false;
-    }
-
     if (iss != null) {
-        if (typeof claim === 'string' || claim.iss !== iss) {
+        if (claim.payload.iss !== iss) {
             return false;
         }
     }

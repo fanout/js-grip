@@ -49,7 +49,7 @@ export class PublisherClient {
 
     // Call this method and pass a claim and key to use JWT authentication
     // with the configured endpoint.
-    setAuthJwt(claim: object, key: Uint8Array | string): void {
+    setAuthJwt(claim: Record<string, string>, key: Uint8Array | string): void {
         this.auth = new Auth.Jwt(claim, key);
     }
 
