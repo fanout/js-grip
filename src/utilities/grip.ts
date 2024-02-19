@@ -60,7 +60,7 @@ export function parseGripUriCustomParams<
     const ctx: TContext | null = fnParamsToContext != null ? fnParamsToContext(params) : null;
 
     if (key != null && isString(key) && key.startsWith('base64:')) {
-        key = key.substring(7);
+        key = key.slice(7);
         // When the key contains a '+' character, if the URL is built carelessly
         // and this segment of the URL contained '+' directly instead of properly
         // being URL-encoded as %2B, then they would have turned into spaces at
@@ -69,7 +69,7 @@ export function parseGripUriCustomParams<
         key = Buffer.from(key, 'base64');
     }
     if (verify_key != null && isString(verify_key) && verify_key.startsWith('base64:')) {
-        verify_key = verify_key.substring(7);
+        verify_key = verify_key.slice(7);
         // When the key contains a '+' character, if the URL is built carelessly
         // and this segment of the URL contained '+' directly instead of properly
         // being URL-encoded as %2B, then they would have turned into spaces at
@@ -80,7 +80,7 @@ export function parseGripUriCustomParams<
     const qs = querystring.stringify(params);
     let path = parsedUri.pathname;
     if (path != null && path.endsWith('/')) {
-        path = path.substring(0, path.length - 1);
+        path = path.slice(0, path.length - 1);
     }
     let controlUri = String(parsedUri.protocol) + '//' + String(parsedUri.host) + String(path);
     if (qs != null && qs !== '') {

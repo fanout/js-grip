@@ -14,7 +14,7 @@ export function isApiRequestWsOverHttp(req: IApiRequest<any>) {
     if (contentTypeHeader != null) {
         const at = contentTypeHeader.indexOf(';');
         if (at >= 0) {
-            contentTypeHeader = contentTypeHeader.substring(0, at);
+            contentTypeHeader = contentTypeHeader.slice(0, at);
         }
         debug("content-type header", contentTypeHeader);
     } else {
@@ -51,7 +51,7 @@ export async function getWebSocketContextFromApiRequest(req: IApiRequest<any>, p
     for (const [key, value] of Object.entries(req.getHeaders())) {
         const lKey = key.toLowerCase();
         if (lKey.startsWith('meta-')) {
-            const k = lKey.substring(5);
+            const k = lKey.slice(5);
             meta[k] = value;
             debug(k, "=", value);
         }

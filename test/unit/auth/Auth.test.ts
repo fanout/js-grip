@@ -33,7 +33,7 @@ describe('auth', () => {
             assert.equal(authJwt.key, "key");
             assert.ok(Buffer.isBuffer(authJwt.key));
             authJwt = new Auth.Jwt({ iss: "hello" }, "key==");
-            const claim = jwt.verify(authJwt.buildHeader().substring(7), "key==");
+            const claim = jwt.verify(authJwt.buildHeader().slice(7), "key==");
             assert.ok(typeof claim === 'object');
             assert.ok("exp" in claim);
             assert.equal(claim["iss"], "hello");
