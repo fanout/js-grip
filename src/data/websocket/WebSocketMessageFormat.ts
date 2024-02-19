@@ -1,16 +1,15 @@
-import { Buffer } from 'node:buffer';
-
 import { IFormat } from '../IFormat.js';
 import { IFormatExport } from '../IFormatExport.js';
+import { encodeBytesToBase64String } from '../../utilities/index.js';
 
 // The WebSocketMessageFormat class is the format used to publish data to
 // WebSocket clients connected to GRIP proxies.
 export class WebSocketMessageFormat implements IFormat {
-    content: string | Buffer | null;
+    content: string | Uint8Array | null;
     close: boolean;
     code?: number;
 
-    constructor(content: Buffer | string | null = null, close = false, code?: number) {
+    constructor(content: Uint8Array | string | null = null, close = false, code?: number) {
         // Initialize with either the message content or a boolean indicating that
         // the streaming connection should be closed. If neither the content nor
         // the boolean flag is set then an error will be thrown.
@@ -38,8 +37,8 @@ export class WebSocketMessageFormat implements IFormat {
                 obj['code'] = this.code;
             }
         } else {
-            if (Buffer.isBuffer(this.content)) {
-                obj['content-bin'] = this.content.toString('base64');
+            if (this.content instanceof Uint8Array) {
+                obj['content-bin'] = encodeBytesToBase64String(this.content);
             } else if (this.content != null) {
                 obj['content'] = this.content.toString();
             }

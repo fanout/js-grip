@@ -1,11 +1,12 @@
-import { Buffer } from 'node:buffer';
-
 import { jspack } from 'jspack';
 
 import { createWebSocketControlMessage } from '../../utilities/index.js';
 
 import { WebSocketEvent } from './WebSocketEvent.js';
 import { IWebSocketEvent } from './IWebSocketEvent.js';
+import { concatUint8Arrays } from '../../utilities/typedarray.js';
+
+const textEncoder = new TextEncoder();
 
 export class WebSocketContext {
     id: string;
@@ -75,7 +76,7 @@ export class WebSocketContext {
         }
 
         if (type === 'BINARY') {
-            return e.content != null ? e.content : Buffer.alloc(0);
+            return e.content != null ? e.content : new Uint8Array();
         }
 
         if (type === 'CLOSE') {
@@ -98,27 +99,27 @@ export class WebSocketContext {
         }
     }
 
-    send(message: string | Buffer) {
+    send(message: string | Uint8Array) {
         this.outEvents.push(
             new WebSocketEvent(
                 'TEXT',
-                Buffer.concat([Buffer.from('m:'), message instanceof Buffer ? message : Buffer.from(message)]),
+                concatUint8Arrays(textEncoder.encode('m:'), message instanceof Uint8Array ? message : textEncoder.encode(message)),
             ),
         );
     }
-    sendBinary(message: string | Buffer) {
+    sendBinary(message: string | Uint8Array) {
         this.outEvents.push(
             new WebSocketEvent(
                 'BINARY',
-                Buffer.concat([Buffer.from('m:'), message instanceof Buffer ? message : Buffer.from(message)]),
+                concatUint8Arrays(textEncoder.encode('m:'), message instanceof Uint8Array ? message : textEncoder.encode(message)),
             ),
         );
     }
-    sendControl(message: string | Buffer) {
+    sendControl(message: string | Uint8Array) {
         this.outEvents.push(
             new WebSocketEvent(
                 'TEXT',
-                Buffer.concat([Buffer.from('c:'), message instanceof Buffer ? message : Buffer.from(message)]),
+                concatUint8Arrays(textEncoder.encode('c:'), message instanceof Uint8Array ? message : textEncoder.encode(message)),
             ),
         );
     }
@@ -143,7 +144,7 @@ export class WebSocketContext {
         if (this.closed) {
             const octets = jspack.Pack('>H', [this.outCloseCode]);
             if (octets !== false) {
-                events.push(new WebSocketEvent('CLOSE', Buffer.from(octets)));
+                events.push(new WebSocketEvent('CLOSE', octets));
             }
         }
         return events;

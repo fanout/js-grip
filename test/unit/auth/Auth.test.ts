@@ -1,10 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
 import * as jose from 'jose';
 
 import * as Auth from '../../../src/auth/index.js';
+import { encodeBytesToBase64String } from '../../../src/index.js';
 
 const textEncoder = new TextEncoder();
 
@@ -16,7 +16,7 @@ describe('auth', () => {
             assert.equal(authBasic.pass, "pass");
             assert.equal(
                 authBasic.buildHeader(),
-                "Basic " + Buffer.from("user:pass").toString("base64")
+                "Basic " + encodeBytesToBase64String(textEncoder.encode("user:pass"))
             );
         });
     });

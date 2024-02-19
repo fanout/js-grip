@@ -1,8 +1,16 @@
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
-import { Auth, Item, Format, PublisherClient, PublishException, IItemExport, IPublisherTransport } from '../../../src/index.js';
+import {
+    Auth,
+    Item,
+    Format,
+    PublisherClient,
+    PublishException,
+    IItemExport,
+    IPublisherTransport,
+    encodeBytesToBase64String,
+} from '../../../src/index.js';
 
 class TestFormat extends Format {
     content: string;
@@ -160,7 +168,7 @@ describe('PublisherClient', function() {
             pcc._startPubCall = async function(authHeader, items) {
                 assert.equal(
                     authHeader,
-                    "Basic " + Buffer.from("user:pass").toString("base64")
+                    "Basic " + encodeBytesToBase64String(textEncoder.encode("user:pass"))
                 );
                 assert.equal(JSON.stringify(items), JSON.stringify([exportedItem]));
                 wasWorkerCalled = true;
@@ -228,7 +236,7 @@ describe('PublisherClient', function() {
                 assert.equal(headers["Content-Type"], "application/json");
                 assert.equal(
                     headers["Content-Length"],
-                    Buffer.byteLength(content, "utf8")
+                    textEncoder.encode(content).length,
                 );
                 assert.equal(headers["Authorization"], "authHeader");
                 wasPerformHttpRequestCalled = true;

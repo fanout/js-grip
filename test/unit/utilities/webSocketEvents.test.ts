@@ -8,6 +8,8 @@ import {
     createWebSocketControlMessage,
 } from '../../../src/index.js';
 
+const textDecoder = new TextDecoder();
+
 describe('gripUtilities', function () {
     describe('#encodeWebSocketEvents', function () {
         it('test case', function() {
@@ -16,13 +18,13 @@ describe('gripUtilities', function () {
                 new WebSocketEvent('TEXT', ''),
                 new WebSocketEvent('TEXT', null),
             ]);
-            assert.equal(events, 'TEXT 5\r\nHello\r\nTEXT 0\r\n\r\nTEXT\r\n');
+            assert.equal(textDecoder.decode(events), 'TEXT 5\r\nHello\r\nTEXT 0\r\n\r\nTEXT\r\n');
         });
         it('test case', function() {
             const events = encodeWebSocketEvents([
                 new WebSocketEvent('OPEN'),
             ]);
-            assert.equal(events, 'OPEN\r\n');
+            assert.equal(textDecoder.decode(events), 'OPEN\r\n');
         });
     });
     describe('#decodeWebSocketEvents', function () {

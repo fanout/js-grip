@@ -1,8 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
-import { HttpResponseFormat } from '../../../../src/index.js';
+import { encodeBytesToBase64String, HttpResponseFormat } from '../../../../src/index.js';
+
+const textEncoder = new TextEncoder();
 
 describe('HttpResponseFormat', function () {
     describe('#constructor', function () {
@@ -49,10 +50,14 @@ describe('HttpResponseFormat', function () {
         });
         it('test case', function () {
             const hf = new HttpResponseFormat({ code: 'code',
-                reason: 'reason', headers: 'headers', body: Buffer.from('body') });
+                reason: 'reason', headers: 'headers', body: textEncoder.encode('body') });
             assert.equal(JSON.stringify(hf.export()), JSON.stringify(
-                { code: 'code', reason: 'reason', headers: 'headers', 'body-bin':
-                        Buffer.from('body').toString('base64') }));
+                {
+                    code: 'code',
+                    reason: 'reason',
+                    headers: 'headers',
+                    'body-bin': encodeBytesToBase64String(textEncoder.encode('body')),
+                }));
         });
     });
 });

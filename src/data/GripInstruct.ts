@@ -1,5 +1,3 @@
-import { Buffer } from 'node:buffer';
-
 import { Channel } from './Channel.js';
 import { createGripChannelHeader, parseChannels } from '../utilities/index.js';
 import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader } from '../utilities/http.js';
@@ -9,7 +7,7 @@ export class GripInstruct {
     public hold?: string;
     public channels: Channel[] = [];
     public timeout = 0;
-    public keepAlive?: Buffer | string;
+    public keepAlive?: Uint8Array | string;
     public keepAliveTimeout = 0;
     public nextLink?: string;
     public nextLinkTimeout = 0;
@@ -40,7 +38,7 @@ export class GripInstruct {
         this.hold = 'stream';
     }
 
-    public setKeepAlive(data: string | Buffer, timeout: number) {
+    public setKeepAlive(data: string | Uint8Array, timeout: number) {
         this.keepAlive = data;
         this.keepAliveTimeout = timeout;
     }

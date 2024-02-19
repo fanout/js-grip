@@ -1,8 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
-import { HttpStreamFormat } from '../../../../src/index.js';
+import { encodeBytesToBase64String, HttpStreamFormat } from '../../../../src/index.js';
+
+const textEncoder = new TextEncoder();
 
 describe('HttpStreamFormat', function () {
     describe('#constructor', function () {
@@ -29,9 +30,11 @@ describe('HttpStreamFormat', function () {
             assert.equal(hf.export()['content'], 'message');
         });
         it('test case', function () {
-            const hf = new HttpStreamFormat(Buffer.from('message'));
-            assert.equal(hf.export()['content-bin'], Buffer.from('message').
-            toString('base64'));
+            const hf = new HttpStreamFormat(textEncoder.encode('message'));
+            assert.deepStrictEqual(
+              hf.export()['content-bin'],
+              encodeBytesToBase64String(textEncoder.encode('message')),
+            );
         });
         it('test case', function () {
             const hf = new HttpStreamFormat(null, true);

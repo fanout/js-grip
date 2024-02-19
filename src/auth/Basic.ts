@@ -1,6 +1,5 @@
-import { Buffer } from 'node:buffer';
-
 import { IAuth } from './IAuth.js';
+import { encodeBytesToBase64String } from '../utilities/index.js';
 
 export class Basic implements IAuth {
     public user: string;
@@ -16,7 +15,8 @@ export class Basic implements IAuth {
     // in Basic auth format.
     buildHeader(): string {
         const data = `${this.user}:${this.pass}`;
-        const dataBase64 = Buffer.from(data).toString('base64');
+        const textEncoder = new TextEncoder();
+        const dataBase64 = encodeBytesToBase64String(textEncoder.encode(data));
         return `Basic ${dataBase64}`;
     }
 }

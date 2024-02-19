@@ -1,10 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
 import { jspack } from 'jspack';
 
 import { WebSocketContext, WebSocketEvent } from '../../../../src/index.js';
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
 
 describe('WebSocketContext', function () {
 	describe('open', function () {
@@ -20,7 +22,7 @@ describe('WebSocketContext', function () {
 	});
 	describe('receive', function () {
 		it('test case', function () {
-			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('TEXT', Buffer.from('hello'))]);
+			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('TEXT', textEncoder.encode('hello'))]);
 			assert.ok(!ws.isOpening());
 			assert.ok(ws.canRecv());
 			const msg = ws.recv();
@@ -34,19 +36,31 @@ describe('WebSocketContext', function () {
 			assert.ok(!ws.isOpening());
 			assert.ok(!ws.canRecv());
 			assert.equal(ws.outEvents.length, 0);
-			ws.send(Buffer.from('apple'));
+			ws.send(textEncoder.encode('apple'));
 			ws.send('banana');
-			ws.sendBinary(Buffer.from('cherry'));
+			ws.sendBinary(textEncoder.encode('cherry'));
 			ws.sendBinary('date');
 			assert.equal(ws.outEvents.length, 4);
+
 			assert.equal(ws.outEvents[0].getType(), 'TEXT');
-			assert.ok((ws.outEvents[0].getContent() as Buffer).equals(Buffer.from('m:apple')));
+			let content = ws.outEvents[0].getContent();
+			assert.ok(content instanceof Uint8Array);
+			assert.deepStrictEqual(content, textEncoder.encode('m:apple'));
+
 			assert.equal(ws.outEvents[1].getType(), 'TEXT');
-			assert.ok((ws.outEvents[1].getContent() as Buffer).equals(Buffer.from('m:banana')));
+			content = ws.outEvents[1].getContent();
+			assert.ok(content instanceof Uint8Array);
+			assert.deepStrictEqual(content, textEncoder.encode('m:banana'));
+
 			assert.equal(ws.outEvents[2].getType(), 'BINARY');
-			assert.ok((ws.outEvents[2].getContent() as Buffer).equals(Buffer.from('m:cherry')));
+			content = ws.outEvents[2].getContent();
+			assert.ok(content instanceof Uint8Array);
+			assert.deepStrictEqual(content, textEncoder.encode('m:cherry'));
+
 			assert.equal(ws.outEvents[3].getType(), 'BINARY');
-			assert.ok((ws.outEvents[3].getContent() as Buffer).equals(Buffer.from('m:date')));
+			content = ws.outEvents[3].getContent();
+			assert.ok(content instanceof Uint8Array);
+			assert.deepStrictEqual(content, textEncoder.encode('m:date'));
 		});
 	});
 	describe('control', function () {
@@ -58,13 +72,17 @@ describe('WebSocketContext', function () {
 			assert.equal(ws.outEvents.length, 2);
 
 			assert.equal(ws.outEvents[0].getType(), 'TEXT');
-			assert.ok((ws.outEvents[0].getContent() as Buffer).toString().startsWith('c:'));
-			assert.deepEqual(JSON.parse((ws.outEvents[0].getContent() as Buffer).slice(2).toString()),
+			let content = ws.outEvents[0].getContent();
+			assert.ok(content instanceof Uint8Array);
+			assert.ok(textDecoder.decode(content).startsWith('c:'));
+			assert.deepEqual(JSON.parse(textDecoder.decode(content.slice(2))),
 				{type: 'subscribe', channel: 'foo'});
 
 			assert.equal(ws.outEvents[1].getType(), 'TEXT');
-			assert.ok((ws.outEvents[1].getContent() as Buffer).toString().startsWith('c:'));
-			assert.deepEqual(JSON.parse((ws.outEvents[1].getContent() as Buffer).slice(2).toString()),
+			content = ws.outEvents[1].getContent();
+			assert.ok(content instanceof Uint8Array);
+			assert.ok(textDecoder.decode(content).startsWith('c:'));
+			assert.deepEqual(JSON.parse(textDecoder.decode(content.slice(2))),
 				{type: 'unsubscribe', channel: 'bar'});
 		});
 	});

@@ -1,8 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
 import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader, parseQueryString } from '../../../src/index.js';
+
+const textEncoder = new TextEncoder();
 
 describe('utilities/http', function() {
     describe('#createKeepAliveHeader', function() {
@@ -11,7 +12,7 @@ describe('utilities/http', function() {
             assert.equal(header, 'foo; format=cstring; timeout=100');
         });
         it('buffer input', function() {
-            const data = Buffer.from('foo');
+            const data = textEncoder.encode('foo');
             const header = createKeepAliveHeader(data, 100);
             assert.equal(header, 'Zm9v; format=base64; timeout=100');
         });

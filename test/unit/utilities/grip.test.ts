@@ -1,107 +1,107 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
 import {
     Channel,
     parseChannels,
     parseGripUri,
     createGripChannelHeader,
+    decodeBytesFromBase64String,
 } from '../../../src/index.js';
 
-describe('utilities/grip', function () {
-    describe('#parseChannels', function () {
-        it('test case', function() {
+describe('utilities/grip', () => {
+    describe('#parseChannels', () => {
+        it('test case', () => {
             const channels = parseChannels('chan');
             assert.equal(channels[0].name, 'chan');
         });
-        it('test case', function() {
+        it('test case', () => {
             const channels = parseChannels(['chan']);
             assert.equal(channels[0].name, 'chan');
         });
-        it('test case', function() {
+        it('test case', () => {
             const channels = parseChannels(new Channel('chan', 'prev-id'));
             assert.equal(channels[0].name, 'chan');
             assert.equal(channels[0].prevId, 'prev-id');
         });
-        it('test case', function() {
+        it('test case', () => {
             const channels = parseChannels([new Channel('chan', 'prev-id')]);
             assert.equal(channels[0].name, 'chan');
             assert.equal(channels[0].prevId, 'prev-id');
         });
     });
-    describe('#parseGripUri', function () {
-        it('test case', function() {
+    describe('#parseGripUri', () => {
+        it('test case', () => {
             const uri = 'http://api.fanout.io/realm/realm?iss=realm' +
-                '&key=base64:geag121321='
-            const config = parseGripUri(uri)
-            assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm')
-            assert.equal(config['control_iss'], 'realm')
-            assert.equal(config['key'], Buffer.from('geag121321=', 'base64').toString())
-        });
-        it('test case', function() {
-            const uri = 'https://api.fanout.io/realm/realm?iss=realm' +
-                '&key=base64:geag121321='
-            const config = parseGripUri(uri)
-            assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm')
-        });
-        it('test case', function() {
-            const uri = 'https://api.fanout.io/realm/realm?key=base64:geag%2B21321='
-            const config = parseGripUri(uri)
-            assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm')
-            assert.equal(config['key'], Buffer.from('geag+21321=', 'base64').toString())
-        });
-        it('test case', function() {
-            const config = parseGripUri('http://api.fanout.io/realm/realm')
-            assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm')
-            assert.equal('control_iss' in config, false)
-            assert.equal('key' in config, false)
-        });
-        it('test case', function() {
-            const uri = 'http://api.fanout.io/realm/realm?iss=realm' +
-                '&key=base64:geag121321=&param1=value1&param2=value2'
-            const config = parseGripUri(uri)
-            assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm?' +
-                'param1=value1&param2=value2')
-            assert.equal(config['control_iss'], 'realm')
-            assert.equal(config['key'], Buffer.from('geag121321=', 'base64').toString())
-        });
-        it('test case', function() {
-            const config = parseGripUri('http://api.fanout.io:8080/realm/realm/')
-            assert.equal(config['control_uri'], 'http://api.fanout.io:8080/realm/realm')
-        });
-        it('test case', function() {
-            const uri = 'http://api.fanout.io/realm/realm?iss=realm' +
-                '&key=geag121321='
-            const config = parseGripUri(uri)
-            assert.equal(config['key'], 'geag121321=')
-        });
-        it('test case', function() {
-            const uri = 'https://api.fastly.com/service/service?' +
-              'key=apikey&verify-iss=fastly:service&verify-key=base64:geag121321=';
+                '&key=base64:aGVsbG8='
             const config = parseGripUri(uri);
-            assert.equal(config['control_uri'], 'https://api.fastly.com/service/service')
-            assert.equal(config['control_iss'], undefined)
+            assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm');
+            assert.equal(config['control_iss'], 'realm');
+            assert.deepStrictEqual(config['key'], decodeBytesFromBase64String('aGVsbG8='));
+        });
+        it('test case', () => {
+            const uri = 'https://api.fanout.io/realm/realm?iss=realm' +
+                '&key=base64:geag12132w==';
+            const config = parseGripUri(uri);
+            assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm');
+        });
+        it('test case', () => {
+            const uri = 'https://api.fanout.io/realm/realm?key=base64:geag%2B2132w==';
+            const config = parseGripUri(uri);
+            assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm');
+            assert.deepStrictEqual(config['key'], decodeBytesFromBase64String('geag+2132w=='));
+        });
+        it('test case', () => {
+            const config = parseGripUri('http://api.fanout.io/realm/realm');
+            assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm');
+            assert.equal('control_iss' in config, false);
+            assert.equal('key' in config, false);
+        });
+        it('test case', () => {
+            const uri = 'http://api.fanout.io/realm/realm?iss=realm' +
+                '&key=base64:geag12132w==&param1=value1&param2=value2';
+            const config = parseGripUri(uri);
+            assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm?' +
+                'param1=value1&param2=value2');
+            assert.equal(config['control_iss'], 'realm');
+            assert.deepStrictEqual(config['key'], decodeBytesFromBase64String('geag12132w=='));
+        });
+        it('test case', () => {
+            const config = parseGripUri('http://api.fanout.io:8080/realm/realm/');
+            assert.equal(config['control_uri'], 'http://api.fanout.io:8080/realm/realm');
+        });
+        it('test case', () => {
+            const uri = 'http://api.fanout.io/realm/realm?iss=realm' +
+                '&key=geag12132w==';
+            const config = parseGripUri(uri);
+            assert.deepStrictEqual(config['key'], 'geag12132w==');
+        });
+        it('test case', () => {
+            const uri = 'https://api.fastly.com/service/service?' +
+              'key=apikey&verify-iss=fastly:service&verify-key=base64:geag12132w==';
+            const config = parseGripUri(uri);
+            assert.equal(config['control_uri'], 'https://api.fastly.com/service/service');
+            assert.equal(config['control_iss'], undefined);
             assert.equal(config['key'], 'apikey');
             assert.equal(config['verify_iss'], 'fastly:service');
-            assert.equal(config['verify_key'], Buffer.from('geag121321=', 'base64').toString());
+            assert.deepStrictEqual(config['verify_key'], decodeBytesFromBase64String('geag12132w=='));
         });
     });
-    describe('#createGripChannelHeader', function () {
-        it('test case', function() {
+    describe('#createGripChannelHeader', () => {
+        it('test case', () => {
             const header = createGripChannelHeader('channel');
             assert.equal(header, 'channel');
         });
-        it('test case', function() {
+        it('test case', () => {
             const header = createGripChannelHeader(new Channel('channel'));
             assert.equal(header, 'channel');
         });
-        it('test case', function() {
+        it('test case', () => {
             const header = createGripChannelHeader(new Channel('channel',
                 'prev-id'));
             assert.equal(header, 'channel; prev-id=prev-id');
         });
-        it('test case', function() {
+        it('test case', () => {
             const header = createGripChannelHeader([new Channel('channel1',
                 'prev-id1'), new Channel('channel2', 'prev-id2')]);
             assert.equal(header, 'channel1; prev-id=prev-id1, channel2; prev-id=prev-id2');

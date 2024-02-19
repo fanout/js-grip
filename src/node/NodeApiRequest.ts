@@ -1,8 +1,11 @@
 import type { IncomingMessage } from 'node:http';
-import { Buffer } from 'node:buffer';
 
 import { IApiRequest } from '../engine/index.js';
 import debug from '../utilities/debug.js';
+import { encodeBytesToBase64String } from '../utilities/index.js';
+import { concatUint8Arrays } from '../utilities/typedarray.js';
+
+const textEncoder = new TextEncoder();
 
 export class NodeApiRequest implements IApiRequest<IncomingMessage> {
   static _map = new WeakMap<IncomingMessage, IApiRequest<IncomingMessage>>();
@@ -18,7 +21,7 @@ export class NodeApiRequest implements IApiRequest<IncomingMessage> {
     return apiRequest;
   }
 
-  private _body?: Buffer;
+  private _body?: Uint8Array;
   constructor(private _req: IncomingMessage) {}
 
   getWrapped(): IncomingMessage {
@@ -29,25 +32,28 @@ export class NodeApiRequest implements IApiRequest<IncomingMessage> {
     return this._req.method;
   }
 
-  async getBody(): Promise<Buffer> {
+  async getBody(): Promise<Uint8Array> {
     if(this._body != null) {
       debug("Reading body - body already known, returning it");
       return this._body;
     }
     debug("Reading body - start");
-    const body = await new Promise<Buffer>((resolve) => {
-      const bodySegments: any[] = [];
-      this._req.on('data', (chunk) => {
+    const body = await new Promise<Uint8Array>((resolve) => {
+      const bodySegments: Uint8Array[] = [];
+      this._req.on('data', (chunk: Uint8Array | string) => {
+        if (!(chunk instanceof Uint8Array)) {
+          chunk = textEncoder.encode(chunk);
+        }
         bodySegments.push(chunk);
       });
       this._req.on('end', () => {
-        const bodyBuffer = Buffer.concat(bodySegments);
+        const bodyBuffer = concatUint8Arrays(...bodySegments);
         resolve(bodyBuffer);
       });
     });
     this._body = body;
     if (body != null) {
-      debug("body (Buffer)", body.toString('base64'));
+      debug("body (Uint8Array)", encodeBytesToBase64String(body));
     } else {
       debug("body is null");
     }

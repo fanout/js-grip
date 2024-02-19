@@ -1,8 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
 import { Channel, GripInstruct } from '../../../src/index.js';
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
 
 describe('GripInstruct', function () {
 
@@ -107,11 +109,11 @@ describe('GripInstruct', function () {
             assert.equal(gripInstruct.keepAlive, 'foo');
             assert.equal(gripInstruct.keepAliveTimeout, 100);
         });
-        it('setKeepAlive with Buffer', function () {
+        it('setKeepAlive with Uint8Array', function () {
             const gripInstruct = new GripInstruct();
-            gripInstruct.setKeepAlive(Buffer.from('foo'), 100);
-            assert.ok(gripInstruct.keepAlive instanceof Buffer);
-            assert.equal((gripInstruct.keepAlive as Buffer).toString(), 'foo');
+            gripInstruct.setKeepAlive(textEncoder.encode('foo'), 100);
+            assert.ok(gripInstruct.keepAlive instanceof Uint8Array);
+            assert.equal(textDecoder.decode(gripInstruct.keepAlive as Uint8Array), 'foo');
             assert.equal(gripInstruct.keepAliveTimeout, 100);
         });
     });

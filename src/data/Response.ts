@@ -1,6 +1,5 @@
-import { Buffer } from 'node:buffer';
-
 import { IExportedResponse } from './IExportedResponse.js';
+import { encodeBytesToBase64String } from '../utilities/index.js';
 
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed
@@ -45,8 +44,8 @@ export class Response {
             obj.headers = this.headers;
         }
         if (this.body != null) {
-            if (Buffer.isBuffer(this.body)) {
-                obj['body-bin'] = this.body.toString('base64');
+            if (this.body instanceof Uint8Array) {
+                obj['body-bin'] = encodeBytesToBase64String(this.body);
             } else {
                 obj['body'] = this.body.toString();
             }

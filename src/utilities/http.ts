@@ -1,9 +1,9 @@
-import { Buffer } from 'node:buffer';
 import querystring from 'node:querystring';
 
 import { encodeCString, escapeQuotes, isString } from './string.js';
+import { encodeBytesToBase64String } from './base64.js';
 
-export function createKeepAliveHeader(data: string | Buffer, timeout: number) {
+export function createKeepAliveHeader(data: string | Uint8Array, timeout: number) {
     let output = null;
 
     if (isString(data)) {
@@ -15,8 +15,9 @@ export function createKeepAliveHeader(data: string | Buffer, timeout: number) {
     }
 
     if (output == null) {
-        const buffer = isString(data) ? Buffer.from(data) : data;
-        output = buffer.toString('base64') + '; format=base64';
+        const textEncoder = new TextEncoder();
+        const bytes = typeof data === 'string' ? textEncoder.encode(data) : data;
+        output = encodeBytesToBase64String(bytes) + '; format=base64';
     }
 
     output += `; timeout=${Math.floor(timeout)}`;

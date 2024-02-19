@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import querystring from 'node:querystring';
 import url from 'node:url';
 
@@ -6,6 +5,7 @@ import { IGripConfigBase } from '../engine/index.js';
 import { Channel } from '../data/index.js';
 import { parseQueryString } from './http.js';
 import { isString } from './string.js';
+import { decodeBytesFromBase64String } from './base64.js';
 
 // Method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either
@@ -34,10 +34,10 @@ export function parseGripUriCustomParams<
 ): TGripConfig {
     const parsedUri = url.parse(uri);
     let iss: string | null = null;
-    let key: Buffer | string | null = null;
+    let key: Uint8Array | string | null = null;
 
     let verify_iss: string | null = null;
-    let verify_key: Buffer | string | null = null;
+    let verify_key: Uint8Array | string | null = null;
 
     const params = parseQueryString(parsedUri.query || '');
     if ('iss' in params) {
@@ -59,23 +59,23 @@ export function parseGripUriCustomParams<
 
     const ctx: TContext | null = fnParamsToContext != null ? fnParamsToContext(params) : null;
 
-    if (key != null && isString(key) && key.startsWith('base64:')) {
+    if (typeof key === 'string' && key.startsWith('base64:')) {
         key = key.slice(7);
         // When the key contains a '+' character, if the URL is built carelessly
         // and this segment of the URL contained '+' directly instead of properly
         // being URL-encoded as %2B, then they would have turned into spaces at
         // this point. Turn them back into pluses before decoding the key from base64.
         key = key.replace(/ /g, '+');
-        key = Buffer.from(key, 'base64');
+        key = decodeBytesFromBase64String(key);
     }
-    if (verify_key != null && isString(verify_key) && verify_key.startsWith('base64:')) {
+    if (typeof verify_key === 'string' && verify_key.startsWith('base64:')) {
         verify_key = verify_key.slice(7);
         // When the key contains a '+' character, if the URL is built carelessly
         // and this segment of the URL contained '+' directly instead of properly
         // being URL-encoded as %2B, then they would have turned into spaces at
         // this point. Turn them back into pluses before decoding the key from base64.
         verify_key = verify_key.replace(/ /g, '+');
-        verify_key = Buffer.from(verify_key, 'base64');
+        verify_key = decodeBytesFromBase64String(verify_key);
     }
     const qs = querystring.stringify(params);
     let path = parsedUri.pathname;

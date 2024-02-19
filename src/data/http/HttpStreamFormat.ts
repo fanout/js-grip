@@ -1,15 +1,14 @@
-import { Buffer } from 'node:buffer';
-
 import { IFormat } from '../IFormat.js';
 import { IFormatExport } from '../IFormatExport.js';
+import { encodeBytesToBase64String } from '../../utilities/index.js';
 
 // The HttpStreamFormat class is the format used to publish messages to
 // HTTP stream clients connected to a GRIP proxy.
 export class HttpStreamFormat implements IFormat {
-    content: string | Buffer | null;
+    content: string | Uint8Array | null;
     close: boolean;
 
-    constructor(content: string | Buffer | null = null, close = false) {
+    constructor(content: string | Uint8Array | null = null, close = false) {
         // Initialize with either the message content or a boolean indicating that
         // the streaming connection should be closed. If neither the content nor
         // the boolean flag is set then an error will be thrown.
@@ -34,8 +33,8 @@ export class HttpStreamFormat implements IFormat {
             obj['action'] = 'close';
             obj['content'] = '';
         } else {
-            if (Buffer.isBuffer(this.content)) {
-                obj['content-bin'] = this.content.toString('base64');
+            if (this.content instanceof Uint8Array) {
+                obj['content-bin'] = encodeBytesToBase64String(this.content);
             } else if (this.content != null) {
                 obj['content'] = this.content.toString();
             }

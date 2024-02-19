@@ -1,9 +1,7 @@
-import { Buffer } from 'node:buffer';
-
 export interface IWebSocketEvent {
     type: string;
-    content: Buffer | number[] | string | null;
+    content: Uint8Array | number[] | string | null;
 
     getType(): string;
-    getContent(): Buffer | number[] | string | null;
+    getContent(): Uint8Array | number[] | string | null;
 }

@@ -1,8 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { Buffer } from 'node:buffer';
 
-import { WebSocketMessageFormat } from '../../../../src/index.js';
+import { encodeBytesToBase64String, WebSocketMessageFormat } from '../../../../src/index.js';
+
+const textEncoder = new TextEncoder();
 
 describe('WebSocketMessageFormat', function () {
     describe('#constructor', function () {
@@ -23,9 +24,11 @@ describe('WebSocketMessageFormat', function () {
             assert.equal(ws.export()['content'], 'message');
         });
         it('test case', function () {
-            const ws = new WebSocketMessageFormat(Buffer.from('message'));
-            assert.equal(ws.export()['content-bin'], Buffer.from('message').
-            toString('base64'));
+            const ws = new WebSocketMessageFormat(textEncoder.encode('message'));
+            assert.deepStrictEqual(
+              ws.export()['content-bin'],
+              encodeBytesToBase64String(textEncoder.encode('message')),
+            );
         });
         it('test case', function () {
             const ws = new WebSocketMessageFormat(null, true, 1009);
