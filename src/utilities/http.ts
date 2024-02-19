@@ -1,5 +1,3 @@
-import querystring from 'node:querystring';
-
 import { encodeCString, escapeQuotes, isString } from './string.js';
 import { encodeBytesToBase64String } from './base64.js';
 
@@ -39,30 +37,4 @@ export function createNextLinkHeader(uri: string, timeout: number = 0) {
         output += `; timeout=${Math.floor(timeout)}`;
     }
     return output;
-}
-
-export function parseQueryString(query: string): { [key: string]: string } {
-    // Input is expected to be URL-encoded. This means that spaces should be
-    // represented as '+', and characters not safe for URLs (especially '+')
-    // need to be represented with %XX encoding.
-    const paramsObj = querystring.parse(query);
-
-    // Flatten parsed query string
-    const params: { [key: string]: string } = {};
-    for (const [key, val] of Object.entries(paramsObj)) {
-        if (Array.isArray(val)) {
-            params[key] = val[0];
-        } else if (val != null) {
-            params[key] = val;
-        }
-    }
-
-    return params;
-}
-
-export function flattenHeader(value: undefined | string | string[]) {
-    if (Array.isArray(value)) {
-        return value[0];
-    }
-    return value;
 }

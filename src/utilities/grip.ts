@@ -1,9 +1,5 @@
-import querystring from 'node:querystring';
-import url from 'node:url';
-
 import { IGripConfigBase } from '../engine/index.js';
 import { Channel } from '../data/index.js';
-import { parseQueryString } from './http.js';
 import { isString } from './string.js';
 import { decodeBytesFromBase64String } from './base64.js';
 
@@ -29,32 +25,33 @@ export function parseGripUriCustomParams<
   TContext = Record<string, unknown>,
 >(
   uri: string,
-  fnParamsToContext?: (params: Record<string, string>) => TContext,
+  fnParamsToContext?: (params: URLSearchParams) => TContext,
   fnContextToOut?: (configBase: IGripConfigBase, ctx: TContext) => TGripConfig
 ): TGripConfig {
-    const parsedUri = url.parse(uri);
+    const parsedUrl = new URL(uri);
+    const params = parsedUrl.searchParams;
+
     let iss: string | null = null;
     let key: Uint8Array | string | null = null;
 
     let verify_iss: string | null = null;
     let verify_key: Uint8Array | string | null = null;
 
-    const params = parseQueryString(parsedUri.query || '');
-    if ('iss' in params) {
-        iss = params['iss'];
-        delete params['iss'];
+    if (params.has('iss')) {
+        iss = params.get('iss');
+        params.delete('iss');
     }
-    if ('key' in params) {
-        key = params['key'];
-        delete params['key'];
+    if (params.has('key')) {
+        key = params.get('key');
+        params.delete('key');
     }
-    if ('verify-iss' in params) {
-        verify_iss = params['verify-iss'];
-        delete params['verify-iss'];
+    if (params.has('verify-iss')) {
+        verify_iss = params.get('verify-iss');
+        params.delete('verify-iss');
     }
-    if ('verify-key' in params) {
-        verify_key = params['verify-key'];
-        delete params['verify-key'];
+    if (params.has('verify-key')) {
+        verify_key = params.get('verify-key');
+        params.delete('verify-key');
     }
 
     const ctx: TContext | null = fnParamsToContext != null ? fnParamsToContext(params) : null;
@@ -77,15 +74,12 @@ export function parseGripUriCustomParams<
         verify_key = verify_key.replace(/ /g, '+');
         verify_key = decodeBytesFromBase64String(verify_key);
     }
-    const qs = querystring.stringify(params);
-    let path = parsedUri.pathname;
-    if (path != null && path.endsWith('/')) {
-        path = path.slice(0, path.length - 1);
+
+    if (parsedUrl.pathname.endsWith('/')) {
+        parsedUrl.pathname = parsedUrl.pathname.slice(0, parsedUrl.pathname.length - 1);
     }
-    let controlUri = String(parsedUri.protocol) + '//' + String(parsedUri.host) + String(path);
-    if (qs != null && qs !== '') {
-        controlUri = controlUri + '?' + qs;
-    }
+    let controlUri = parsedUrl.toString();
+
     const configBase: IGripConfigBase = { control_uri: controlUri };
     if (iss != null) {
         configBase['control_iss'] = iss;

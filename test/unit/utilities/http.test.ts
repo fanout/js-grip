@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
-import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader, parseQueryString } from '../../../src/index.js';
+import { createKeepAliveHeader, createMetaHeader, createNextLinkHeader } from '../../../src/index.js';
 
 const textEncoder = new TextEncoder();
 
@@ -35,20 +35,6 @@ describe('utilities/http', function() {
         it('uri input with timeout', function() {
             const header = createNextLinkHeader('http://example.com/path/', 100);
             assert.equal(header, '<http://example.com/path/>; rel=next; timeout=100');
-        });
-    });
-    describe('#parseQueryString', function() {
-        it('simple', function() {
-            const parsed = parseQueryString("foo=bar&baz=hiho");
-            assert.equal(JSON.stringify(parsed),'{"foo":"bar","baz":"hiho"}');
-        });
-        it('with a plus', function() {
-            const parsed = parseQueryString("foo=bar%2Bbaz");
-            assert.equal(JSON.stringify(parsed),'{"foo":"bar+baz"}');
-        });
-        it('flatten', function() {
-            const parsed = parseQueryString("foo=bar&foo=baz&hoge=piyo");
-            assert.equal(JSON.stringify(parsed),'{"foo":"bar","hoge":"piyo"}');
         });
     });
 });
