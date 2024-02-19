@@ -1,5 +1,3 @@
-import { Buffer } from 'buffer';
-
 import * as Auth from '../auth/index.js';
 import { IItem, IItemExport, PublishException } from '../data/index.js';
 import { IPublisherTransport } from './IPublisherTransport.js';
@@ -21,8 +19,15 @@ declare global {
 
 export type VerifyComponents = {
     verifyIss?: string;
-    verifyKey?: Buffer | string;
+    verifyKey?: Uint8Array;
 }
+
+export type SetVerifyComponentsParam = {
+    verifyIss?: string;
+    verifyKey?: Uint8Array | string;
+}
+
+const textEncoder = new TextEncoder();
 
 // The PublisherClient class allows consumers to publish to an endpoint of
 // their choice. The consumer wraps a Format class instance in an Item class
@@ -44,7 +49,7 @@ export class PublisherClient {
 
     // Call this method and pass a claim and key to use JWT authentication
     // with the configured endpoint.
-    setAuthJwt(claim: object, key: Buffer | string): void {
+    setAuthJwt(claim: object, key: Uint8Array | string): void {
         this.auth = new Auth.Jwt(claim, key);
     }
 
@@ -56,8 +61,15 @@ export class PublisherClient {
 
     // Call this method and pass a verify key and/or verify iss to set them
     // for this client
-    setVerifyComponents(verifyComponents: VerifyComponents) {
-        this.verifyComponents = verifyComponents;
+    setVerifyComponents(verifyComponents: SetVerifyComponentsParam) {
+        this.verifyComponents = {
+            verifyIss: verifyComponents.verifyIss,
+            verifyKey: verifyComponents.verifyKey instanceof Uint8Array ?
+              verifyComponents.verifyKey :
+              typeof(verifyComponents.verifyKey) === 'string' ?
+                textEncoder.encode(verifyComponents.verifyKey) :
+                undefined
+        };
     }
 
     getVerifyIss() {
@@ -86,7 +98,7 @@ export class PublisherClient {
         // Build HTTP headers
         const headers: IReqHeaders = {
             'Content-Type': 'application/json',
-            'Content-Length': String(Buffer.byteLength(content, 'utf8')),
+            'Content-Length': String(textEncoder.encode(content).length),
         };
         if (authHeader != null) {
             headers['Authorization'] = authHeader;

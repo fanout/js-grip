@@ -18,6 +18,8 @@ class TestFormat extends Format {
     }
 }
 
+const textEncoder = new TextEncoder();
+
 describe('PublisherClient', function() {
     describe('#constructor', function() {
         it('test case', function() {
@@ -54,7 +56,7 @@ describe('PublisherClient', function() {
             const claim = {};
             pcc.setAuthJwt(claim, "key");
             assert.equal((pcc.auth as Auth.Jwt).claim, claim);
-            assert.equal((pcc.auth as Auth.Jwt).key, "key");
+            assert.deepStrictEqual((pcc.auth as Auth.Jwt).key, textEncoder.encode("key"));
         });
         it('token', function() {
             const publisherTransport: IPublisherTransport = {
@@ -86,7 +88,7 @@ describe('PublisherClient', function() {
             const pcc = new PublisherClient(publisherTransport);
             pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key' });
             assert.equal(pcc.verifyComponents?.verifyIss, 'iss');
-            assert.equal(pcc.verifyComponents?.verifyKey, 'key');
+            assert.deepStrictEqual(pcc.verifyComponents?.verifyKey, textEncoder.encode('key'));
         });
     });
     describe('#getVerifyIss', function() {
@@ -128,7 +130,7 @@ describe('PublisherClient', function() {
             };
             const pcc = new PublisherClient(publisherTransport);
             pcc.setAuthJwt({}, 'key');
-            assert.equal(pcc.getVerifyKey(), 'key');
+            assert.deepStrictEqual(pcc.getVerifyKey(), textEncoder.encode('key'));
         });
         it("has the value if #setVerifyComponents is called", function() {
             const publisherTransport: IPublisherTransport = {
@@ -140,7 +142,7 @@ describe('PublisherClient', function() {
             pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key1' });
             pcc.setAuthJwt({}, 'key2');
             // the verifyKey should win when both are provided
-            assert.equal(pcc.getVerifyKey(), 'key1');
+            assert.deepStrictEqual(pcc.getVerifyKey(), textEncoder.encode('key1'));
         });
     });
     describe('#publish', function() {

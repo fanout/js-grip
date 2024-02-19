@@ -6,6 +6,8 @@ import jwt from 'jsonwebtoken';
 
 import * as Auth from '../../../src/auth/index.js';
 
+const textEncoder = new TextEncoder();
+
 describe('auth', () => {
     describe('Basic', () => {
         it('test case', () => {
@@ -26,12 +28,11 @@ describe('auth', () => {
         });
     });
     describe('Jwt', () => {
-        it('test case', () => {
+        it('test case', async () => {
             const cl = {};
             let authJwt = new Auth.Jwt(cl, "key");
             assert.equal(authJwt.claim, cl);
-            assert.equal(authJwt.key, "key");
-            assert.ok(Buffer.isBuffer(authJwt.key));
+            assert.deepStrictEqual(authJwt.key, textEncoder.encode("key"));
             authJwt = new Auth.Jwt({ iss: "hello" }, "key==");
             const claim = jwt.verify(authJwt.buildHeader().slice(7), "key==");
             assert.ok(typeof claim === 'object');

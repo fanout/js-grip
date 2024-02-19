@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer';
 import jwt from 'jsonwebtoken';
+const textEncoder = new TextEncoder();
 
 import { IAuth } from './IAuth.js';
 
@@ -7,12 +7,12 @@ import { IAuth } from './IAuth.js';
 // JSON web token information in the form of a claim and corresponding key.
 export class Jwt implements IAuth {
     public claim?: object;
-    public key?: Buffer;
+    public key: Uint8Array;
 
-    constructor(claim: object, key: Buffer | string) {
+    constructor(claim: object, key: Uint8Array | string) {
         // Initialize with the specified claim and key.
         this.claim = claim;
-        this.key = key instanceof Buffer ? key : Buffer.from(String(key), 'utf8');
+        this.key = key instanceof Uint8Array ? key : textEncoder.encode(key);
     }
 
     // Returns the auth header containing the JWT token in Bearer format.
