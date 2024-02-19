@@ -1,6 +1,5 @@
 import { IGripConfigBase } from '../engine/index.js';
 import { Channel } from '../data/index.js';
-import { isString } from './string.js';
 import { decodeBytesFromBase64String } from './base64.js';
 
 // Method for parsing the specified parameter into an
@@ -8,7 +7,7 @@ import { decodeBytesFromBase64String } from './base64.js';
 // be a string, a Channel instance, or an array of Channel instances.
 export function parseChannels(inChannels: Channel | Channel[] | string | string[]) {
     const channels = !Array.isArray(inChannels) ? [inChannels] : inChannels;
-    return channels.map((channel) => (isString(channel) ? new Channel(channel) : channel));
+    return channels.map((channel) => typeof channel === 'string' ? new Channel(channel) : channel);
 }
 
 // Parse the specified GRIP URI into a config object that can then be passed

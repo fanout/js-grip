@@ -1,17 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
-import { encodeCString, escapeQuotes, isString, } from '../../../src/index.js';
+import { encodeCString, escapeQuotes, } from '../../../src/index.js';
 
 describe('utilities/string', () => {
-    describe('#isString', () => {
-        it('test case', () => {
-            assert.ok(isString('hello'));
-            assert.ok(!(isString(123)));
-            assert.ok(!(isString(() => {})));
-            assert.ok(!(isString([])));
-        });
-    });
     describe('#encodeCString', () => {
         it('simple string', () => {
             const input = 'simple';

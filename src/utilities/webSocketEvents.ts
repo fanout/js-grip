@@ -1,5 +1,4 @@
 import { IWebSocketEvent, WebSocketEvent } from '../data/index.js';
-import { isString } from './string.js';
 import { concatUint8Arrays } from './typedarray.js';
 
 const textEncoder = new TextEncoder();
@@ -42,7 +41,7 @@ export function decodeWebSocketEvents(body: Uint8Array | string): IWebSocketEven
     const out = [];
     let start = 0;
     let makeContentString = false;
-    if (isString(body)) {
+    if (typeof body === 'string') {
         body = textEncoder.encode(body);
         makeContentString = true;
     }

@@ -1,10 +1,3 @@
-// Determines whether the specified object is a string.
-const objectToString = Object.prototype.toString;
-const stringObjectIdentifier = objectToString.call('');
-export function isString(obj: any): obj is string {
-    return obj != null && objectToString.call(obj) === stringObjectIdentifier;
-}
-
 export function encodeCString(str: string) {
     let output = '';
     for (const c of str) {

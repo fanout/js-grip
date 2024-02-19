@@ -1,10 +1,10 @@
-import { encodeCString, escapeQuotes, isString } from './string.js';
+import { encodeCString, escapeQuotes } from './string.js';
 import { encodeBytesToBase64String } from './base64.js';
 
 export function createKeepAliveHeader(data: string | Uint8Array, timeout: number) {
     let output = null;
 
-    if (isString(data)) {
+    if (typeof data === 'string') {
         try {
             output = encodeCString(data) + '; format=cstring';
         } catch (ex) {
