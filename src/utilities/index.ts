@@ -1,3 +1,4 @@
+export * from './base64.js';
 export * from './grip.js';
 export * from './webSocketEvents.js';
 export * from './ws-over-http.js';
