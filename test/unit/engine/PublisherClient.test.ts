@@ -1,4 +1,4 @@
-import { describe, it, beforeEach } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
 import {
@@ -7,8 +7,6 @@ import {
     Format,
     PublisherClient,
     PublishException,
-    IItemExport,
-    IPublisherTransport,
     encodeBytesToBase64String,
 } from '../../../src/index.js';
 
@@ -30,150 +28,159 @@ const textEncoder = new TextEncoder();
 
 describe('PublisherClient', function() {
     describe('#constructor', function() {
-        it('test case', function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            assert.equal(pcc.transport, publisherTransport);
-        });
-    });
-    describe('#setAuthBasic', function() {
-        it('test case', function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc.setAuthBasic("user", "pass");
-            assert.equal((pcc.auth as Auth.Basic).user, "user");
-            assert.equal((pcc.auth as Auth.Basic).pass, "pass");
-        });
-    });
-    describe('#setAuthJwt', function() {
-        it('key and claim', function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            const claim = {};
-            pcc.setAuthJwt(claim, "key");
-            assert.equal((pcc.auth as Auth.Jwt).claim, claim);
-            assert.deepStrictEqual((pcc.auth as Auth.Jwt).key, textEncoder.encode("key"));
-        });
-        it('token', function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc.setAuthBearer("token");
-            assert.equal((pcc.auth as Auth.Bearer).token, "token");
-        });
-    });
-    describe('#setVerifyComponents', function() {
-        it("not calling it doesn't set a value", function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
+        it('constructs with just a control URI', function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            });
+            assert.equal(pcc.publishUri, 'https://www.example.com/publish/');
+            assert.equal(pcc.auth, undefined);
             assert.equal(pcc.verifyComponents, undefined);
         });
-        it("calling it with sets the value", function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key' });
+        it('constructs with user and pass to use Basic auth', function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                user: 'user',
+                pass: 'pass',
+            });
+            const auth = pcc.auth;
+            assert.ok(auth instanceof Auth.Basic);
+            assert.equal(auth.user, "user");
+            assert.equal(auth.pass, "pass");
+        });
+        it('constructs with iss and key to use JWT auth', function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                control_iss: 'foo',
+                key: textEncoder.encode('key'),
+            });
+            const auth = pcc.auth;
+            assert.ok(auth instanceof Auth.Jwt);
+            assert.deepStrictEqual(auth.claim, {iss: 'foo'});
+            assert.deepStrictEqual(auth.key, textEncoder.encode("key"));
+        });
+        it('constructs with token to use Bearer auth', function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                key: 'token',
+            });
+            const auth = pcc.auth;
+            assert.ok(auth instanceof Auth.Bearer);
+            assert.equal(auth.token, "token");
+        });
+        it("constructs with verify_iss and verify_key", function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                verify_iss: 'iss',
+                verify_key: 'key',
+            });
             assert.equal(pcc.verifyComponents?.verifyIss, 'iss');
             assert.deepStrictEqual(pcc.verifyComponents?.verifyKey, textEncoder.encode('key'));
         });
     });
     describe('#getVerifyIss', function() {
-        it("has no value if #setVerifyComponents is not called", function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
+        it("has no value if not set", function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            });
             assert.equal(pcc.getVerifyIss(), undefined);
         });
-        it("has the value if #setVerifyComponents is called", function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key' });
+        it("has the value if set", function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                verify_iss: 'iss',
+                verify_key: 'key',
+            });
             assert.equal(pcc.getVerifyIss(), 'iss');
         });
     });
     describe('#getVerifyKey', function() {
-        it("has no value if #setVerifyComponents is not called and auth isn't set", function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
+        it("has no value if not set and no auth", function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            });
             assert.equal(pcc.getVerifyKey(), undefined);
         });
-        it("has the value if #setAuthJwt is called", function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc.setAuthJwt({}, 'key');
+        it("has the value if JWT auth key is set", function() {
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                control_iss: 'foo',
+                key: 'key',
+            });
             assert.deepStrictEqual(pcc.getVerifyKey(), textEncoder.encode('key'));
         });
         it("has the value if #setVerifyComponents is called", function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc.setVerifyComponents({ verifyIss: 'iss', verifyKey: 'key1' });
-            pcc.setAuthJwt({}, 'key2');
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                control_iss: 'foo',
+                key: 'key2',
+                verify_iss: 'iss',
+                verify_key: 'key1',
+            });
             // the verifyKey should win when both are provided
             assert.deepStrictEqual(pcc.getVerifyKey(), textEncoder.encode('key1'));
         });
     });
     describe('#publish', function() {
+        it('sets content-type header', async function() {
+            let wasWorkerCalled = false;
+            const itm = new Item(new TestFormat("bodyval"));
+            const exportedItem = itm.export();
+            exportedItem["channel"] = "channel";
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            }, {
+                async fetch(url, init) {
+                    const headers = new Headers(init?.headers);
+                    assert.equal(headers.get('Content-Type'), 'application/json');
+                    wasWorkerCalled = true;
+                    return new Response();
+                }
+            });
+            await pcc.publish("channel", itm);
+            assert.ok(wasWorkerCalled);
+        });
+        it('sets content-length header', async function() {
+            let wasWorkerCalled = false;
+            const itm = new Item(new TestFormat("bodyval"));
+            const exportedItem = itm.export();
+            exportedItem["channel"] = "channel";
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            }, {
+                async fetch(url, init) {
+                    const body = init?.body;
+                    const text = await new Response(body).text();
+
+                    const headers = new Headers(init?.headers);
+                    assert.equal(headers.get('Content-Length'), String(textEncoder.encode(text).length));
+                    wasWorkerCalled = true;
+                    return new Response();
+                }
+            });
+            await pcc.publish("channel", itm);
+            assert.ok(wasWorkerCalled);
+        });
         it('auth', async function() {
             let wasWorkerCalled = false;
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+                user: 'user',
+                pass: 'pass',
+            }, {
+                async fetch(url, init) {
+                    const headers = new Headers(init?.headers);
+                    assert.equal(headers.get('Authorization'), "Basic " + encodeBytesToBase64String(textEncoder.encode("user:pass")));
+
+                    const body = init?.body;
+                    const json = await new Response(body).json();
+                    assert.deepStrictEqual(json.items, [exportedItem]);
+                    wasWorkerCalled = true;
+                    return new Response();
                 }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc._startPubCall = async function(authHeader, items) {
-                assert.equal(
-                    authHeader,
-                    "Basic " + encodeBytesToBase64String(textEncoder.encode("user:pass"))
-                );
-                assert.equal(JSON.stringify(items), JSON.stringify([exportedItem]));
-                wasWorkerCalled = true;
-            };
-            pcc.setAuthBasic("user", "pass");
+            });
             await pcc.publish("channel", itm);
             assert.ok(wasWorkerCalled);
         });
@@ -182,17 +189,20 @@ describe('PublisherClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            }, {
+                async fetch(url, init) {
+                    const headers = new Headers(init?.headers);
+                    assert.ok(headers.get('Authorization') == null);
+
+                    const body = init?.body;
+                    const json = await new Response(body).json();
+                    assert.deepStrictEqual(json.items, [exportedItem]);
+                    wasWorkerCalled = true;
+                    return new Response();
                 }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc._startPubCall = async function(authHeader, items) {
-                assert.equal(authHeader, null);
-                assert.equal(JSON.stringify(items), JSON.stringify([exportedItem]));
-                wasWorkerCalled = true;
-            };
+            });
             await pcc.publish("channel", itm);
             assert.ok(wasWorkerCalled);
         });
@@ -200,192 +210,94 @@ describe('PublisherClient', function() {
             const itm = new Item(new TestFormat("bodyval"));
             const exportedItem = itm.export();
             exportedItem["channel"] = "channel";
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com'
+            }, {
+                fetch(url, init) {
+                    throw new Error('fail');
                 }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc._startPubCall = async function() {
-                throw new PublishException('fail', null);
-            };
+            });
             let resultEx: any = null;
             await assert.rejects(async () => {
                 await pcc.publish("channel", itm);
             }, ex => {
-                resultEx = ex;
+                assert.ok(ex instanceof PublishException);
+                assert.strictEqual(ex.message, "fail");
                 return true;
             });
-            assert.ok(resultEx instanceof PublishException);
-            assert.strictEqual(resultEx.message, "fail");
         });
-    });
-    describe('#_startPubCall', function() {
         it('test', async function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
+            const itm = new Item(new TestFormat("bodyval"));
+            const exportedItem = itm.export();
+            exportedItem["channel"] = "channel";
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            }, {
+                async fetch(url, init) {
+                    return new Response(
+                        'result',
+                        {
+                          status: 200
+                        },
+                    );
                 }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            const testItems: IItemExport[] = [];
-            let wasPerformHttpRequestCalled = false;
-            pcc._performHttpRequest = async function(headers, content) {
-                assert.equal(content, JSON.stringify({ items: testItems }));
-                assert.notEqual(headers, null);
-                assert.equal(headers["Content-Type"], "application/json");
-                assert.equal(
-                    headers["Content-Length"],
-                    textEncoder.encode(content).length,
-                );
-                assert.equal(headers["Authorization"], "authHeader");
-                wasPerformHttpRequestCalled = true;
-            };
-            await pcc._startPubCall("authHeader", testItems);
-            assert.ok(wasPerformHttpRequestCalled);
-        });
-    });
-    describe('#_finishHttpRequest', function() {
-        const publisherTransport: IPublisherTransport = {
-            publish(_headers, _content): Promise<any> {
-                return Promise.resolve(undefined);
-            }
-        };
-        const pcc = new PublisherClient(publisherTransport);
-        it('test', async function() {
-            assert.doesNotThrow(() => {
-                pcc._finishHttpRequest(
-                    "end",
-                    ["result"],
-                    { statusCode: 200 }
-                );
+            });
+            await assert.doesNotReject(async () => {
+                await pcc.publish("channel", itm);
             });
         });
         it('failure', async function() {
-            let resultEx: any = null;
-            assert.throws(() => {
-                pcc._finishHttpRequest( "end", "result", { statusCode: 300 } );
-            }, ex => {
-                resultEx = ex;
-                return true;
+            const itm = new Item(new TestFormat("bodyval"));
+            const exportedItem = itm.export();
+            exportedItem["channel"] = "channel";
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            }, {
+                async fetch(url, init) {
+                    return new Response(
+                        'result',
+                        {
+                            status: 300
+                        },
+                    );
+                }
             });
-            assert.ok(resultEx instanceof PublishException);
-            assert.equal(resultEx.message, '\"result\"');
-            assert.equal(resultEx.context.statusCode, 300);
-        });
-        it('request close', function() {
-            let resultEx: any = null;
-            assert.throws(() => {
-                pcc._finishHttpRequest( "close", "result", { statusCode: 300 } );
-            }, ex => {
-                resultEx = ex;
-                return true;
-            });
-            assert.ok(resultEx instanceof PublishException);
-            assert.equal(resultEx.message, 'Connection closed unexpectedly');
-            assert.equal(resultEx.context.statusCode, 300);
-        });
-    });
-    describe('#_performHttpRequest', function() {
-        let wasFinishHttpRequestCalled: boolean;
-        let wasFinishHttpRequestCalledForClose: boolean;
-        beforeEach(function() {
-            wasFinishHttpRequestCalled = false;
-            wasFinishHttpRequestCalledForClose = false;
-        });
-
-        it('fail', async function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, content): Promise<any> {
-                    assert.equal(content, "content");
-                    return Promise.reject("message");
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc._finishHttpRequest = (mode, httpData) => {
-                wasFinishHttpRequestCalled = false;
-                wasFinishHttpRequestCalledForClose = false;
-                if (mode === "end") {
-                    wasFinishHttpRequestCalled = true;
-                    assert.equal(httpData, "result");
-                }
-                if (mode === "close") {
-                    wasFinishHttpRequestCalledForClose = true;
-                }
-            };
-
-            let resultEx: any = null;
             await assert.rejects(async () => {
-                await pcc._performHttpRequest({}, "content");
+                await pcc.publish("channel", itm);
             }, ex => {
-                resultEx = ex;
+                assert.ok(ex instanceof PublishException);
+                assert.equal(ex.message, '\"result\"');
+                assert.equal(ex.context.statusCode, 300);
                 return true;
             });
-            assert.ok(resultEx instanceof PublishException);
-            assert.equal(resultEx.message, "message");
-            assert.equal(resultEx.context.statusCode, -1);
-            assert.ok(!wasFinishHttpRequestCalled);
-            assert.ok(!wasFinishHttpRequestCalledForClose);
         });
-        it('close', async function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, content): Promise<any> {
-                    assert.equal(content, "content");
-                    return Promise.resolve({
-                        status: 200,
-                        headers: {},
-                        text: async () => {
-                            throw "error";
+        it('request close', async function() {
+            const itm = new Item(new TestFormat("bodyval"));
+            const exportedItem = itm.export();
+            exportedItem["channel"] = "channel";
+            const pcc = new PublisherClient({
+                control_uri: 'https://www.example.com/',
+            }, {
+                async fetch(url, init) {
+                    const res = new Response(
+                        'result',
+                        {
+                            status: 300
                         },
-                    });
+                    );
+                    // Consume body to simulate connection closed
+                    await res.text();
+                    return res;
                 }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc._finishHttpRequest = (mode, httpData) => {
-                wasFinishHttpRequestCalled = false;
-                wasFinishHttpRequestCalledForClose = false;
-                if (mode === "end") {
-                    wasFinishHttpRequestCalled = true;
-                    assert.equal(httpData, "result");
-                }
-                if (mode === "close") {
-                    wasFinishHttpRequestCalledForClose = true;
-                }
-            };
-
-            await pcc._performHttpRequest({}, 'content');
-            assert.ok(!wasFinishHttpRequestCalled);
-            assert.ok(wasFinishHttpRequestCalledForClose);
-        });
-        it('success', async function() {
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, content): Promise<any> {
-                    assert.equal(content, "content");
-                    return Promise.resolve({
-                        status: 200,
-                        headers: {},
-                        text: async () => {
-                            return "result";
-                        },
-                    });
-                }
-            };
-            const pcc = new PublisherClient(publisherTransport);
-            pcc._finishHttpRequest = (mode, httpData) => {
-                wasFinishHttpRequestCalled = false;
-                wasFinishHttpRequestCalledForClose = false;
-                if (mode === "end") {
-                    wasFinishHttpRequestCalled = true;
-                    assert.equal(httpData, "result");
-                }
-                if (mode === "close") {
-                    wasFinishHttpRequestCalledForClose = true;
-                }
-            };
-
-            await pcc._performHttpRequest({}, 'content');
-            assert.ok(wasFinishHttpRequestCalled);
-            assert.ok(!wasFinishHttpRequestCalledForClose);
+            });
+            await assert.rejects(async () => {
+                await pcc.publish("channel", itm);
+            }, ex => {
+                assert.ok(ex instanceof PublishException);
+                assert.equal(ex.message, 'Connection closed unexpectedly');
+                assert.equal(ex.context.statusCode, 300);
+                return true;
+            });
         });
     });
 });

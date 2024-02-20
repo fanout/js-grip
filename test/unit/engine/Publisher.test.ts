@@ -9,7 +9,6 @@ import {
     HttpResponseFormat,
     HttpStreamFormat,
     PublishException,
-    IPublisherTransport,
 } from '../../../src/index.js';
 
 const textEncoder = new TextEncoder();
@@ -47,12 +46,12 @@ describe('Publisher', function () {
             ]);
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 2);
-            assert.equal(pc.clients[0].transport.publishUri, 'https://www.example.com/uri2/publish/');
+            assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri2/publish/');
             assert.equal(pc.clients[0].auth.claim['iss'], 'iss2');
             assert.deepStrictEqual(pc.clients[0].auth.key, textEncoder.encode('key==2'));
             assert.equal(pc.clients[0].verifyComponents.verifyIss, 'v_iss2');
             assert.deepStrictEqual(pc.clients[0].verifyComponents.verifyKey, textEncoder.encode('v_key==2'));
-            assert.equal(pc.clients[1].transport.publishUri, 'https://www.example.com/uri3/publish/');
+            assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri3/publish/');
             assert.equal(pc.clients[1].auth.claim['iss'], 'iss3');
             assert.deepStrictEqual(pc.clients[1].auth.key, textEncoder.encode('key==3'));
             assert.equal(pc.clients[1].verifyComponents, undefined);
@@ -68,10 +67,10 @@ describe('Publisher', function () {
             });
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 1);
-            assert.equal(pc.clients[0].transport.publishUri, 'https://www.example.com/uri/publish/');
+            assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
             assert.equal(pc.clients[0].auth.claim['iss'], 'iss');
             assert.deepStrictEqual(pc.clients[0].auth.key, textEncoder.encode('key=='));
-            pubControl.applyConfig([
+            pubControl.applyConfigs([
                 {
                     'control_uri': 'https://www.example.com/uri2',
                     'control_iss': 'iss2',
@@ -86,16 +85,16 @@ describe('Publisher', function () {
                 },
             ]);
             assert.equal(pc.clients.length, 3);
-            assert.equal(pc.clients[0].transport.publishUri, 'https://www.example.com/uri/publish/');
+            assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
             assert.equal(pc.clients[0].auth.claim['iss'], 'iss');
             assert.deepStrictEqual(pc.clients[0].auth.key, textEncoder.encode('key=='));
             assert.equal(pc.clients[0].verifyComponents, undefined);
-            assert.equal(pc.clients[1].transport.publishUri, 'https://www.example.com/uri2/publish/');
+            assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri2/publish/');
             assert.equal(pc.clients[1].auth.claim['iss'], 'iss2');
             assert.deepStrictEqual(pc.clients[1].auth.key, textEncoder.encode('key==2'));
             assert.equal(pc.clients[1].verifyComponents.verifyIss, 'v_iss2');
             assert.deepStrictEqual(pc.clients[1].verifyComponents.verifyKey, textEncoder.encode('v_key==2'));
-            assert.equal(pc.clients[2].transport.publishUri, 'https://www.example.com/uri3/publish/');
+            assert.equal(pc.clients[2].publishUri, 'https://www.example.com/uri3/publish/');
             assert.equal(pc.clients[2].auth.claim['iss'], 'iss3');
             assert.deepStrictEqual(pc.clients[2].auth.key, textEncoder.encode('key==3'));
             assert.equal(pc.clients[2].verifyComponents, undefined);
@@ -110,12 +109,11 @@ describe('Publisher', function () {
             });
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 1);
-            const publisherTransport: IPublisherTransport = {
-                publish(_headers, _content): Promise<any> {
-                    return Promise.resolve(undefined);
-                }
-            };
-            pubControl.addClient(new PublisherClient(publisherTransport));
+            pubControl.addClient(new PublisherClient({
+                'control_uri': 'https://www.example.com/uri',
+                'control_iss': 'iss',
+                'key': 'key==',
+            }));
             assert.equal(pc.clients.length, 2);
         });
     });

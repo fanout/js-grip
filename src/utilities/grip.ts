@@ -1,4 +1,4 @@
-import { IGripConfigBase } from '../engine/index.js';
+import { IGripConfig } from '../engine/index.js';
 import { Channel } from '../data/index.js';
 import { decodeBytesFromBase64String } from './base64.js';
 
@@ -16,19 +16,19 @@ export function parseChannels(inChannels: Channel | Channel[] | string | string[
 // parameters. The JWT 'key' query parameter can be provided as-is or in base64
 // encoded format.
 export function parseGripUri(uri: string) {
-  return parseGripUriCustomParams<IGripConfigBase>(uri);
-}
-
-export function parseGripUriCustomParams<
-  TGripConfig extends IGripConfigBase,
-  TContext = Record<string, unknown>,
->(
-  uri: string,
-  fnParamsToContext?: (params: URLSearchParams) => TContext,
-  fnContextToOut?: (configBase: IGripConfigBase, ctx: TContext) => TGripConfig
-): TGripConfig {
     const parsedUrl = new URL(uri);
     const params = parsedUrl.searchParams;
+
+    let user: string | null = null;
+    let pass: string | null = null;
+    if (parsedUrl.username !== '') {
+        user = parsedUrl.username;
+        parsedUrl.username = '';
+    }
+    if (parsedUrl.password !== '') {
+        pass = parsedUrl.password;
+        parsedUrl.password = '';
+    }
 
     let iss: string | null = null;
     let key: Uint8Array | string | null = null;
@@ -52,8 +52,6 @@ export function parseGripUriCustomParams<
         verify_key = params.get('verify-key');
         params.delete('verify-key');
     }
-
-    const ctx: TContext | null = fnParamsToContext != null ? fnParamsToContext(params) : null;
 
     if (typeof key === 'string' && key.startsWith('base64:')) {
         key = key.slice(7);
@@ -79,26 +77,27 @@ export function parseGripUriCustomParams<
     }
     let controlUri = parsedUrl.toString();
 
-    const configBase: IGripConfigBase = { control_uri: controlUri };
+    const gripConfig: IGripConfig = { control_uri: controlUri };
     if (iss != null) {
-        configBase['control_iss'] = iss;
+        gripConfig['control_iss'] = iss;
+    }
+    if (user != null) {
+        gripConfig['user'] = user;
+    }
+    if (pass != null) {
+        gripConfig['pass'] = pass;
     }
     if (key != null) {
-        configBase['key'] = key;
+        gripConfig['key'] = key;
     }
     if (verify_iss != null) {
-        configBase['verify_iss'] = verify_iss;
+        gripConfig['verify_iss'] = verify_iss;
     }
     if (verify_key != null) {
-        configBase['verify_key'] = verify_key;
+        gripConfig['verify_key'] = verify_key;
     }
-    let out: TGripConfig;
-    if(fnContextToOut != null && ctx != null) {
-        out = fnContextToOut(configBase, ctx);
-    } else {
-        out = configBase as TGripConfig;
-    }
-    return out;
+
+    return gripConfig;
 }
 
 // Create a GRIP channel header for the specified channels. The channels
