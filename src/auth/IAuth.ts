@@ -3,4 +3,6 @@
 export interface IAuth {
     // This method should return the auth header in text format.
     buildHeader(): Promise<string> | string;
+    // This method can optionally provide a verify key.
+    getVerifyKey?: () => Uint8Array;
 }

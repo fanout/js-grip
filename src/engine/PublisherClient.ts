@@ -77,7 +77,7 @@ export class PublisherClient {
     }
 
     getVerifyKey() {
-        return this.verifyComponents?.verifyKey ?? (this.auth instanceof Auth.Jwt ? this.auth.key : undefined);
+        return this.verifyComponents?.verifyKey ?? this.auth?.getVerifyKey?.();
     }
 
     // The publish method for publishing the specified item to the specified

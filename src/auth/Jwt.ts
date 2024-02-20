@@ -25,4 +25,8 @@ export class Jwt implements IAuth {
 
         return `Bearer ${token}`;
     }
+
+    getVerifyKey() {
+        return this.key;
+    }
 }
