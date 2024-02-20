@@ -1,5 +1,6 @@
 import { IFormat, IItem, Item } from '../data/index.js';
 import { HttpResponseFormat, HttpStreamFormat } from '../data/index.js';
+import { IPublisherClient } from './IPublisherClient.js';
 import { PublisherClient } from './PublisherClient.js';
 import { parseGripUri } from '../utilities/index.js';
 import { IGripConfig } from './IGripConfig.js';
@@ -14,7 +15,7 @@ export type PublisherOptions = {
 // and HTTP stream format messages to GRIP proxies. Publisher can be configured
 // using IGripConfig objects.
 export class Publisher {
-    public clients: PublisherClient[] = [];
+    public clients: IPublisherClient[] = [];
 
     constructor(config?: GripUrlOrConfigs, clientOptions?: PublisherOptions) {
         this.applyConfigs(config ?? [], clientOptions);
@@ -44,7 +45,7 @@ export class Publisher {
     }
 
     // Add the specified PublisherClient instance.
-    addClient(client: PublisherClient) {
+    addClient(client: IPublisherClient) {
         this.clients.push(client);
     }
 

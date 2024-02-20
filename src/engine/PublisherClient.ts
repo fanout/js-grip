@@ -1,6 +1,7 @@
 import * as Auth from '../auth/index.js';
 import { IItem, PublishException } from '../data/index.js';
 import { IGripConfig } from './IGripConfig.js';
+import { IPublisherClient } from './IPublisherClient.js';
 
 export interface IReqHeaders {
     [name: string]: string;
@@ -25,7 +26,7 @@ const textEncoder = new TextEncoder();
 // The PublisherClient class allows consumers to publish to an endpoint of
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method.
-export class PublisherClient {
+export class PublisherClient implements IPublisherClient {
     public auth?: Auth.IAuth;
     public publishUri: string;
     public verifyComponents?: VerifyComponents;
