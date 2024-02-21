@@ -1,5 +1,9 @@
+// noinspection DuplicatedCode
+
 import { beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert';
+
+import * as jose from 'jose';
 
 import {
     Item,
@@ -9,10 +13,10 @@ import {
     HttpResponseFormat,
     HttpStreamFormat,
     PublishException,
-    ProxyStatus,
+    ValidateGripSigResult,
 } from '../../../src/index.js';
 
-import { PUBLIC_KEY_1 } from "../sampleKeys.js";
+import { PRIVATE_KEY_1, PUBLIC_KEY_1 } from "../sampleKeys.js";
 
 const textEncoder = new TextEncoder();
 
@@ -300,6 +304,217 @@ describe('Publisher', function () {
             await pc.publishHttpStream('chan', 'message');
             process.on('beforeExit', () => {
                 assert.strictEqual(publishCalled, 2);
+            });
+        });
+    });
+    describe('#validateGripSig', () => {
+        describe("When publisher has zero clients", () => {
+            let p: Publisher;
+            beforeEach(async () => {
+                p = new Publisher();
+            });
+
+            describe('When no grip-sig is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    proxyStatus = await p.validateGripSig(null);
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, false);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, false);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, false);
+                });
+            });
+
+            describe('When grip-sig is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    proxyStatus = await p.validateGripSig('value');
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, false);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, false);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, false);
+                });
+            });
+        });
+
+        describe("When publisher has multiple clients, and at least one doesn't require a verify key", () => {
+            let p: Publisher;
+            beforeEach(async () => {
+                p = new Publisher([
+                    {
+                        control_uri: 'https://www.example1.com',
+                        control_iss: 'foo',
+                        key: 'key==',
+                    },
+                    {
+                        control_uri: 'https://www.example2.com',
+                    },
+                ]);
+            });
+
+            describe('When no grip-sig is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    proxyStatus = await p.validateGripSig(null);
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, false);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, false);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, false);
+                });
+            });
+
+            describe('When invalid grip-sig is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    proxyStatus = await p.validateGripSig('value');
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, true);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, false);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, false);
+                });
+            });
+
+            describe('When valid grip-sig is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    const signJwt = new jose.SignJWT({
+                        'claim': 'hello',
+                        'iss': 'bar',
+                    })
+                      .setProtectedHeader({ alg: 'HS256' })
+                      .setExpirationTime('1h');
+                    const token = await signJwt.sign(textEncoder.encode('key=='));
+
+                    proxyStatus = await p.validateGripSig(token);
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, true);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, false);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, false);
+                });
+            });
+        });
+
+        describe("When publisher has multiple clients, and all of them require a verify key", () => {
+            let p: Publisher;
+            beforeEach(async () => {
+                p = new Publisher([
+                    {
+                        control_uri: 'https://www.example1.com',
+                        control_iss: 'foo',
+                        key: 'key==',
+                    },
+                    {
+                        control_uri: 'https://www.example2.com',
+                        verify_iss: 'bar',
+                        verify_key: PUBLIC_KEY_1,
+                    },
+                ]);
+            });
+
+            describe('When no grip-sig is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    proxyStatus = await p.validateGripSig(null);
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, false);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, false);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, false);
+                });
+            });
+
+            describe('When invalid grip-sig is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    proxyStatus = await p.validateGripSig('value');
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, false);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, true);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, false);
+                });
+            });
+
+            describe('When grip-sig valid against one client is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    const signJwt = new jose.SignJWT({
+                        'claim': 'hello',
+                        'iss': 'bar',
+                    })
+                      .setProtectedHeader({ alg: 'HS256' })
+                      .setExpirationTime('1h');
+                    const token = await signJwt.sign(textEncoder.encode('key=='));
+
+                    proxyStatus = await p.validateGripSig(token);
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, true);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, true);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, true);
+                });
+            });
+
+            describe('When grip-sig valid against another client is provided', () => {
+                let proxyStatus: ValidateGripSigResult;
+                beforeEach(async () => {
+                    const signJwt = new jose.SignJWT({
+                        'claim': 'hello',
+                        'iss': 'bar',
+                    })
+                      .setProtectedHeader({ alg: 'RS256' })
+                      .setExpirationTime('1h');
+                    const privateKey1 = await jose.importPKCS8(PRIVATE_KEY_1, 'RS256');
+                    const token = await signJwt.sign(privateKey1);
+
+                    proxyStatus = await p.validateGripSig(token);
+                });
+                it('returns false for isProxied', () => {
+                    assert.strictEqual(proxyStatus.isProxied, true);
+                });
+                it('returns false for needsSigned', () => {
+                    assert.strictEqual(proxyStatus.needsSigned, true);
+                });
+                it('returns false for isSigned', () => {
+                    assert.strictEqual(proxyStatus.isSigned, true);
+                });
             });
         });
     });

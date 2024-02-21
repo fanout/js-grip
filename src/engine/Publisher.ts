@@ -2,13 +2,19 @@ import { IFormat, IItem, Item } from '../data/index.js';
 import { HttpResponseFormat, HttpStreamFormat } from '../data/index.js';
 import { IPublisherClient } from './IPublisherClient.js';
 import { PublisherClient } from './PublisherClient.js';
-import { parseGripUri } from '../utilities/index.js';
+import { parseGripUri, validateSig } from '../utilities/index.js';
 import { IGripConfig } from './IGripConfig.js';
 
 export type GripUrlOrConfigs = string | IGripConfig | (string | IGripConfig)[];
 
 export type PublisherOptions = {
     fetch?: typeof fetch,
+};
+
+export type ValidateGripSigResult = {
+    isProxied: boolean,
+    needsSigned: boolean,
+    isSigned: boolean,
 };
 
 // The Publisher class allows consumers to easily publish HTTP response
@@ -89,5 +95,58 @@ export class Publisher {
         const httpStream = data instanceof HttpStreamFormat ? data : new HttpStreamFormat(data);
 
         return this.publishFormats(channel, httpStream, id, prevId);
+    }
+
+    async validateGripSig(gripSigHeaderValue: string | null): Promise<ValidateGripSigResult> {
+        let isProxied = false;
+        let needsSigned = false;
+        let isSigned = false;
+
+        if (gripSigHeaderValue == null || this.clients.length === 0) {
+            return {
+                isProxied,
+                needsSigned,
+                isSigned,
+            };
+        }
+
+        let signatureValidated = false;
+
+        // The value needs to be appropriately signed if all the publisher clients
+        // have a "verify key".
+        needsSigned = true;
+
+        for (const client of this.clients) {
+            const verifyKey = await client.getVerifyKey();
+            if (verifyKey == null) {
+                needsSigned = false;
+                break;
+            }
+
+            // We only need to validate the signature for one client
+            if (!signatureValidated) {
+                const verifyIss = client.getVerifyIss();
+                if (verifyIss == null) {
+                    signatureValidated = await validateSig(gripSigHeaderValue, verifyKey);
+                } else {
+                    signatureValidated = await validateSig(gripSigHeaderValue, verifyKey, verifyIss);
+                }
+            }
+        }
+
+        if (needsSigned) {
+            if (signatureValidated) {
+                isProxied = true;
+                isSigned = true;
+            }
+        } else {
+            isProxied = true;
+        }
+
+        return {
+            isProxied,
+            needsSigned,
+            isSigned,
+        };
     }
 }
