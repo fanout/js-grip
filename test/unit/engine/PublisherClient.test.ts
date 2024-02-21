@@ -28,13 +28,14 @@ const textEncoder = new TextEncoder();
 
 describe('PublisherClient', function() {
     describe('#constructor', function() {
-        it('constructs with just a control URI', function() {
+        it('constructs with just a control URI', async function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
             });
             assert.equal(pcc.publishUri, 'https://www.example.com/publish/');
-            assert.equal(pcc.auth, undefined);
-            assert.equal(pcc.verifyComponents, undefined);
+            assert.equal(pcc.getAuth(), undefined);
+            assert.equal(pcc.getVerifyIss(), undefined);
+            assert.equal(await pcc.getVerifyKey(), undefined);
         });
         it('constructs with user and pass to use Basic auth', function() {
             const pcc = new PublisherClient({
@@ -42,39 +43,39 @@ describe('PublisherClient', function() {
                 user: 'user',
                 pass: 'pass',
             });
-            const auth = pcc.auth;
+            const auth = pcc.getAuth();
             assert.ok(auth instanceof Auth.Basic);
-            assert.equal(auth.user, "user");
-            assert.equal(auth.pass, "pass");
+            assert.equal(auth.getUser(), "user");
+            assert.equal(auth.getPass(), "pass");
         });
-        it('constructs with iss and key to use JWT auth', function() {
+        it('constructs with iss and key to use JWT auth', async function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
                 control_iss: 'foo',
                 key: textEncoder.encode('key'),
             });
-            const auth = pcc.auth;
+            const auth = pcc.getAuth();
             assert.ok(auth instanceof Auth.Jwt);
-            assert.deepStrictEqual(auth.claim, {iss: 'foo'});
-            assert.deepStrictEqual(auth.key, textEncoder.encode("key"));
+            assert.deepStrictEqual(auth.getClaim(), {iss: 'foo'});
+            assert.deepStrictEqual(await auth.getKey(), textEncoder.encode("key"));
         });
         it('constructs with token to use Bearer auth', function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
                 key: 'token',
             });
-            const auth = pcc.auth;
+            const auth = pcc.getAuth();
             assert.ok(auth instanceof Auth.Bearer);
-            assert.equal(auth.token, "token");
+            assert.equal(auth.getToken(), "token");
         });
-        it("constructs with verify_iss and verify_key", function() {
+        it("constructs with verify_iss and verify_key", async function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
                 verify_iss: 'iss',
                 verify_key: 'key',
             });
-            assert.equal(pcc.verifyComponents?.verifyIss, 'iss');
-            assert.deepStrictEqual(pcc.verifyComponents?.verifyKey, textEncoder.encode('key'));
+            assert.equal(pcc.getVerifyIss(), 'iss');
+            assert.deepStrictEqual(await pcc.getVerifyKey(), textEncoder.encode('key'));
         });
     });
     describe('#getVerifyIss', function() {
@@ -94,21 +95,21 @@ describe('PublisherClient', function() {
         });
     });
     describe('#getVerifyKey', function() {
-        it("has no value if not set and no auth", function() {
+        it("has no value if not set and no auth", async function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
             });
-            assert.equal(pcc.getVerifyKey(), undefined);
+            assert.equal(await pcc.getVerifyKey(), undefined);
         });
-        it("has the value if JWT auth key is set", function() {
+        it("has the value if JWT auth key is set", async function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
                 control_iss: 'foo',
                 key: 'key',
             });
-            assert.deepStrictEqual(pcc.getVerifyKey(), textEncoder.encode('key'));
+            assert.deepStrictEqual(await pcc.getVerifyKey(), textEncoder.encode('key'));
         });
-        it("has the value if #setVerifyComponents is called", function() {
+        it("has the value if #setVerifyComponents is called", async function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
                 control_iss: 'foo',
@@ -117,7 +118,7 @@ describe('PublisherClient', function() {
                 verify_key: 'key1',
             });
             // the verifyKey should win when both are provided
-            assert.deepStrictEqual(pcc.getVerifyKey(), textEncoder.encode('key1'));
+            assert.deepStrictEqual(await pcc.getVerifyKey(), textEncoder.encode('key1'));
         });
     });
     describe('#publish', function() {

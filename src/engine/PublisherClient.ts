@@ -1,3 +1,5 @@
+import * as jose from 'jose';
+
 import * as Auth from '../auth/index.js';
 import { IItem, PublishException } from '../data/index.js';
 import { IGripConfig } from './IGripConfig.js';
@@ -14,7 +16,7 @@ interface IContext {
 
 export type VerifyComponents = {
     verifyIss?: string;
-    verifyKey?: Uint8Array;
+    verifyKey?: Uint8Array | jose.KeyLike | Promise<jose.KeyLike>;
 }
 
 export type PublisherClientOptions = {
@@ -27,13 +29,13 @@ const textEncoder = new TextEncoder();
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method.
 export class PublisherClient implements IPublisherClient {
-    public auth?: Auth.IAuth;
+    public _auth?: Auth.IAuth;
     public publishUri: string;
-    public verifyComponents?: VerifyComponents;
+    private _verifyComponents?: VerifyComponents;
     public options: PublisherClientOptions;
 
     constructor(gripConfig: IGripConfig, options?: PublisherClientOptions) {
-        let { control_uri: controlUri, control_iss: iss, user, pass, key, verify_key: verifyKey, verify_iss: verifyIss } = gripConfig;
+        let { control_uri: controlUri, control_iss: iss, user, pass, key, verify_key: verifyKeyValue, verify_iss: verifyIss } = gripConfig;
 
         const url = new URL(controlUri);
         if (!url.pathname.endsWith('/')) {
@@ -54,14 +56,21 @@ export class PublisherClient implements IPublisherClient {
             auth = new Auth.Basic(user, pass);
         }
         if (auth != null) {
-            this.auth = auth;
+            this._auth = auth;
         }
 
-        if (verifyIss != null || verifyKey != null) {
-            if (typeof verifyKey === 'string') {
-                verifyKey = textEncoder.encode(verifyKey);
+        if (verifyIss != null || verifyKeyValue != null) {
+            let verifyKey: Uint8Array | jose.KeyLike | Promise<jose.KeyLike> | undefined;
+            if (typeof verifyKeyValue === 'string') {
+                if (verifyKeyValue.indexOf('-----BEGIN PUBLIC KEY-----') === 0) {
+                    verifyKey = jose.importSPKI(verifyKeyValue, 'RS256');
+                } else {
+                    verifyKey = textEncoder.encode(verifyKeyValue);
+                }
+            } else {
+                verifyKey = verifyKeyValue;
             }
-            this.verifyComponents = {
+            this._verifyComponents = {
                 verifyIss,
                 verifyKey,
             };
@@ -71,15 +80,15 @@ export class PublisherClient implements IPublisherClient {
     }
 
     getAuth() {
-        return this.auth;
+        return this._auth;
     }
 
     getVerifyIss() {
-        return this.verifyComponents?.verifyIss;
+        return this._verifyComponents?.verifyIss;
     }
 
-    getVerifyKey() {
-        return this.verifyComponents?.verifyKey ?? this.auth?.getVerifyKey?.();
+    async getVerifyKey() {
+        return this._verifyComponents?.verifyKey ?? this._auth?.getVerifyKey?.();
     }
 
     // The publish method for publishing the specified item to the specified
@@ -87,7 +96,7 @@ export class PublisherClient implements IPublisherClient {
     async publish(channel: string, item: IItem): Promise<void> {
         const i = item.export();
         i.channel = channel;
-        const authHeader = this.auth != null ? await this.auth.buildHeader() : null;
+        const authHeader = this._auth != null ? await this._auth.buildHeader() : null;
         const items = [i];
         // Prepare Request Body
         const content = JSON.stringify({ items });

@@ -6,27 +6,43 @@ import { IAuth } from './IAuth.js';
 // JWT authentication class used for building auth headers containing
 // JSON web token information in the form of a claim and corresponding key.
 export class Jwt implements IAuth {
-    public claim?: Record<string, string>;
-    public key: Uint8Array;
+    private readonly _claim: Record<string, string>;
+    private readonly _key: Uint8Array | jose.KeyLike | Promise<jose.KeyLike>;
 
-    constructor(claim: Record<string, string>, key: Uint8Array | string) {
+    constructor(claim: Record<string, string>, key: string | Uint8Array | jose.KeyLike) {
         // Initialize with the specified claim and key.
-        this.claim = claim;
-        this.key = key instanceof Uint8Array ? key : textEncoder.encode(key);
+        this._claim = claim;
+        if (typeof key === 'string') {
+            if (key.indexOf('-----BEGIN PUBLIC KEY-----') === 0) {
+                this._key = jose.importSPKI(key, 'RS256');
+            } else {
+                this._key = textEncoder.encode(key);
+            }
+        } else {
+            this._key = key;
+        }
     }
 
     // Returns the auth header containing the JWT token in Bearer format.
     async buildHeader() {
 
-        const signJwt = new jose.SignJWT(this.claim)
+        const signJwt = new jose.SignJWT(this._claim)
           .setProtectedHeader({ alg: 'HS256' })
           .setExpirationTime('10m');
-        const token = await signJwt.sign(this.key);
+        const token = await signJwt.sign(await this._key);
 
         return `Bearer ${token}`;
     }
 
-    getVerifyKey() {
-        return this.key;
+    getClaim() {
+        return this._claim;
+    }
+
+    async getKey() {
+        return this._key;
+    }
+
+    async getVerifyKey() {
+        return this._key;
     }
 }

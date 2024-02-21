@@ -1,4 +1,4 @@
-import { describe, it } from 'node:test';
+import { beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert';
 
 import {
@@ -9,7 +9,10 @@ import {
     HttpResponseFormat,
     HttpStreamFormat,
     PublishException,
+    ProxyStatus,
 } from '../../../src/index.js';
+
+import { PUBLIC_KEY_1 } from "../sampleKeys.js";
 
 const textEncoder = new TextEncoder();
 
@@ -29,7 +32,7 @@ describe('Publisher', function () {
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 1);
         });
-        it('allows for creation of Publisher object based on multiple inputs', function () {
+        it('allows for creation of Publisher object based on multiple inputs', async function () {
             const pubControl = new Publisher([
                 {
                     'control_uri': 'https://www.example.com/uri2',
@@ -47,18 +50,19 @@ describe('Publisher', function () {
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 2);
             assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri2/publish/');
-            assert.equal(pc.clients[0].auth.claim['iss'], 'iss2');
-            assert.deepStrictEqual(pc.clients[0].auth.key, textEncoder.encode('key==2'));
-            assert.equal(pc.clients[0].verifyComponents.verifyIss, 'v_iss2');
-            assert.deepStrictEqual(pc.clients[0].verifyComponents.verifyKey, textEncoder.encode('v_key==2'));
+            assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss2');
+            assert.deepStrictEqual(await pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key==2'));
+            assert.equal(pc.clients[0].getVerifyIss(), 'v_iss2');
+            assert.deepStrictEqual(await pc.clients[0].getVerifyKey(), textEncoder.encode('v_key==2'));
             assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri3/publish/');
-            assert.equal(pc.clients[1].auth.claim['iss'], 'iss3');
-            assert.deepStrictEqual(pc.clients[1].auth.key, textEncoder.encode('key==3'));
-            assert.equal(pc.clients[1].verifyComponents, undefined);
+            assert.equal(pc.clients[1].getAuth()?.getClaim()['iss'], 'iss3');
+            assert.deepStrictEqual(await pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==3'));
+            assert.equal(pc.clients[1].getVerifyIss(), undefined);
+            assert.deepStrictEqual(await pc.clients[1].getVerifyKey(), textEncoder.encode('key==3'));
         });
     });
     describe('#applyConfig', function () {
-        it('allows for appending additional configs', function () {
+        it('allows for appending additional configs', async function () {
             let pubControl = new Publisher();
             pubControl.applyConfig({
                 'control_uri': 'https://www.example.com/uri',
@@ -68,8 +72,8 @@ describe('Publisher', function () {
             const pc = pubControl as any;
             assert.equal(pc.clients.length, 1);
             assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
-            assert.equal(pc.clients[0].auth.claim['iss'], 'iss');
-            assert.deepStrictEqual(pc.clients[0].auth.key, textEncoder.encode('key=='));
+            assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss');
+            assert.deepStrictEqual(await pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
             pubControl.applyConfigs([
                 {
                     'control_uri': 'https://www.example.com/uri2',
@@ -86,18 +90,20 @@ describe('Publisher', function () {
             ]);
             assert.equal(pc.clients.length, 3);
             assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
-            assert.equal(pc.clients[0].auth.claim['iss'], 'iss');
-            assert.deepStrictEqual(pc.clients[0].auth.key, textEncoder.encode('key=='));
-            assert.equal(pc.clients[0].verifyComponents, undefined);
+            assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss');
+            assert.deepStrictEqual(await pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
+            assert.equal(pc.clients[0].getVerifyIss(), undefined);
+            assert.deepStrictEqual(await pc.clients[0].getVerifyKey(), textEncoder.encode('key=='));
             assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri2/publish/');
-            assert.equal(pc.clients[1].auth.claim['iss'], 'iss2');
-            assert.deepStrictEqual(pc.clients[1].auth.key, textEncoder.encode('key==2'));
-            assert.equal(pc.clients[1].verifyComponents.verifyIss, 'v_iss2');
-            assert.deepStrictEqual(pc.clients[1].verifyComponents.verifyKey, textEncoder.encode('v_key==2'));
+            assert.equal(pc.clients[1].getAuth()?.getClaim()['iss'], 'iss2');
+            assert.deepStrictEqual(await pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==2'));
+            assert.equal(pc.clients[1].getVerifyIss(), 'v_iss2');
+            assert.deepStrictEqual(await pc.clients[1].getVerifyKey(), textEncoder.encode('v_key==2'));
             assert.equal(pc.clients[2].publishUri, 'https://www.example.com/uri3/publish/');
-            assert.equal(pc.clients[2].auth.claim['iss'], 'iss3');
-            assert.deepStrictEqual(pc.clients[2].auth.key, textEncoder.encode('key==3'));
-            assert.equal(pc.clients[2].verifyComponents, undefined);
+            assert.equal(pc.clients[2].getAuth()?.getClaim()['iss'], 'iss3');
+            assert.deepStrictEqual(await pc.clients[2].getAuth()?.getKey(), textEncoder.encode('key==3'));
+            assert.equal(pc.clients[2].getVerifyIss(), undefined);
+            assert.deepStrictEqual(await pc.clients[2].getVerifyKey(), textEncoder.encode('key==3'));
         });
     });
     describe('#addClients', function () {
