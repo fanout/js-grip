@@ -1,9 +1,8 @@
 import type { IncomingMessage } from 'node:http';
 
-import { IApiRequest } from '../engine/index.js';
+import { IApiRequest } from './IApiRequest.js';
 import debug from '../utilities/debug.js';
-import { encodeBytesToBase64String } from '../utilities/index.js';
-import { concatUint8Arrays } from '../utilities/typedarray.js';
+import { encodeBytesToBase64String, concatUint8Arrays } from '../utilities/index.js';
 
 const textEncoder = new TextEncoder();
 
