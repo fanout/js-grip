@@ -27,7 +27,7 @@ export class WebSocketContext {
     }
 
     isOpening() {
-        return Array.isArray(this.inEvents) && this.inEvents.length > 0 && this.inEvents[0].type === 'OPEN';
+        return this.inEvents.length > 0 && this.inEvents[0].type === 'OPEN';
     }
 
     accept() {
