@@ -4,6 +4,7 @@ import { WebSocketEvent } from './WebSocketEvent.js';
 import type { IWebSocketEvent } from './IWebSocketEvent.js';
 
 const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
 
 export class WebSocketContext {
     id: string;
@@ -69,11 +70,23 @@ export class WebSocketContext {
         const { type } = e;
 
         if (type === 'TEXT') {
-            return e.content != null ? e.content.toString() : '';
+            if (e.content == null) {
+                return '';
+            }
+            if (typeof e.content === 'string') {
+                return e.content;
+            }
+            return textDecoder.decode(e.content);
         }
 
         if (type === 'BINARY') {
-            return e.content != null ? e.content : new Uint8Array();
+            if (e.content == null) {
+                return new Uint8Array();
+            }
+            if (typeof e.content === 'string') {
+                return textEncoder.encode(e.content);
+            }
+            return e.content;
         }
 
         if (type === 'CLOSE') {
