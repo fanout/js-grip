@@ -31,10 +31,10 @@ export function parseGripUri(uri: string) {
     }
 
     let iss: string | null = null;
-    let key: Uint8Array | string | null = null;
+    let key: string | null = null;
 
     let verify_iss: string | null = null;
-    let verify_key: Uint8Array | string | null = null;
+    let verify_key: string | null = null;
 
     if (params.has('iss')) {
         iss = params.get('iss');
@@ -51,25 +51,6 @@ export function parseGripUri(uri: string) {
     if (params.has('verify-key')) {
         verify_key = params.get('verify-key');
         params.delete('verify-key');
-    }
-
-    if (typeof key === 'string' && key.startsWith('base64:')) {
-        key = key.slice(7);
-        // When the key contains a '+' character, if the URL is built carelessly
-        // and this segment of the URL contained '+' directly instead of properly
-        // being URL-encoded as %2B, then they would have turned into spaces at
-        // this point. Turn them back into pluses before decoding the key from base64.
-        key = key.replace(/ /g, '+');
-        key = decodeBytesFromBase64String(key);
-    }
-    if (typeof verify_key === 'string' && verify_key.startsWith('base64:')) {
-        verify_key = verify_key.slice(7);
-        // When the key contains a '+' character, if the URL is built carelessly
-        // and this segment of the URL contained '+' directly instead of properly
-        // being URL-encoded as %2B, then they would have turned into spaces at
-        // this point. Turn them back into pluses before decoding the key from base64.
-        verify_key = verify_key.replace(/ /g, '+');
-        verify_key = decodeBytesFromBase64String(verify_key);
     }
 
     if (parsedUrl.pathname.endsWith('/')) {

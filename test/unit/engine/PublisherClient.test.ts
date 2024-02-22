@@ -108,7 +108,7 @@ describe('PublisherClient', function() {
             });
             assert.deepStrictEqual(await pcc.getVerifyKey(), textEncoder.encode('key'));
         });
-        it("has the value if #setVerifyComponents is called", async function() {
+        it("has the value if verify_key is set", async function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
                 control_iss: 'foo',

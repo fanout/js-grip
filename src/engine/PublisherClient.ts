@@ -3,6 +3,7 @@ import * as Auth from '../auth/index.js';
 import { IItem, PublishException } from '../data/index.js';
 import { IGripConfig } from './IGripConfig.js';
 import { IPublisherClient } from './IPublisherClient.js';
+import { decodeBytesFromBase64String } from '../utilities/index.js';
 
 export interface IReqHeaders {
     [name: string]: string;
@@ -46,6 +47,11 @@ export class PublisherClient implements IPublisherClient {
         }
         this.publishUri = String(new URL('./publish/', url));
 
+        if (typeof key === 'string' && key.startsWith('base64:')) {
+            key = key.slice(7);
+            key = decodeBytesFromBase64String(key);
+        }
+
         let auth: Auth.IAuth | undefined = undefined;
         if (iss != null) {
             auth = new Auth.Jwt({iss}, key ?? '');
@@ -59,6 +65,10 @@ export class PublisherClient implements IPublisherClient {
         }
 
         if (verifyIss != null || verifyKeyValue != null) {
+            if (typeof verifyKeyValue === 'string' && verifyKeyValue.startsWith('base64:')) {
+                verifyKeyValue = verifyKeyValue.slice(7);
+                verifyKeyValue = decodeBytesFromBase64String(verifyKeyValue);
+            }
             let verifyKey: Uint8Array | jose.KeyLike | Promise<jose.KeyLike> | undefined;
             if (typeof verifyKeyValue === 'string') {
                 if (verifyKeyValue.indexOf('-----BEGIN PUBLIC KEY-----') === 0) {

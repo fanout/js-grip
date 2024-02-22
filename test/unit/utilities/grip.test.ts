@@ -5,7 +5,6 @@ import {
     parseChannels,
     parseGripUri,
     createGripChannelHeader,
-    decodeBytesFromBase64String,
 } from '../../../src/index.js';
 
 describe('utilities/grip', () => {
@@ -36,7 +35,7 @@ describe('utilities/grip', () => {
             const config = parseGripUri(uri);
             assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm');
             assert.equal(config['control_iss'], 'realm');
-            assert.deepStrictEqual(config['key'], decodeBytesFromBase64String('aGVsbG8='));
+            assert.equal(config['key'], 'base64:aGVsbG8=');
         });
         it('test case', () => {
             const uri = 'https://api.fanout.io/realm/realm?iss=realm' +
@@ -48,7 +47,7 @@ describe('utilities/grip', () => {
             const uri = 'https://api.fanout.io/realm/realm?key=base64:geag%2B2132w==';
             const config = parseGripUri(uri);
             assert.equal(config['control_uri'], 'https://api.fanout.io/realm/realm');
-            assert.deepStrictEqual(config['key'], decodeBytesFromBase64String('geag+2132w=='));
+            assert.deepStrictEqual(config['key'], 'base64:geag+2132w==');
         });
         it('test case', () => {
             const config = parseGripUri('http://api.fanout.io/realm/realm');
@@ -63,7 +62,7 @@ describe('utilities/grip', () => {
             assert.equal(config['control_uri'], 'http://api.fanout.io/realm/realm?' +
                 'param1=value1&param2=value2');
             assert.equal(config['control_iss'], 'realm');
-            assert.deepStrictEqual(config['key'], decodeBytesFromBase64String('geag12132w=='));
+            assert.deepStrictEqual(config['key'], 'base64:geag12132w==');
         });
         it('test case', () => {
             const config = parseGripUri('http://api.fanout.io:8080/realm/realm/');
@@ -83,7 +82,7 @@ describe('utilities/grip', () => {
             assert.equal(config['control_iss'], undefined);
             assert.equal(config['key'], 'apikey');
             assert.equal(config['verify_iss'], 'fastly:service');
-            assert.deepStrictEqual(config['verify_key'], decodeBytesFromBase64String('geag12132w=='));
+            assert.deepStrictEqual(config['verify_key'], 'base64:geag12132w==');
         });
     });
     describe('#createGripChannelHeader', () => {

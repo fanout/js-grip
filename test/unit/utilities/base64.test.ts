@@ -21,6 +21,12 @@ describe('encode()', () => {
     assert.deepStrictEqual(bytes, new Uint8Array([0, 1, 2]));
 
   });
+  it('can decode a Uint8Array from a base64 string that happens to have a space in it from bad encoding', () => {
+
+    const bytes = decodeBytesFromBase64String('AEJ 3w==');
+    assert.deepStrictEqual(bytes, new Uint8Array([0x00, 0x42, 0x7e, 0xdf]));
+
+  });
   it('throws when trying to decode invalid base64 string', () => {
 
     assert.throws(() => {

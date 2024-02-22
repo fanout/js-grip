@@ -8,6 +8,12 @@ export function encodeBytesToBase64String(bytes: Uint8Array) {
 }
 
 export function decodeBytesFromBase64String(str: string) {
+  // If the base64 string contains '+', but the URL was built carelessly
+  // without properly URL-encoding them to %2B, then at this point they
+  // may have been replaced by ' '.
+  // Turn them back into pluses before decoding from base64.
+  str = str.replace(/ /g, '+');
+
   let binary;
   try {
     binary = atob(str);
