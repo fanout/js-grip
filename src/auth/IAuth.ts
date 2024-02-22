@@ -5,6 +5,4 @@ import * as jose from 'jose';
 export interface IAuth {
     // This method should return the auth header in text format.
     buildHeader(): Promise<string>;
-    // This method can optionally provide a verify key.
-    getVerifyKey?: () => Promise<Uint8Array | jose.KeyLike>;
 }

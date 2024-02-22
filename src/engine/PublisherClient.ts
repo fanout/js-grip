@@ -52,16 +52,19 @@ export class PublisherClient implements IPublisherClient {
             key = decodeBytesFromBase64String(key);
         }
 
-        let auth: Auth.IAuth | undefined = undefined;
         if (iss != null) {
-            auth = new Auth.Jwt({iss}, key ?? '');
+            this._auth = new Auth.Jwt({ iss }, key ?? '');
+
+            // For backwards-compatibility reasons, if JWT authorization is used with a
+            // symmetric secret and if `verify_key` is not provided, then `key` will also
+            // be used as the `verify_key` value as well.
+            if ((typeof key === 'string' || key instanceof Uint8Array) && verifyKeyValue == null) {
+                verifyKeyValue = key;
+            }
         } else if (typeof key === 'string') {
-            auth = new Auth.Bearer(key);
+            this._auth = new Auth.Bearer(key);
         } else if (user != null && pass != null) {
-            auth = new Auth.Basic(user, pass);
-        }
-        if (auth != null) {
-            this._auth = auth;
+            this._auth = new Auth.Basic(user, pass);
         }
 
         if (verifyIss != null || verifyKeyValue != null) {
@@ -97,7 +100,7 @@ export class PublisherClient implements IPublisherClient {
     }
 
     async getVerifyKey() {
-        return this._verifyComponents?.verifyKey ?? this._auth?.getVerifyKey?.();
+        return this._verifyComponents?.verifyKey;
     }
 
     // The publish method for publishing the specified item to the specified

@@ -41,8 +41,4 @@ export class Jwt implements IAuth {
     async getKey() {
         return this._key;
     }
-
-    async getVerifyKey() {
-        return this._key;
-    }
 }
