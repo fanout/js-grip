@@ -17,11 +17,11 @@ export class WebSocketContext {
     closed: boolean = false;
     outCloseCode: number | null = null;
     outEvents: IWebSocketEvent[] = [];
-    origMeta: object;
-    meta: object;
+    origMeta: Record<string, string>;
+    meta: Record<string, string>;
     prefix: string;
 
-    constructor(id: string, meta: object, inEvents: IWebSocketEvent[], prefix = '') {
+    constructor(id: string, meta: Record<string, string>, inEvents: IWebSocketEvent[], prefix = '') {
         this.id = id;
         this.meta = JSON.parse(JSON.stringify(meta));
         this.origMeta = meta;
