@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import {
@@ -7,6 +9,7 @@ import {
     createWebSocketControlMessage,
 } from '../../../src/index.js';
 
+const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
 describe('gripUtilities', function () {
@@ -37,6 +40,25 @@ describe('gripUtilities', function () {
             assert.equal(events[1].content, 'Hello');
             assert.equal(events[2].type, 'TEXT');
             assert.equal(events[2].content, '');
+            assert.equal(events[3].type, 'CLOSE');
+            assert.equal(events[3].content, null);
+            assert.equal(events[4].type, 'TEXT');
+            assert.equal(events[4].content, null);
+            assert.equal(events[5].type, 'CLOSE');
+            assert.equal(events[5].content, null);
+        });
+        it('test case', function() {
+            const events = decodeWebSocketEvents(
+              textEncoder.encode('OPEN\r\nTEXT 5\r\nHello' +
+                '\r\nTEXT 0\r\n\r\nCLOSE\r\nTEXT\r\nCLOSE\r\n')
+            );
+            assert.equal(events.length, 6);
+            assert.equal(events[0].type, 'OPEN');
+            assert.equal(events[0].content, null);
+            assert.equal(events[1].type, 'TEXT');
+            assert.deepStrictEqual(events[1].content, textEncoder.encode('Hello'));
+            assert.equal(events[2].type, 'TEXT');
+            assert.deepStrictEqual(events[2].content, new Uint8Array());
             assert.equal(events[3].type, 'CLOSE');
             assert.equal(events[3].content, null);
             assert.equal(events[4].type, 'TEXT');
