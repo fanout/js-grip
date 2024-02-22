@@ -1,6 +1,5 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-
 import { WebSocketEvent } from '../../../../src/index.js';
 
 describe('WebSocketEvent', function () {

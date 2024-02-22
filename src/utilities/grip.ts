@@ -1,6 +1,6 @@
-import { IGripConfig } from '../engine/index.js';
 import { Channel } from '../data/index.js';
 import { decodeBytesFromBase64String } from './base64.js';
+import type { IGripConfig } from '../engine/index.js';
 
 // Method for parsing the specified parameter into an
 // array of Channel instances. The specified parameter can either

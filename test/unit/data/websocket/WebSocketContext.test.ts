@@ -1,8 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-
 import { jspack } from 'jspack';
-
 import { WebSocketContext, WebSocketEvent } from '../../../../src/index.js';
 
 const textEncoder = new TextEncoder();

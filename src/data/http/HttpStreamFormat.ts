@@ -1,6 +1,6 @@
-import { IFormat } from '../IFormat.js';
-import { IFormatExport } from '../IFormatExport.js';
 import { encodeBytesToBase64String } from '../../utilities/index.js';
+import type { IFormat } from '../IFormat.js';
+import type { IFormatExport } from '../IFormatExport.js';
 
 // The HttpStreamFormat class is the format used to publish messages to
 // HTTP stream clients connected to a GRIP proxy.

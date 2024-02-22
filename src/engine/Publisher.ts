@@ -1,9 +1,10 @@
-import { IFormat, IItem, Item } from '../data/index.js';
+import { Item } from '../data/index.js';
 import { HttpResponseFormat, HttpStreamFormat } from '../data/index.js';
-import { IPublisherClient } from './IPublisherClient.js';
 import { PublisherClient } from './PublisherClient.js';
 import { parseGripUri, validateSig } from '../utilities/index.js';
-import { IGripConfig } from './IGripConfig.js';
+import type { IPublisherClient } from './IPublisherClient.js';
+import type { IGripConfig } from './IGripConfig.js';
+import type { IFormat, IItem } from '../data/index.js';
 
 export type GripUrlOrConfigs = string | IGripConfig | (string | IGripConfig)[];
 

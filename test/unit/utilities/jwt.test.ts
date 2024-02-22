@@ -1,10 +1,8 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
-
 import * as jose from 'jose';
-import { PRIVATE_KEY_1, PUBLIC_KEY_1, PUBLIC_KEY_FASTLY } from '../sampleKeys.js';
-
 import { validateSig } from '../../../src/index.js';
+import { PRIVATE_KEY_1, PUBLIC_KEY_1, PUBLIC_KEY_FASTLY } from '../sampleKeys.js';
 
 const textEncoder = new TextEncoder();
 

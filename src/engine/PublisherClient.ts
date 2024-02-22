@@ -1,5 +1,4 @@
 import * as jose from 'jose';
-
 import * as Auth from '../auth/index.js';
 import { IItem, PublishException } from '../data/index.js';
 import { IGripConfig } from './IGripConfig.js';

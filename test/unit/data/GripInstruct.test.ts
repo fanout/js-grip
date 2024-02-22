@@ -1,6 +1,5 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-
 import { Channel, GripInstruct } from '../../../src/index.js';
 
 const textEncoder = new TextEncoder();

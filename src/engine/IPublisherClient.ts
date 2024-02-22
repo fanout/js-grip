@@ -1,7 +1,6 @@
 import * as jose from 'jose';
-
 import * as Auth from '../auth/index.js';
-import { IItem } from "../data/index.js";
+import type { IItem } from "../data/index.js";
 
 export interface IPublisherClient {
   getAuth(): Auth.IAuth | undefined;

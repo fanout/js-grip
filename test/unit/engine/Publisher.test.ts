@@ -2,7 +2,6 @@
 
 import { beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert';
-
 import * as jose from 'jose';
 
 import {

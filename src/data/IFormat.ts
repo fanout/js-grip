@@ -1,4 +1,4 @@
-import { IFormatExport } from './IFormatExport.js';
+import type { IFormatExport } from './IFormatExport.js';
 
 export interface IFormat {
     name(): string;

@@ -1,7 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-
-import { concatUint8Arrays } from '../../../src/utilities/typedarray.js';
+import { concatUint8Arrays } from '../../../src/index.js';
 
 describe('concatTypedArrays', () => {
   it('combines arrays', () => {

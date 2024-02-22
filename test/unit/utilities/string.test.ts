@@ -1,6 +1,5 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-
 import { encodeCString, escapeQuotes, } from '../../../src/index.js';
 
 describe('utilities/string', () => {

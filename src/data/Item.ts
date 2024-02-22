@@ -1,6 +1,6 @@
-import { IFormat } from './IFormat.js';
-import { IItem } from './IItem.js';
-import { IItemExport } from './IItemExport.js';
+import type { IFormat } from './IFormat.js';
+import type { IItem } from './IItem.js';
+import type { IItemExport } from './IItemExport.js';
 
 // The Item class is a container used to contain one or more format
 // implementation instances where each implementation instance is of a

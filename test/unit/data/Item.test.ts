@@ -1,6 +1,5 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-
 import { Item, Format } from '../../../src/index.js';
 
 class TestFormat1 extends Format {

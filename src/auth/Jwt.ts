@@ -1,7 +1,7 @@
 import * as jose from 'jose';
-const textEncoder = new TextEncoder();
+import type { IAuth } from './IAuth.js';
 
-import { IAuth } from './IAuth.js';
+const textEncoder = new TextEncoder();
 
 // JWT authentication class used for building auth headers containing
 // JSON web token information in the form of a claim and corresponding key.

@@ -1,5 +1,5 @@
-import { IExportedResponse } from './IExportedResponse.js';
 import { encodeBytesToBase64String } from '../utilities/index.js';
+import type { IExportedResponse } from './IExportedResponse.js';
 
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed

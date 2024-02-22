@@ -1,10 +1,7 @@
 import { jspack } from 'jspack';
-
-import { createWebSocketControlMessage } from '../../utilities/index.js';
-
+import { createWebSocketControlMessage, concatUint8Arrays } from '../../utilities/index.js';
 import { WebSocketEvent } from './WebSocketEvent.js';
-import { IWebSocketEvent } from './IWebSocketEvent.js';
-import { concatUint8Arrays } from '../../utilities/typedarray.js';
+import type { IWebSocketEvent } from './IWebSocketEvent.js';
 
 const textEncoder = new TextEncoder();
 

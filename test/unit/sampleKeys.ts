@@ -1,6 +1,3 @@
-import * as jose from 'jose';
-
-
 export const PRIVATE_KEY_1 = `-----BEGIN PRIVATE KEY-----
 MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCCMxxZcp61Nv1D
 tniMJhtDlBC9Z29LiTF3KqTGDyn7WaJ9ScRJkZcWcGKbtf6P6qIdbBID2z9K5FUi

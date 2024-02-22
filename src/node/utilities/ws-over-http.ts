@@ -1,10 +1,9 @@
-import type { IncomingMessage } from 'node:http';
-
-import { IApiRequest } from '../IApiRequest.js';
 import debug from '../../utilities/debug.js';
 import { ConnectionIdMissingException, WebSocketContext, WebSocketDecodeEventException } from '../../data/index.js';
 import { CONTENT_TYPE_WEBSOCKET_EVENTS, decodeWebSocketEvents } from '../../utilities/index.js';
 import { NodeApiRequest } from '../NodeApiRequest.js';
+import type { IncomingMessage } from 'node:http';
+import type { IApiRequest } from '../IApiRequest.js';
 
 export function isApiRequestWsOverHttp(req: IApiRequest<any>) {
   let contentTypeHeader = req.getHeaderValue('content-type');
