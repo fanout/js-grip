@@ -78,7 +78,7 @@ export class WebSocketContext {
 
         if (type === 'CLOSE') {
             const { content } = e;
-            if (Array.isArray(content) && content.length === 2) {
+            if (content instanceof Uint8Array && content.length === 2) {
                 this.closeCode = jspack.Unpack('>H', [...content])[0];
             }
             return null;
