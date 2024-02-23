@@ -3,6 +3,7 @@ export * from './grip.js';
 export * from './webSocketEvents.js';
 export * from './ws-over-http.js';
 export * from './jwt.js';
+export * from './keys.js';
 export * from './string.js';
 export * from './http.js';
 export * from './typedarray.js';
