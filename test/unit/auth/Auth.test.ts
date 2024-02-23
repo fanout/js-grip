@@ -28,11 +28,11 @@ describe('auth', () => {
     describe('Jwt', () => {
         it('test case', async () => {
             const cl = {};
-            let authJwt = new Auth.Jwt(cl, "key");
+            let authJwt = new Auth.Jwt(cl, textEncoder.encode("key"));
             assert.equal(authJwt.getClaim(), cl);
             assert.deepStrictEqual(await authJwt.getKey(), textEncoder.encode("key"));
 
-            authJwt = new Auth.Jwt({ iss: "hello" }, "key==");
+            authJwt = new Auth.Jwt({ iss: "hello" }, textEncoder.encode("key=="));
             const claim = await jose.jwtVerify(
               (await authJwt.buildHeader()).slice(7),
               textEncoder.encode("key==")

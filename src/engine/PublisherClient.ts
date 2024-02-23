@@ -53,12 +53,15 @@ export class PublisherClient implements IPublisherClient {
         }
 
         if (iss != null) {
-            this._auth = new Auth.Jwt({ iss }, key ?? '');
+            if (typeof key === 'string') {
+                key = textEncoder.encode(key);
+            }
+            this._auth = new Auth.Jwt({ iss }, key ?? new Uint8Array());
 
             // For backwards-compatibility reasons, if JWT authorization is used with a
             // symmetric secret and if `verify_key` is not provided, then `key` will also
             // be used as the `verify_key` value as well.
-            if ((typeof key === 'string' || key instanceof Uint8Array) && verifyKeyValue == null) {
+            if (key instanceof Uint8Array && verifyKeyValue == null) {
                 verifyKeyValue = key;
             }
         } else if (typeof key === 'string') {
