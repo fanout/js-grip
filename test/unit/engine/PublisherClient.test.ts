@@ -7,6 +7,7 @@ import {
     PublisherClient,
     PublishException,
     encodeBytesToBase64String,
+    PUBLIC_KEY_FASTLY_FANOUT_JWK,
 } from '../../../src/index.js';
 
 class TestFormat extends Format {
@@ -71,10 +72,13 @@ describe('PublisherClient', function() {
             const pcc = new PublisherClient({
                 control_uri: 'https://www.example.com/',
                 verify_iss: 'iss',
-                verify_key: 'key',
+                verify_key: PUBLIC_KEY_FASTLY_FANOUT_JWK,
             });
             assert.equal(pcc.getVerifyIss(), 'iss');
-            assert.deepStrictEqual(await pcc.getVerifyKey(), textEncoder.encode('key'));
+            const verifyKey = await pcc.getVerifyKey();
+            assert.ok(verifyKey != null);
+            assert.ok(!(verifyKey instanceof  Uint8Array));
+            assert.strictEqual(verifyKey.type, 'public');
         });
     });
     describe('#getVerifyIss', function() {

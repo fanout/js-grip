@@ -5,7 +5,7 @@ export interface IGripConfig {
   control_iss?: string;
   user?: string;
   pass?: string;
-  key?: string | Uint8Array | jose.KeyLike;
+  key?: string | JsonWebKey | Uint8Array | jose.KeyLike;
   verify_iss?: string;
-  verify_key?: string | Uint8Array | jose.KeyLike;
+  verify_key?: string | JsonWebKey | Uint8Array | jose.KeyLike;
 }

@@ -3,7 +3,7 @@ import * as Auth from '../auth/index.js';
 import { IItem, PublishException } from '../data/index.js';
 import { IGripConfig } from './IGripConfig.js';
 import { IPublisherClient } from './IPublisherClient.js';
-import { decodeBytesFromBase64String } from '../utilities/index.js';
+import { loadKey } from '../utilities/index.js';
 
 export interface IReqHeaders {
     [name: string]: string;
@@ -35,7 +35,7 @@ export class PublisherClient implements IPublisherClient {
     public options: PublisherClientOptions;
 
     constructor(gripConfig: IGripConfig, options?: PublisherClientOptions) {
-        let { control_uri: controlUri, control_iss: iss, user, pass, key, verify_key: verifyKeyValue, verify_iss: verifyIss } = gripConfig;
+        let { control_uri: controlUri, control_iss: iss, user, pass, key: keyValue, verify_key: verifyKeyValue, verify_iss: verifyIss } = gripConfig;
 
         const url = new URL(controlUri);
         if (!url.pathname.endsWith('/')) {
@@ -47,15 +47,8 @@ export class PublisherClient implements IPublisherClient {
         }
         this.publishUri = String(new URL('./publish/', url));
 
-        if (typeof key === 'string' && key.startsWith('base64:')) {
-            key = key.slice(7);
-            key = decodeBytesFromBase64String(key);
-        }
-
         if (iss != null) {
-            if (typeof key === 'string') {
-                key = textEncoder.encode(key);
-            }
+            const key = keyValue != null ? loadKey(keyValue) : undefined;
             this._auth = new Auth.Jwt({ iss }, key ?? new Uint8Array());
 
             // For backwards-compatibility reasons, if JWT authorization is used with a
@@ -64,27 +57,14 @@ export class PublisherClient implements IPublisherClient {
             if (key instanceof Uint8Array && verifyKeyValue == null) {
                 verifyKeyValue = key;
             }
-        } else if (typeof key === 'string') {
-            this._auth = new Auth.Bearer(key);
+        } else if (typeof keyValue === 'string') {
+            this._auth = new Auth.Bearer(keyValue);
         } else if (user != null && pass != null) {
             this._auth = new Auth.Basic(user, pass);
         }
 
         if (verifyIss != null || verifyKeyValue != null) {
-            if (typeof verifyKeyValue === 'string' && verifyKeyValue.startsWith('base64:')) {
-                verifyKeyValue = verifyKeyValue.slice(7);
-                verifyKeyValue = decodeBytesFromBase64String(verifyKeyValue);
-            }
-            let verifyKey: Uint8Array | jose.KeyLike | Promise<jose.KeyLike> | undefined;
-            if (typeof verifyKeyValue === 'string') {
-                if (verifyKeyValue.indexOf('-----BEGIN PUBLIC KEY-----') === 0) {
-                    verifyKey = jose.importSPKI(verifyKeyValue, 'RS256');
-                } else {
-                    verifyKey = textEncoder.encode(verifyKeyValue);
-                }
-            } else {
-                verifyKey = verifyKeyValue;
-            }
+            const verifyKey = verifyKeyValue != null ? loadKey(verifyKeyValue) : undefined;
             this._verifyComponents = {
                 verifyIss,
                 verifyKey,
