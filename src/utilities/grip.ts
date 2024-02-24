@@ -10,14 +10,24 @@ export function parseChannels(inChannels: Channel | Channel[] | string | string[
     return channels.map((channel) => typeof channel === 'string' ? new Channel(channel) : channel);
 }
 
-// Parse the specified GRIP URI into a config object that can then be passed
-// to the PublisherBase class. The URI can include 'iss' and 'key' JWT
-// authentication query parameters as well as any other required query string
-// parameters. The JWT 'key' query parameter can be provided as-is or in base64
-// encoded format.
-export function parseGripUri(uri: string) {
+// Parses the specified GRIP URI into a config object that can then be passed
+// to the Publisher class. The URI can include query parameters for authentication
+// during publishing as well as those used for verifying the signature of incoming
+// requests.
+// Additional values can be provided that get merged with query parameters
+// before parsing them. This is useful for values that get particularly long,
+// such as JWT_VERIFY_KEY.
+export function parseGripUri(uri: string, additional?: Record<string, string>) {
     const parsedUrl = new URL(uri);
     const params = parsedUrl.searchParams;
+
+    if (additional != null) {
+        for (const [key, value] of Object.entries(additional)) {
+            if (value != null) {
+                params.set(key, value);
+            }
+        }
+    }
 
     let user: string | null = null;
     let pass: string | null = null;
