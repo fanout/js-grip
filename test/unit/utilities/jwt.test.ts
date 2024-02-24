@@ -1,8 +1,8 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
 import * as jose from 'jose';
-import { validateSig } from '../../../src/index.js';
-import { PRIVATE_KEY_1, PUBLIC_KEY_1, PUBLIC_KEY_FASTLY } from '../sampleKeys.js';
+import { PUBLIC_KEY_FASTLY_FANOUT_PEM, validateSig } from '../../../src/index.js';
+import { PRIVATE_KEY_1, PUBLIC_KEY_1 } from '../sampleKeys.js';
 
 const textEncoder = new TextEncoder();
 
@@ -111,7 +111,7 @@ describe('utilities/jwt', () => {
                   .setExpirationTime('1h');
                 const token = await signJwt.sign(privateKey1);
 
-                assert.ok(!await validateSig(token, PUBLIC_KEY_FASTLY));
+                assert.ok(!await validateSig(token, PUBLIC_KEY_FASTLY_FANOUT_PEM));
             });
             it("check the ISS of a claim", async () => {
 
