@@ -4,6 +4,47 @@ import { decodeBytesFromBase64String } from './base64.js';
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
+export class PemKey {
+  keyString: string;
+  type: 'public' | 'private';
+  constructor(keyString: string) {
+    if (keyString.startsWith('-----BEGIN PUBLIC KEY-----')) {
+      this.type = 'public';
+    } else if (
+      keyString.startsWith('-----BEGIN PRIVATE KEY-----')
+    ) {
+      this.type = 'private';
+    } else {
+      throw new TypeError('Attempt to construct PemKey with string that is evidently not a PEM');
+    }
+    this.keyString = keyString;
+  }
+
+  async getKeyLike(alg: string) {
+    if (this.keyString.indexOf('-----BEGIN PRIVATE KEY-----') === 0) {
+      return jose.importPKCS8(this.keyString, alg);
+    }
+    if (this.keyString.indexOf('-----BEGIN PUBLIC KEY-----') === 0) {
+      return jose.importSPKI(this.keyString, alg);
+    }
+    throw new Error('PEM type not supported.');
+  }
+}
+
+export class JwkKey {
+  jwk: JsonWebKey
+  constructor(jwk: JsonWebKey) {
+    this.jwk = jwk;
+  }
+
+  async getSecretOrKeyLike(alg?: string) {
+    return jose.importJWK(this.jwk as jose.JWK, alg);
+  }
+}
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
 function keyStringToKeyLike(keyString: string) {
   if (keyString.indexOf('-----BEGIN PUBLIC KEY-----') === 0) {
     return jose.importSPKI(keyString, 'RS256');

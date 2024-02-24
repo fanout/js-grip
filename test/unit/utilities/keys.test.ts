@@ -1,10 +1,85 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import * as jose from 'jose';
-import { loadKey } from '../../../src/index.js';
-import { PRIVATE_KEY_1, PUBLIC_KEY_1 } from '../sampleKeys.js';
+import {
+  decodeBytesFromBase64String,
+  JwkKey,
+  loadKey,
+  PemKey,
+  PUBLIC_KEY_FASTLY_FANOUT_JWK,
+  PUBLIC_KEY_FASTLY_FANOUT_PEM
+} from '../../../src/index.js';
+import {PRIVATE_KEY_1, PRIVATE_KEY_1_JWK, PUBLIC_KEY_1, PUBLIC_KEY_1_JWK, SYMMETRIC_KEY_1_JWK} from '../sampleKeys.js';
 
 const textEncoder = new TextEncoder();
+
+describe('PemKey', () => {
+  describe('constructor', () => {
+    it('constructs with a key string', () => {
+      const pemKey = new PemKey(PUBLIC_KEY_1);
+      assert.strictEqual(pemKey.keyString, PUBLIC_KEY_1);
+    });
+    it('throws TypeError if key string does not start with -----BEGIN', () => {
+      assert.throws(() => {
+        new PemKey('asdf');
+      }, err => {
+        assert.ok(err instanceof TypeError);
+        return true;
+      });
+    });
+  });
+  describe('getKeyLike', () => {
+    it('Private Key - RS256', async() => {
+      const pemKey = new PemKey(PRIVATE_KEY_1);
+      const keyLike = await pemKey.getKeyLike('RS256');
+      assert.strictEqual(keyLike.type, 'private');
+    });
+    it('Public Key - RS256', async() => {
+      const pemKey = new PemKey(PUBLIC_KEY_1);
+      const keyLike = await pemKey.getKeyLike('RS256');
+      assert.strictEqual(keyLike.type, 'public');
+    });
+    it('Public Key - ES256', async() => {
+      const pemKey = new PemKey(PUBLIC_KEY_FASTLY_FANOUT_PEM);
+      const keyLike = await pemKey.getKeyLike('ES256');
+      assert.strictEqual(keyLike.type, 'public');
+    });
+  });
+});
+describe('JwkKey', () => {
+  describe('constructor', () => {
+    it('constructs with a JWK', () => {
+      const jwkKey = new JwkKey(PUBLIC_KEY_FASTLY_FANOUT_JWK);
+      assert.deepStrictEqual(jwkKey.jwk, PUBLIC_KEY_FASTLY_FANOUT_JWK);
+    });
+  });
+  describe('getKeyLike', () => {
+    it('Private Key - RS256', async() => {
+      const jwkKey = new JwkKey(PRIVATE_KEY_1_JWK);
+      const keyLike = await jwkKey.getSecretOrKeyLike();
+      assert.ok(!(keyLike instanceof Uint8Array));
+      assert.strictEqual(keyLike.type, 'private');
+    });
+    it('Public Key - RS256', async() => {
+      const jwkKey = new JwkKey(PUBLIC_KEY_1_JWK);
+      const keyLike = await jwkKey.getSecretOrKeyLike();
+      assert.ok(!(keyLike instanceof Uint8Array));
+      assert.strictEqual(keyLike.type, 'public');
+    });
+    it('Public Key - ES256', async() => {
+      const jwkKey = new JwkKey(PUBLIC_KEY_FASTLY_FANOUT_JWK);
+      const keyLike = await jwkKey.getSecretOrKeyLike();
+      assert.ok(!(keyLike instanceof Uint8Array));
+      assert.strictEqual(keyLike.type, 'public');
+    });
+    it('Symmetric Key - HS256', async() => {
+      const jwkKey = new JwkKey(SYMMETRIC_KEY_1_JWK);
+      const secret = await jwkKey.getSecretOrKeyLike();
+      assert.ok(secret instanceof Uint8Array);
+      assert.deepStrictEqual(secret, decodeBytesFromBase64String('hO62z0B7Vvj8PgkMN7yaUzYS8MSf2fi4_WH-M5jlnmt3OW3sO6B9H5yjdoRD6Zq_eCQLft7K9ymVRinqiTofKQ'));
+    });
+  });
+});
 
 describe('loadKey', () => {
   it('Loads string key as Uint8Array bytes', () => {
