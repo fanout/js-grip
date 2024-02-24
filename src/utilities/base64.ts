@@ -14,6 +14,10 @@ export function decodeBytesFromBase64String(str: string) {
   // Turn them back into pluses before decoding from base64.
   str = str.replace(/ /g, '+');
 
+  // We also work with base64url
+  str = str.replace(/_/g, '/');
+  str = str.replace(/-/g, '+');
+
   let binary;
   try {
     binary = atob(str);
