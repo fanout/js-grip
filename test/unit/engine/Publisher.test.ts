@@ -54,14 +54,14 @@ describe('Publisher', function () {
             assert.equal(pc.clients.length, 2);
             assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri2/publish/');
             assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss2');
-            assert.deepStrictEqual(await pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key==2'));
+            assert.deepStrictEqual(pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key==2'));
             assert.equal(pc.clients[0].getVerifyIss(), 'v_iss2');
-            assert.deepStrictEqual(await pc.clients[0].getVerifyKey(), textEncoder.encode('v_key==2'));
+            assert.deepStrictEqual(pc.clients[0].getVerifyKey(), textEncoder.encode('v_key==2'));
             assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri3/publish/');
             assert.equal(pc.clients[1].getAuth()?.getClaim()['iss'], 'iss3');
-            assert.deepStrictEqual(await pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==3'));
+            assert.deepStrictEqual(pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==3'));
             assert.equal(pc.clients[1].getVerifyIss(), undefined);
-            assert.deepStrictEqual(await pc.clients[1].getVerifyKey(), textEncoder.encode('key==3'));
+            assert.deepStrictEqual(pc.clients[1].getVerifyKey(), textEncoder.encode('key==3'));
         });
     });
     describe('#applyConfig', function () {
@@ -76,7 +76,7 @@ describe('Publisher', function () {
             assert.equal(pc.clients.length, 1);
             assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
             assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss');
-            assert.deepStrictEqual(await pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
+            assert.deepStrictEqual(pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
             pubControl.applyConfigs([
                 {
                     'control_uri': 'https://www.example.com/uri2',
@@ -94,19 +94,19 @@ describe('Publisher', function () {
             assert.equal(pc.clients.length, 3);
             assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
             assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss');
-            assert.deepStrictEqual(await pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
+            assert.deepStrictEqual(pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
             assert.equal(pc.clients[0].getVerifyIss(), undefined);
-            assert.deepStrictEqual(await pc.clients[0].getVerifyKey(), textEncoder.encode('key=='));
+            assert.deepStrictEqual(pc.clients[0].getVerifyKey(), textEncoder.encode('key=='));
             assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri2/publish/');
             assert.equal(pc.clients[1].getAuth()?.getClaim()['iss'], 'iss2');
-            assert.deepStrictEqual(await pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==2'));
+            assert.deepStrictEqual(pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==2'));
             assert.equal(pc.clients[1].getVerifyIss(), 'v_iss2');
-            assert.deepStrictEqual(await pc.clients[1].getVerifyKey(), textEncoder.encode('v_key==2'));
+            assert.deepStrictEqual(pc.clients[1].getVerifyKey(), textEncoder.encode('v_key==2'));
             assert.equal(pc.clients[2].publishUri, 'https://www.example.com/uri3/publish/');
             assert.equal(pc.clients[2].getAuth()?.getClaim()['iss'], 'iss3');
-            assert.deepStrictEqual(await pc.clients[2].getAuth()?.getKey(), textEncoder.encode('key==3'));
+            assert.deepStrictEqual(pc.clients[2].getAuth()?.getKey(), textEncoder.encode('key==3'));
             assert.equal(pc.clients[2].getVerifyIss(), undefined);
-            assert.deepStrictEqual(await pc.clients[2].getVerifyKey(), textEncoder.encode('key==3'));
+            assert.deepStrictEqual(pc.clients[2].getVerifyKey(), textEncoder.encode('key==3'));
         });
     });
     describe('#addClients', function () {

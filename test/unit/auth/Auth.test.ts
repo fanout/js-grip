@@ -30,7 +30,7 @@ describe('auth', () => {
             const cl = {};
             let authJwt = new Auth.Jwt(cl, textEncoder.encode("key"));
             assert.equal(authJwt.getClaim(), cl);
-            assert.deepStrictEqual(await authJwt.getKey(), textEncoder.encode("key"));
+            assert.deepStrictEqual(authJwt.getKey(), textEncoder.encode("key"));
 
             authJwt = new Auth.Jwt({ iss: "hello" }, textEncoder.encode("key=="));
             const claim = await jose.jwtVerify(

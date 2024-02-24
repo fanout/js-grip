@@ -1,17 +1,26 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import { webcrypto as crypto } from 'node:crypto';
 import * as jose from 'jose';
 import {
   decodeBytesFromBase64String,
+  isSymmetricSecret,
   JwkKey,
   loadKey,
   PemKey,
   PUBLIC_KEY_FASTLY_FANOUT_JWK,
   PUBLIC_KEY_FASTLY_FANOUT_PEM
 } from '../../../src/index.js';
-import {PRIVATE_KEY_1, PRIVATE_KEY_1_JWK, PUBLIC_KEY_1, PUBLIC_KEY_1_JWK, SYMMETRIC_KEY_1_JWK} from '../sampleKeys.js';
+import { PRIVATE_KEY_1, PRIVATE_KEY_1_JWK, PUBLIC_KEY_1, PUBLIC_KEY_1_JWK, SYMMETRIC_KEY_1_JWK } from '../sampleKeys.js';
 
 const textEncoder = new TextEncoder();
+
+function isKeyLike(key: Uint8Array | jose.KeyLike | PemKey | JwkKey): key is jose.KeyLike {
+  if (key instanceof Uint8Array || key instanceof PemKey || key instanceof JwkKey) {
+    return false;
+  }
+  return true;
+}
 
 describe('PemKey', () => {
   describe('constructor', () => {
@@ -57,19 +66,19 @@ describe('JwkKey', () => {
     it('Private Key - RS256', async() => {
       const jwkKey = new JwkKey(PRIVATE_KEY_1_JWK);
       const keyLike = await jwkKey.getSecretOrKeyLike();
-      assert.ok(!(keyLike instanceof Uint8Array));
+      assert.ok(isKeyLike(keyLike));
       assert.strictEqual(keyLike.type, 'private');
     });
     it('Public Key - RS256', async() => {
       const jwkKey = new JwkKey(PUBLIC_KEY_1_JWK);
       const keyLike = await jwkKey.getSecretOrKeyLike();
-      assert.ok(!(keyLike instanceof Uint8Array));
+      assert.ok(isKeyLike(keyLike));
       assert.strictEqual(keyLike.type, 'public');
     });
     it('Public Key - ES256', async() => {
       const jwkKey = new JwkKey(PUBLIC_KEY_FASTLY_FANOUT_JWK);
       const keyLike = await jwkKey.getSecretOrKeyLike();
-      assert.ok(!(keyLike instanceof Uint8Array));
+      assert.ok(isKeyLike(keyLike));
       assert.strictEqual(keyLike.type, 'public');
     });
     it('Symmetric Key - HS256', async() => {
@@ -78,6 +87,34 @@ describe('JwkKey', () => {
       assert.ok(secret instanceof Uint8Array);
       assert.deepStrictEqual(secret, decodeBytesFromBase64String('hO62z0B7Vvj8PgkMN7yaUzYS8MSf2fi4_WH-M5jlnmt3OW3sO6B9H5yjdoRD6Zq_eCQLft7K9ymVRinqiTofKQ'));
     });
+  });
+});
+
+describe('isSymmetricSecret', () => {
+  it('says Uint8Array is symmetric', () => {
+    assert.ok(isSymmetricSecret(new Uint8Array()));
+  });
+  it('says PemKey is not symmetric', () => {
+    const loadedKey = loadKey(PRIVATE_KEY_1);
+    assert.ok(!isSymmetricSecret(loadedKey));
+  });
+  it('says JwkKey is symmetric for symmetric key', () => {
+    const loadedKey = loadKey(SYMMETRIC_KEY_1_JWK);
+    assert.ok(isSymmetricSecret(loadedKey));
+  })
+  it('says JwkKey is not symmetric for non-\'secret\' key', () => {
+    const loadedKey = loadKey(PRIVATE_KEY_1_JWK);
+    assert.ok(!isSymmetricSecret(loadedKey));
+  })
+  it('says jose.KeyLike is symmetric for \'secret\' key', async () => {
+    const loadedKey = await crypto.subtle.importKey('raw', textEncoder.encode(SYMMETRIC_KEY_1_JWK.k),
+      { name: 'HMAC', hash: 'SHA-256', }, false, ['verify']);
+    assert.ok(isSymmetricSecret(loadedKey));
+  });
+  it('says jose.KeyLike is not symmetric for non-\'secret\' key', async () => {
+    const loadedKey = await crypto.subtle.importKey('jwk', PRIVATE_KEY_1_JWK,
+      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256', }, false, ['sign']);
+    assert.ok(!isSymmetricSecret(loadedKey));
   });
 });
 
@@ -102,16 +139,14 @@ describe('loadKey', () => {
     const loadedKey = loadKey(key);
     assert.deepStrictEqual(loadedKey, textEncoder.encode('----------'));
   });
-  it('Loads strings that start with PKCS#8 first line as Promise to jose.KeyLike', async () => {
-    const loadedKey = await loadKey(PRIVATE_KEY_1);
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
+  it('Loads strings that start with PKCS#8 first line as PemKey', async () => {
+    const loadedKey = loadKey(PRIVATE_KEY_1);
+    assert.ok(loadedKey instanceof PemKey);
     assert.strictEqual(loadedKey.type, 'private');
   });
-  it('Loads strings that start with SPKI first line as Promise to jose.KeyLike', async () => {
-    const loadedKey = await loadKey(PUBLIC_KEY_1);
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
+  it('Loads strings that start with SPKI first line as PemKey', async () => {
+    const loadedKey = loadKey(PUBLIC_KEY_1);
+    assert.ok(loadedKey instanceof PemKey);
     assert.strictEqual(loadedKey.type, 'public');
   });
   it('Loads Uint8Array key as itself', () => {
@@ -122,32 +157,28 @@ describe('loadKey', () => {
     const loadedKey = loadKey(textEncoder.encode('----------'));
     assert.deepStrictEqual(loadedKey, textEncoder.encode('----------'));
   });
-  it('Loads Uint8Array that starts with PKCS#8 first line as Promise to jose.KeyLike', async () => {
-    const loadedKey = await loadKey(textEncoder.encode(PRIVATE_KEY_1));
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
+  it('Loads Uint8Array that starts with PKCS#8 first line as PemKey', async () => {
+    const loadedKey = loadKey(textEncoder.encode(PRIVATE_KEY_1));
+    assert.ok(loadedKey instanceof PemKey);
     assert.strictEqual(loadedKey.type, 'private');
   });
   it('Loads jose.KeyLike object as itself', async () => {
     const publicKey = await jose.importSPKI(PUBLIC_KEY_1, 'RS256')
     const loadedKey = loadKey(publicKey);
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
-    assert.ok(!(loadedKey instanceof Promise));
+    assert.ok(isKeyLike(loadedKey));
     assert.strictEqual(loadedKey.type, 'public');
   });
-  it('Loads base64 string that encodes a PEM as Promise to jose.KeyLike', async () => {
+  it('Loads base64 string that encodes a PEM as PemKey', async () => {
     const key =
       "base64:LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowRE" +
       "FRY0RRZ0FFQ0tvNUExZWJ5RmNubVZWOFNFNU9uKzhHODFKeQpCalN2Y3J4NFZMZXRXQ2p1REFtcHBUbzN" +
       "4TS96ejc2M0NPVENnSGZwLzZsUGRDeVlqanFjK0dNN3N3PT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0t";
 
-    const loadedKey = await loadKey(key);
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
+    const loadedKey = loadKey(key);
+    assert.ok(loadedKey instanceof PemKey);
     assert.strictEqual(loadedKey.type, 'public');
   });
-  it('Loads JsonWebKey as jose.KeyLike', async () => {
+  it('Loads JsonWebKey as JwkKey', async () => {
     const key = {
       "kty": "RSA",
       "n": "u1SU1LfVLPHCozMxH2Mo4lgOEePzNm0tRgeLezV6ffAt0gunVTLw7onLRnrq0_IzW7yWR7QkrmBL7jTKEn5u-qKhbwKfBstIs-bMY2Zkp18gnTxKLxoS2tFczGkPLPgizskuemMghRniWaoLcyehkd3qqGElvW_VDL5AaWTg0nLVkjRo9z-40RQzuVaE8AkAFmxZzow3x-VJYKdjykkJ0iT9wCS0DRTXu269V264Vf_3jvredZiKRkgwlL9xNAwxXFg0x_XFw005UWVRIkdgcKWTjpBP2dPwVZ4WWC-9aGVd-Gyn1o0CLelf4rEjGoXbAAEgAqeGUxrcIlbjXfbcmw",
@@ -162,12 +193,10 @@ describe('loadKey', () => {
       "alg": "RS256",
       "use": "sig"
     };
-    const loadedKey = await loadKey(key);
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
-    assert.strictEqual(loadedKey.type, 'private');
+    const loadedKey = loadKey(key);
+    assert.ok(loadedKey instanceof JwkKey);
   });
-  it('Loads string encoding of JsonWebKey as jose.KeyLike', async () => {
+  it('Loads string encoding of JsonWebKey as JwkKey', async () => {
     const key = {
       "kty": "RSA",
       "n": "u1SU1LfVLPHCozMxH2Mo4lgOEePzNm0tRgeLezV6ffAt0gunVTLw7onLRnrq0_IzW7yWR7QkrmBL7jTKEn5u-qKhbwKfBstIs-bMY2Zkp18gnTxKLxoS2tFczGkPLPgizskuemMghRniWaoLcyehkd3qqGElvW_VDL5AaWTg0nLVkjRo9z-40RQzuVaE8AkAFmxZzow3x-VJYKdjykkJ0iT9wCS0DRTXu269V264Vf_3jvredZiKRkgwlL9xNAwxXFg0x_XFw005UWVRIkdgcKWTjpBP2dPwVZ4WWC-9aGVd-Gyn1o0CLelf4rEjGoXbAAEgAqeGUxrcIlbjXfbcmw",
@@ -177,21 +206,17 @@ describe('loadKey', () => {
       "alg": "RS256",
       "use": "sig"
     };
-    const loadedKey = await loadKey(JSON.stringify(key));
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
-    assert.strictEqual(loadedKey.type, 'public');
+    const loadedKey = loadKey(JSON.stringify(key));
+    assert.ok(loadedKey instanceof JwkKey);
   });
-  it('Loads Uint8Array encoding of JsonWebKey as jose.KeyLike', async () => {
+  it('Loads Uint8Array encoding of JsonWebKey as JwkKey', async () => {
     const key = {
       "kty": "EC",
       "crv": "P-256",
       "x": "CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg",
       "y": "7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M"
     };
-    const loadedKey = await loadKey(textEncoder.encode(JSON.stringify(key)));
-    assert.ok(loadedKey != null);
-    assert.ok(!(loadedKey instanceof Uint8Array));
-    assert.strictEqual(loadedKey.type, 'public');
+    const loadedKey = loadKey(textEncoder.encode(JSON.stringify(key)));
+    assert.ok(loadedKey instanceof JwkKey);
   });
 });

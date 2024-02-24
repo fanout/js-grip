@@ -118,7 +118,7 @@ export class Publisher {
         needsSigned = true;
 
         for (const client of this.clients) {
-            const verifyKey = await client.getVerifyKey();
+            const verifyKey = client.getVerifyKey();
             if (verifyKey == null) {
                 needsSigned = false;
                 break;

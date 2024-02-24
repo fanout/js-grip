@@ -3,7 +3,7 @@ import * as Auth from '../auth/index.js';
 import { IItem, PublishException } from '../data/index.js';
 import { IGripConfig } from './IGripConfig.js';
 import { IPublisherClient } from './IPublisherClient.js';
-import { loadKey } from '../utilities/index.js';
+import { isSymmetricSecret, loadKey, JwkKey, PemKey } from '../utilities/index.js';
 
 export interface IReqHeaders {
     [name: string]: string;
@@ -16,7 +16,7 @@ interface IContext {
 
 export type VerifyComponents = {
     verifyIss?: string;
-    verifyKey?: Uint8Array | jose.KeyLike | Promise<jose.KeyLike>;
+    verifyKey?: Uint8Array | jose.KeyLike | PemKey | JwkKey;
 }
 
 export type PublisherClientOptions = {
@@ -48,14 +48,14 @@ export class PublisherClient implements IPublisherClient {
         this.publishUri = String(new URL('./publish/', url));
 
         if (iss != null) {
-            const key = keyValue != null ? loadKey(keyValue) : undefined;
-            this._auth = new Auth.Jwt({ iss }, key ?? new Uint8Array());
+            const key = keyValue != null ? loadKey(keyValue) : new Uint8Array();
+            this._auth = new Auth.Jwt({ iss }, key);
 
             // For backwards-compatibility reasons, if JWT authorization is used with a
             // symmetric secret and if `verify_key` is not provided, then `key` will also
             // be used as the `verify_key` value as well.
-            if (key instanceof Uint8Array && verifyKeyValue == null) {
-                verifyKeyValue = key;
+            if (isSymmetricSecret(key) && verifyKeyValue == null) {
+                verifyKeyValue = keyValue;
             }
         } else if (typeof keyValue === 'string') {
             this._auth = new Auth.Bearer(keyValue);
@@ -82,7 +82,7 @@ export class PublisherClient implements IPublisherClient {
         return this._verifyComponents?.verifyIss;
     }
 
-    async getVerifyKey() {
+    getVerifyKey() {
         return this._verifyComponents?.verifyKey;
     }
 

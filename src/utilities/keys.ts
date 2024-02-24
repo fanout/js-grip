@@ -42,37 +42,32 @@ export class JwkKey {
   }
 }
 
-const textEncoder = new TextEncoder();
-const textDecoder = new TextDecoder();
+export function isSymmetricSecret(key: Uint8Array | jose.KeyLike | PemKey | JwkKey) {
+  if (key instanceof Uint8Array) {
+    return true;
+  } else if (key instanceof PemKey) {
+    return false;
+  } else if (key instanceof JwkKey) {
+    return key.jwk.kty === 'oct';
+  }
 
-function keyStringToKeyLike(keyString: string) {
-  if (keyString.indexOf('-----BEGIN PUBLIC KEY-----') === 0) {
-    return jose.importSPKI(keyString, 'RS256');
-  }
-  if (keyString.indexOf('-----BEGIN PRIVATE KEY-----') === 0) {
-    return jose.importPKCS8(keyString, 'RS256');
-  }
-  return false;
+  return key.type === 'secret';
 }
 
-function jsonWebKeyToKeyLike(obj: unknown) {
-  let jwk = obj as jose.JWK;
-  return new Promise<jose.KeyLike>(async resolve => {
-    const result = await jose.importJWK(jwk);
-    if (result instanceof Uint8Array) {
-      throw new Error('Unexpected');
-    }
-    resolve(result);
-  });
+function isPem(keyString: string) {
+  return (
+    keyString.startsWith('-----BEGIN PUBLIC KEY-----') ||
+    keyString.startsWith('-----BEGIN PRIVATE KEY-----')
+  );
 }
 
 function isJsonWebKey(obj: any): obj is JsonWebKey {
   return obj.kty != null;
 }
 
-export function loadKey(key: string | JsonWebKey | Uint8Array | jose.KeyLike) {
+export function loadKey(key: string | JsonWebKey | Uint8Array | jose.KeyLike): Uint8Array | jose.KeyLike | PemKey | JwkKey {
 
-  let result: string | JsonWebKey | Uint8Array | jose.KeyLike | Promise<jose.KeyLike> = key;
+  let result: string | JsonWebKey | Uint8Array | jose.KeyLike | PemKey | JwkKey = key;
 
   if (typeof result === 'string' && result.startsWith('base64:')) {
     result = result.slice(7);
@@ -94,17 +89,15 @@ export function loadKey(key: string | JsonWebKey | Uint8Array | jose.KeyLike) {
     }
 
     if (keyString != null) {
-      const keyLikeResult = keyStringToKeyLike(keyString);
-      if (keyLikeResult !== false) {
-        result = keyLikeResult;
+      if (isPem(keyString)) {
+        result = new PemKey(keyString);
       }
     }
   }
 
   if (typeof result === 'string') {
-    const keyLikeResult = keyStringToKeyLike(result);
-    if (keyLikeResult !== false) {
-      result = keyLikeResult;
+    if (isPem(result)) {
+      result = new PemKey(result);
     }
   }
 
@@ -124,7 +117,7 @@ export function loadKey(key: string | JsonWebKey | Uint8Array | jose.KeyLike) {
       }
 
       if (jsonObj != null && isJsonWebKey(jsonObj)) {
-        result = jsonWebKeyToKeyLike(jsonObj);
+        result = new JwkKey(jsonObj);
       }
     }
   }
@@ -138,13 +131,13 @@ export function loadKey(key: string | JsonWebKey | Uint8Array | jose.KeyLike) {
       }
 
       if (jsonObj != null && isJsonWebKey(jsonObj)) {
-        result = jsonWebKeyToKeyLike(jsonObj);
+        result = new JwkKey(jsonObj);
       }
     }
   }
 
   if (isJsonWebKey(result)) {
-    result = jsonWebKeyToKeyLike(result);
+    result = new JwkKey(result);
   }
 
   if (typeof result === 'string') {
