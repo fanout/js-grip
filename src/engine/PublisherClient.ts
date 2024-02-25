@@ -5,15 +5,6 @@ import { IGripConfig } from './IGripConfig.js';
 import { IPublisherClient } from './IPublisherClient.js';
 import { isSymmetricSecret, loadKey, JwkKey, PemKey } from '../utilities/index.js';
 
-export interface IReqHeaders {
-    [name: string]: string;
-}
-interface IContext {
-    statusCode: number;
-    headers?: object;
-    httpBody?: any;
-}
-
 export type VerifyComponents = {
     verifyIss?: string;
     verifyKey?: Uint8Array | jose.KeyLike | PemKey | JwkKey;
@@ -29,8 +20,8 @@ const textEncoder = new TextEncoder();
 // their choice. The consumer wraps a Format class instance in an Item class
 // instance and passes that to the publish method.
 export class PublisherClient implements IPublisherClient {
-    public _auth?: Auth.IAuth;
     public publishUri: string;
+    public _auth?: Auth.IAuth;
     private _verifyComponents?: VerifyComponents;
     public options: PublisherClientOptions;
 
@@ -45,7 +36,8 @@ export class PublisherClient implements IPublisherClient {
             // publishing URI is 'https://www.example.com/foo/publish'
             url.pathname += '/';
         }
-        this.publishUri = String(new URL('./publish/', url));
+        url.pathname += 'publish/';
+        this.publishUri = String(url);
 
         if (iss != null) {
             const key = keyValue != null ? loadKey(keyValue) : new Uint8Array();
@@ -96,7 +88,7 @@ export class PublisherClient implements IPublisherClient {
         // Prepare Request Body
         const content = JSON.stringify({ items });
         // Build HTTP headers
-        const headers: IReqHeaders = {
+        const headers: HeadersInit = {
             'Content-Type': 'application/json',
             'Content-Length': String(textEncoder.encode(content).length),
         };
@@ -112,15 +104,11 @@ export class PublisherClient implements IPublisherClient {
 
         let res;
         try {
-            res = await (this.options.fetch ?? fetch)(String(this.publishUri), init);
+            res = await (this.options.fetch ?? fetch)(this.publishUri, init);
         } catch (err) {
             throw new PublishException(err instanceof Error ? err.message : String(err), { statusCode: -1 });
         }
 
-        const context: IContext = {
-            statusCode: res.status,
-            headers: res.headers,
-        };
         let mode: 'end' | 'close';
         let data;
         try {
@@ -131,7 +119,11 @@ export class PublisherClient implements IPublisherClient {
             data = err;
         }
 
-        context.httpBody = data;
+        const context = {
+            statusCode: res.status,
+            headers: res.headers,
+            httpBody: data,
+        }
 
         if (mode === 'end') {
             if (context.statusCode < 200 || context.statusCode >= 300) {

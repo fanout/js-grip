@@ -49,7 +49,7 @@ export class GripInstruct {
     }
 
     public toHeaders(additionalHeaders?: object) {
-        const headers: { [name: string]: string } = {};
+        const headers: Record<string, string> = {};
         headers['Grip-Channel'] = createGripChannelHeader(this.channels);
         if (this.status != null) {
             headers['Grip-Status'] = `${this.status}`; // Convert to string

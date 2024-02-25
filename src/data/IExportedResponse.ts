@@ -1,7 +1,7 @@
 export interface IExportedResponse {
     code?: string;
     reason?: string;
-    headers?: object;
+    headers?: Record<string, string>;
     body?: string;
     'body-bin'?: string;
 }

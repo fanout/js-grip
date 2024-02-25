@@ -1,5 +1,6 @@
 import { encodeBytesToBase64String } from '../utilities/index.js';
 import type { IExportedResponse } from './IExportedResponse.js';
+import type { IFormatExport } from './IFormatExport.js';
 
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed
@@ -9,7 +10,7 @@ import type { IExportedResponse } from './IExportedResponse.js';
 export class Response {
     code: string | null;
     reason: string | null;
-    headers: object | null;
+    headers: Record<string, string> | null;
     body: object | null;
 
     constructor(...args: any[]) {
@@ -50,6 +51,6 @@ export class Response {
                 obj['body'] = this.body.toString();
             }
         }
-        return obj;
+        return obj as IFormatExport;
     }
 }
