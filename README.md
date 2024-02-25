@@ -1,600 +1,685 @@
 # js-grip
 
-A GRIP interface library for JavaScript.  For use with HTTP reverse proxy servers
+A [GRIP](https://pushpin.org/docs/protocols/grip/) interface library for JavaScript.  For use with HTTP reverse proxy servers
 that support the GRIP interface, such as Pushpin.
 
 Supported GRIP servers include:
 
-* [Pushpin](http://pushpin.org/)
+* [Pushpin](https://pushpin.org/)
 * [Fastly Fanout](https://docs.fastly.com/products/fanout)
 
-This library also supports legacy services hosted by [Fanout](https://fanout.io/) Cloud.
+Authors: Katsuyuki Omuro <komuro@fastly.com>, Konstantin Bokarius <kon@fanout.io>
 
-Authors: Katsuyuki Ohmuro <harmony7@pex2.jp>, Konstantin Bokarius <kon@fanout.io>
+## New for v4
 
-## New for 3.3.0
-- Support for `verify_iss` and `verify_key` GRIP configurations and parsing them from GRIP_URLs.
-- Support for Bearer tokens, using the new `Auth.Bearer` class.
-  - Use a Bearer token by creating IGripConfig with `key`, but without a `control_iss`. This can also be parsed from
-    `GRIP_URL` that have a `key` without an `iss`.
-- Updated with full support for Fastly Fanout.
+### Breaking changes
 
+- Simplified build, now exported as ESM modules only. If you require CommonJS support or
+  a browser build, use v3.
+- A number of classes and interfaces have been removed for simplification. Particularly, base
+  classes designed for overriding have been removed in favor of configuration.
+- A number of classes whose fields had previously been public now hold them privately; those values
+  must now be accessed through accessor functions.
+- The `isWsOverHttp()` and `getWebSocketContextFromReq()` functions now work with
+  `Request` objects rather than Node.js's `IncomingMessage` objects. Versions of these
+  functions that work with `IncomingMessage` are available from `"@fanoutio/grip/node"`.
+
+For detailed breaking changes, see the [detailed list](#detailed-breaking-changes).
+
+### Other changes
+
+- Updated to be [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)-first, allowing
+  for running natively under more platforms such as Fastly Compute, Cloudflare Workers, Deno, Bun, etc.
+  without the need for polyfilling Node.js builtins.
+- Separated out Node.js support into its own export, `"@fanoutio/grip/node"`.
+- `GRIP_URL` now allows `key` and `verify-key` query parameters to be provided as:
+  - JSON stringified representation of `JsonWebKey`
+  - base64-encoded representations (prefixed with `base64:`) of `Uint8Array`, JSON-stringified `JsonWebKey`,
+    or PEM file (SPKI or PKCS#8).
+  - Also see [More on Keys](#more-on-keys).
+- `parseGripUri` now accepts a second parameter which can be used to merge parameters into a `IGripConfig`.
+- `validateGripSig` is now available on `Publisher`, allowing you to easily check a
+  `Grip-Sig` header against the publisher clients registered with a `Publisher`.
+- `Publisher` can now be configured with a custom channel prefix that will be applied
+  when publishing messages.
+- `Publisher` can now be configured with an override `fetch()` function that will be
+  called when publishing messages.
+- Public Keys for Fastly Fanout are now exported as constants.
+ 
 ## Installation
 
 ```sh
 npm install @fanoutio/grip
 ```
 
-## Sample Usage
+## Usage
 
-### Publishing HTTP messages
-
-Examples for how to publish HTTP response and HTTP stream messages to GRIP proxy endpoints via the Publisher class.
+Configure a publisher.
 
 ```javascript
-const { Publisher, PublishException } = require('@fanoutio/grip');
+import { Publisher } from '@fanoutio/grip';
 
-// Publisher can be initialized with or without an endpoint configuration.
-// Each endpoint can include optional JWT authentication info.
-// Multiple endpoints can be included in a single configuration.
-
-// Fastly Fanout example
 const publisher = new Publisher({
-    'control_uri': 'https://api.fastly.com/service/<service-id>',
-    'key': '<fastly-api-key>',
+  control_uri: 'http://pushpin.myproject.com/', // Control URI of your Pushpin instance
 });
 
-// Fanout.io example
+// or
+
+const publisher = new Publisher(process.env.GRIP_URL); // A GRIP_URL representing your GRIP proxy
+
+// or 
+
+const gripURL = process.env.GRIP_URL ?? 'http://localhost:5561/';
+const gripVerifyKey = process.env.GRIP_VERIFY_KEY;
+const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey }); // Merge a key into the GRIP_URL
+const publisher = new Publisher(gripConfig);
+```
+
+Validate a GRIP signature.
+
+```javascript
+// publisher instantiated above
+const gripSig = req.headers.get('Grip-Sig');
+const { isProxied, isSigned } = await publisher.validateGripSig(gripSig);
+```
+
+Publish an HTTP streaming message.
+
+```javascript
+// publisher instantiated above
+await publisher.publishHttpStream('<channel>', 'Test Publish!');
+```
+
+Publish an HTTP long-polling response message.
+
+```javascript
+// publisher instantiated above
+await publisher.publishHttpResponse('<channel>', 'Test Publish!');
+```
+
+## Code examples
+
+If you're familiar with the concepts of [GRIP](https://pushpin.org/docs/protocols/grip/),
+then it may be beneficial to go browse the [Examples](./examples) at this point, and then
+come back to this document for reference.
+
+## Using js-grip
+
+[Generic Realtime Intermediary Protocol](https://pushpin.org/docs/protocols/grip/), otherwise known as GRIP,
+is a mechanism that allows your backend application to use a GRIP-compatible HTTP proxy server to hold
+incoming connections open.
+
+GRIP is composed of two parts:
+* Validating incoming requests and subscribing them to channels
+* Publishing messages to channels
+
+This library includes the `Publisher` class, which helps you with these tasks.
+To configure the `Publisher` class, you'll use a GRIP configuration object.
+
+### The GRIP configuration object
+
+The GRIP configuration object (`IGripConfig` interface in TypeScript) represents the configuration for a single
+GRIP proxy and its publishing endpoint. It has the following fields:
+
+* `control_uri` - _string_ Used for publishing. The Control URI of the GRIP proxy.
+* `user` - _string_ Used for authorization during publishing.
+  * If the GRIP publishing endpoint allows [Basic Authorization](https://en.wikipedia.org/wiki/Basic_access_authentication)
+    (not recommended), then the publisher uses this value as the username.  
+* `pass` - _string_ Used for authorization during publishing.
+  * If the GRIP publishing endpoint allows Basic Authorization (not recommended), then the publisher uses this value as 
+    the password.
+* `control_iss` - _string_ Used for authorization during publishing.
+  * If the GRIP publishing endpoint allows [JSON Web Tokens](https://jwt.io/) for authorization, the publisher sets the `iss` claim of the JWT to this value.
+* `key` - _string_ or _Uint8Array_ or _[CryptoKey](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey)_ or
+  _[KeyObject](https://nodejs.org/api/crypto.html#class-keyobject)_ Used for authorization during publishing.
+  * If `control_iss` is also provided, if the GRIP publishing endpoint allows JSON Web Tokens for authorization, the publisher signs the JWT using this key.
+  * If this is provided as a _string_, and `control_iss` is not provided, then if the GRIP publishing endpoint allows Bearer Tokens for authorization, the publisher uses this value as the Bearer token.
+* `verify_key` - _Uint8Array_ or _CryptoKey_ or _KeyObject_ Used for validating an incoming request.
+  * If this value is set, then the `Grip-Sig` header is verified as a JWT using this key. 
+* `verify_iss` - _string_ Used for validating an incoming request.
+  * If `verify_key` and this value are set, the `Grip-Sig` header is only considered to successfully verify
+    if its `iss` claim of the JWT matches this value.
+
+`control_uri` is the only required field. The other fields may be required depending on your setup.
+
+`key` and `verify_key` may also be provided as `string` or `Uint8Array` that
+encodes keys in PEM or JWK formats. See [More on Keys](#more-on-keys).
+
+> NOTE: If your backend is running on Fastly Compute, as of this writing (@fastly/js-compute@3.8.3),
+> Fastly Compute does not support PEM-formatted keys.
+
+> NOTE: For backwards-compatibility reasons, if JWT authorization is used with a symmetric secret (`control_iss` and
+`key` are both provided, and `key` is not a private key) and `verify_key` is not provided, then `key` will also be
+used as the `verify_key` value.
+
+#### Fastly Fanout as a GRIP proxy
+
+If you're using Fastly Fanout, then `control_uri`, `key`, `verify_iss`, and `verify_key` are required
+and should be set to the following values:
+
+* `control_uri` - The string value `https://api.fastly.com/service/<service-id>`, where `<service-id>` is your Fastly service ID,
+  with [Fanout enabled](https://www.fastly.com/documentation/guides/concepts/real-time-messaging/fanout/#quick-start).
+* `key` - A [Fastly API token](https://docs.fastly.com/en/guides/using-api-tokens) that has `global` scope access to
+  your service, as a string value. 
+* `verify_iss` - The string value `fastly:<service-id>`, where `<service-id>` is your Fastly service ID.
+* `verify_key` - The following string value, which is also available from this library as the exported constant
+  `PUBLIC_KEY_FASTLY_FANOUT_JWK`. 
+  ```
+  {"kty":"EC","crv":"P-256","x":"CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg","y":"7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M"}
+  ```
+
+### The GRIP_URL
+
+The fields in a GRIP configuration object can be combined into a single compact URL. The URL
+is built as the `control_uri` with the other values added as query parameters.
+
+This value is often stored in an environment variable or configuration store with the name
+`GRIP_URL`. As it is a URL, it is easy to move the configuration between environments.
+
+The `verify_key` is sometimes large, especially when public keys are used. In this case, it is
+stored separately as a `GRIP_VERIFY_KEY`, and the values are merged at runtime:
+
+```javascript
+const gripURL = process.env.GRIP_URL ?? 'http://localhost:5561/';
+const gripVerifyKey = process.env.GRIP_VERIFY_KEY;
+const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey });
+```
+
+> TIP: Because GRIP_URL can contain secrets (API token or private/shared key for signing), it should
+> be handled with care.
+> 
+> For example, if you're using Fastly Compute, you should use a 
+> Fastly [Secret Store](https://docs.fastly.com/en/guides/working-with-secret-stores). See the [Fastly
+> Compute examples](./examples/fastly-compute) for a working example.
+
+### Instantiate the `Publisher` object
+
+Instantiate the `Publisher` object by passing the GRIP configuration object to its constructor.
+
+```javascript
+import { Publisher } from '@fanoutio/grip';
+
 const publisher = new Publisher({
-    'control_uri': 'https://api.fanout.io/realm/<myrealm>',
-    'control_iss': '<myrealm>',
-    'key': Buffer.from('<myrealmkey>', 'base64'),
+  control_uri: 'http://pushpin.myproject.com/', // Control URI of your Pushpin instance
 });
 
-// Add additional endpoints by applying an endpoint configuration:
-publisher.applyGripConfig([
-    {'control_uri': '<myendpoint_uri_1>'},
-    {'control_uri': '<myendpoint_uri_2>'},
-]);
+// or
 
-// Publish across all configured endpoints.
-// The publish methods return a promise that resolves to a void value.
-// If the publish fails, they reject with an PublishException object.
+const gripURL = process.env.GRIP_URL ?? 'http://localhost:5561/';
+const gripVerifyKey = process.env.GRIP_VERIFY_KEY;
+const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey });
+const publisher = new Publisher(gripConfig); // You can pass a gripConfig if you've already parsed it
 
-try {
-    await publisher.publishHttpResponse('<channel>', 'Test Publish!');
-    console.log('Publish successful!');
-} catch(ex) {
-    if (ex instanceof PublishException) {
-        console.log("Publish failed!");
-        console.log("Message: " + ex.message);
-        console.log("Context: ");
-        console.dir(ex.context);
-    } else {
-        throw ex;
-    }
-}
+// or
 
-try {
-    await publisher.publishHttpStream('<channel>', 'Test Publish!');
-    console.log('Publish successful!');
-} catch(ex) {
-    if (ex instanceof PublishException) {
-        console.log("Publish failed!");
-        console.log("Message: " + ex.message);
-        console.log("Context: ");
-        console.dir(ex.context);
-    } else {
-        throw ex;
-    }
-}
+const publisher = new Publisher(process.env.GRIP_URL); // You can even pass a GRIP_URL directly
 ```
 
-### Checking if the current request is proxied by GRIP 
+### Validating Incoming Requests
 
-When the client connects to a GRIP proxy over HTTP, the proxy forwards the request to the origin and adds the `Grip-Sig`
-header to the proxied request. 
+When an incoming client request arrives at the GRIP proxy over HTTP, the proxy forwards the request to
+your backend application and adds the `Grip-Sig` header to the proxied request.
 
-Use the `validateSig()` function to validate the `Grip-Sig` request header from incoming GRIP messages. This ensures that
-the message was sent from the GRIP proxy that you expect, and that it is not expired.
-
-* When using Pushpin, the `key` is configurable using the `sig_key` value in Pushpin settings.
-* When using Fastly Fanout:
-  * The key is the following public key value.
-    ```
-    -----BEGIN PUBLIC KEY-----
-    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAECKo5A1ebyFcnmVV8SE5On+8G81Jy
-    BjSvcrx4VLetWCjuDAmppTo3xM/zz763COTCgHfp/6lPdCyYjjqc+GM7sw==
-    -----END PUBLIC KEY-----
-    ```
-  * In this case, the Grip-Sig encodes an `iss` value equal to `fastly:<service-id>`. Pass this value as the third
-    parameter to `validateSig`.
-* When using a legacy fanout.io service, the `key` is your realm key.
+It's highly recommended that your backend application validate this `Grip-Sig` to make sure it's coming
+from your GRIP proxy. To do this, call `publisher.validateGripSig()`:
 
 ```javascript
-var { validateSig } = require('@fanoutio/grip');
-
-// If the GRIP signature also encodes an ISS (verify-key is usually a public key in this case)
-var isValid = validateSig(req.headers['grip-sig'], '<verify-key>', '<verify-iss>');
-
-// If the GRIP signature is signed by a service-specific key
-var isValid = validateSig(req.headers['grip-sig'], '<key>');
+// publisher instantiated above
+const gripSig = req.headers.get('Grip-Sig');
+const { isProxied, isSigned } = await publisher.validateGripSig(gripSig);
 ```
 
-### Long polling example
+If your publisher is configured with a `verify_key`, then the signature of `Grip-Sig` will be checked 
+with that key. Both `isSigned` and `isProxied` will be `true` only if the key was able to verify the
+signature.
 
-The origin subscribes the client to a channel and instructs it to long poll. This is done by instantiating a `GripInstruct`
-object to generate the applicable response headers.
+If your publisher is not configured with a `verify_key`, then `isSigned` will be `false`, and
+`isProxied` will only check for the presence of `Grip-Sig`.
 
+> NOTE: For backwards-compatibility reasons, if JWT authorization is used with a symmetric secret (`control_iss` and
+`key` are both provided, and `key` is not a private key) and `verify_key` is not provided, then `key` will be
+used as the `verify_key` value as well.
+
+### Publishing messages to channels
+
+To publish a message, call one of the publishing methods on the publisher, which depends on the
+type of GRIP interaction.
+
+For an HTTP long-polling response message:
 ```javascript
-const http = require('http');
-const { validateSig, GripInstruct } = require('@fanoutio/grip');
-
-http.createServer((req, res) => {
-    // Validate the Grip-Sig header:
-    if (!validateSig(req.headers['grip-sig'], '<key>')) {
-        res.writeHead(401);
-        res.end('invalid grip-sig token');
-        return;
-    }
-
-    // Instatiate GripInstruct object
-    const gripInstruct = new GripInstruct();
-    gripInstruct.addChannel('<channel>');
-    gripInstruct.setHoldLongPoll();
-    // To optionally set a timeout value in seconds:
-    // gripInstruct.setHoldLongPoll(<timeout_value>);
-    
-    // Instruct the client to long poll via the response headers:
-    res.writeHead(200, gripInstruct.toHeaders());
-
-    res.end('[start longpoll]\n');
-}).listen(80, '0.0.0.0');
-
-console.log('Server running...');
+// publisher instantiated above
+await publisher.publishHttpResponse('<channel>', 'Test Publish!');
 ```
 
-When the response status code is 304, keep in mind that some web servers, such as recent versions of Apache, do not allow
-sending of custom headers along with a 304 response. In this case, send a 200 response and then use `gripInstruct.setStatus()`
-to indicate the intended status to the GRIP proxy.
-
+For an HTTP streaming message:
 ```javascript
-const http = require('http');
-const { validateSig, GripInstruct } = require('@fanoutio/grip');
-
-http.createServer((req, res) => {
-    // Validate the Grip-Sig header:
-    if (!validateSig(req.headers['grip-sig'], '<key>')) {
-        res.writeHead(401);
-        res.end('invalid grip-sig token');
-        return;
-    }
-
-    // We intend to return a 304 status.
-
-    // Instatiate GripInstruct object
-    const gripInstruct = new GripInstruct();
-    gripInstruct.addChannel('<channel>');
-    gripInstruct.setHoldLongPoll();
-
-    // Set 304 here
-    gripInstruct.setStatus(304);
-
-    // Return 200 for this response.
-    res.writeHead(200, gripInstruct.toHeaders());
-
-    res.end('[start longpoll]\n');
-}).listen(80, '0.0.0.0');
-
-console.log('Server running...');
+// publisher instantiated above
+await publisher.publishHttpStream('<channel>', 'Test Publish!');
 ```
 
-### WebSocket example using nodejs-websocket
+For a WebSocket-over-HTTP message:
+```javascript
+// publisher instantiated above
+await publisher.publishFormats('<channel>', new WebSocketMessageFormat('Test Publish!'));
+```
 
-A client connects to a GRIP proxy via WebSockets and the proxy forward the request to the origin.
-The origin accepts the connection over a WebSocket and responds with a control message indicating that the client should
-be subscribed to a channel. Note that in order for the GRIP proxy to properly interpret the control messages, the origin
-must provide a 'grip' extension in the 'Sec-WebSocket-Extensions' header. To accomplish this with nodejs-websocket, edit
-Connection.js and ensure that the following header is appended to the 'this.socket.write()' function call in the
-answerHandshake() method: 'Sec-WebSocket-Extensions: grip; message-prefix=""\r\n' To accomplish this with ws, add the
-ws.on('headers', ...) check to your app, for example:
+#### Overriding fetch
+
+The `Publisher` class constructor accepts an optional second parameter that is used
+to customize its behavior. By default, publishing messages through the `Publisher`
+class uses the [global `fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+function as the underlying mechanism. By providing a value for `fetch`, we are able to
+override this behavior.
+
+For example, if you're running in Fastly Compute, a `backend` parameter needs to be specified to make
+outgoing `fetch()` calls.
 
 ```javascript
-wss.on('headers', function processHeaders(headers, req) {
-    headers.push('Sec-WebSocket-Extensions: grip; message-prefix=""');
-});
-
-/* ... */
-
-server.on('upgrade', function upgrade(request, socket, head) {
-    wss.handleUpgrade(request, socket, head, function done(ws) {
-        wss.emit('connection', ws, request);
-    });
+const publisher = new Publisher(gripConfig, {
+    fetch(input, init) {
+        return fetch(String(input), { ...init, backend: 'publisher' });
+    },
 });
 ```
 
+#### Prefixes
+
+For namespacing reasons, it's sometimes useful to prefix the channel name when publishing.
+To do this, set the `prefix` value in the configuration parameter when instantiating the `Publisher`.
+
 ```javascript
-var ws = require("nodejs-websocket")
-var {
-    createWebSocketControlMessage,
-    WebSocketMessageFormat,
-    Publisher,
-} = require('@fanoutio/grip');
-
-ws.createServer(function (conn) {
-    // Subscribe the WebSocket to a channel:
-    const subscribeMessage = 'c:' + createWebSocketControlMessage('subscribe', {'channel': '<channel>'})
-    conn.sendText(subscribeMessage);
-
-    // As an example way to check our subscription, wait and then
-    // publish a message to the subscribed channel:
-    setTimeout(() => {
-        var publisher = new Publisher({
-            'control_uri': '<myendpoint>',
-        });
-        publisher.publishFormats(
-            'test_channel',
-            new WebSocketMessageFormat('Test WebSocket Publish!!')
-        );
-    }, 5000);
-}).listen(80, '0.0.0.0');
-
-console.log('Server running...');
+const publisher = new Publisher(process.env.GRIP_URL, { prefix: 'foo_' });
+await publisher.publishHttpStream('test', 'Test Publish!'); // Message is sent to channel named 'foo_test'
 ```
 
-### WebSocket example using WebSocket-over-HTTP
+### Advanced: Publisher with multiple GRIP proxies
+
+It's also possible to instantiate a `Publisher` with more than one GRIP proxy.
+To do this, simply pass an array of GRIP configurations to the constructor.
+
+When you do this, validating incoming requests works slightly differently:
+If all the GRIP configurations require validation, then `isProxied` and `isSigned` are `true` if
+at least one GRIP configuration successfully verifies the signature.
+If one or more of the GRIP configurations does not require validation, then the signature
+is not checked. `isSigned` is `false`, and `isProxied` is set based on the presence of `Grip-Sig`.
+
+When publishing messages, each GRIP configuration is published to in parallel. The promise returned
+from the publish call resolves when publishing to all configurations completes, or rejects when publishing
+to any of the configurations fails.
+
+## Subscribing
+
+Once you've verified that your request is proxied behind GRIP, your backend
+application can, as part of its execution, decide to have the GRIP proxy
+hold the connection and subscribe it to channels.
+
+This is done either as a `GripInstruct` for HTTP long-polling and streaming,
+or as a `WebSocketContext` for WebSocket-over-HTTP.
+
+### GripInstruct
+
+With an HTTP transport such as long-polling and streaming, your backend application
+includes HTTP headers known as GRIP instructions along with the response.
+These instructions indicate the action that the GRIP proxy is to take.
+
+When it comes time to return the response, include the GRIP instructions with
+the response by calling `toHeaders()` on them and including them with the
+response headers.
+
+#### HTTP long-polling
+
+```javascript
+const gripInstruct = new GripInstruct();
+gripInstruct.addChannel('<channel>');
+gripInstruct.setHoldLongPoll();
+// To optionally set a timeout value in seconds:
+// gripInstruct.setHoldLongPoll(<timeout_value>);
+
+return new Response(
+    'Body',
+    {
+        status: 200,
+        headers: {
+            ...gripInstruct.toHeaders(),
+            'Content-Type': 'text/plain',
+        }
+    }
+);
+```
+
+> TIP: If the response status code is 304, some platforms will refuse to
+> send custom HTTP response headers. To work around this issue, you can 
+> call `gripInstruct.setStatus()`.
+> 
+> ```javascript
+> const gripInstruct = new GripInstruct();
+> gripInstruct.addChannel('<channel>');
+> gripInstruct.setHoldLongPoll();
+>
+> // Set 304 here
+> gripInstruct.setStatus(304);
+>
+> // Send 200 to your platform
+> return new Response(
+>     'Body',
+>     {
+>         status: 200,
+>         headers: {
+>             ...gripInstruct.toHeaders(),
+>             'Content-Type': 'text/plain',
+>         }         
+>     }
+> );
+> ```
+
+#### HTTP streaming
+
+```javascript
+const gripInstruct = new GripInstruct();
+gripInstruct.addChannel('<channel>');
+gripInstruct.setHoldStream();
+
+return new Response(
+    'Body',
+    {
+        status: 200,
+        headers: {
+            ...gripInstruct.toHeaders(),
+            'Content-Type': 'text/plain',
+        }
+    }
+);
+```
+
+### WebSocket-over-HTTP
 
 The [WebSocket-Over-HTTP](https://pushpin.org/docs/protocols/websocket-over-http/) protocol is a
-simple, text-based protocol for gatewaying between a WebSocket client and a conventional HTTP server.
-It is available as a feature of Pushpin and Fanout Cloud, and is fully supported by js-grip. 
+simple, text-based protocol for acting as a gateway between a WebSocket client and a conventional HTTP server.
+It is available as a feature of Pushpin and Fastly Fanout.
 
-In this case, a client connects to a GRIP proxy via WebSockets and the GRIP proxy communicates with the origin via HTTP.
+Events from the WebSocket client, including opening, closing, and sending of messages,
+are transformed by the GRIP proxy into HTTP POST requests and arrive at the backend application.
 
-```javascript
-const http = require('http');
-const {
-    validateSig,
-    decodeWebSocketEvents,
-    encodeWebSocketEvents,
-    WebSocketContext,
-    WebSocketMessageFormat,
-    Publisher,
-} = require('@fanoutio/grip');
-
-http.createServer(async (req, res) => {
-    // Validate the Grip-Sig header:
-    if (!validateSig(req.headers['grip-sig'], 'changeme')) {
-        res.writeHead(401);
-        res.end('invalid grip-sig token');
-        return;
-    }
-
-    // Make sure we have a connection ID
-    let cid = req.headers['connection-id'];
-    if (Array.isArray(cid)) {
-        cid = cid[0];
-    }
-    if (req.headers['connection-id'] == null) {
-        res.writeHead(401);
-        res.end('connection-id required');
-        return;
-    }
-
-    const inEventsEncoded = await new Promise(resolve => {
-        let body = '';
-        req.on('data', function (chunk) {
-            body += chunk;
-        });
-        req.on('end', function() {
-            resolve(body);
-        });
-    });
-
-    const inEvents = decodeWebSocketEvents(inEventsEncoded);
-    const wsContext = new WebSocketContext(cid, {}, inEvents);
-
-    if (wsContext.isOpening()) {
-        // Open the WebSocket and subscribe it to a channel:
-        wsContext.accept();
-        wsContext.subscribe('<channel>');
-
-        // The above commands made to the wsContext are buffered
-        // in the wsContext as "outgoing events".
-        // Obtain them and write them to the response.
-        const outEvents = wsContext.getOutgoingEvents();
-        const outEventsEncoded = encodeWebSocketEvents(outEvents); 
-        res.write(outEventsEncoded);
-
-        // As an example way to check our subscription, wait and then
-        // publish a message to the subscribed channel:
-        setTimeout(() => {
-            var publisher = new Publisher({
-                'control_uri': '<myendpoint>',
-            });
-            publisher.publishFormats(
-                '<channel>', 
-                new WebSocketMessageFormat('Test WebSocket Publish!!')
-            );
-        }, 5000);
-    }
-
-    // Set the headers required by the GRIP proxy:
-    res.writeHead(200, wsContext.toHeaders());
-    res.end();
-
-}).listen(80, '0.0.0.0');
-
-console.log('Server running...');
-```
-
-## Using the API
-
-All of the APIs are exposed on the root object, so for example you can bring them in
-as follows:
+The backend can use the `isWsOverHttp()` function to on the `Request` to detect whether
+the reqeust is using this protocol, and if it is, the `getWebSocketContextFromReq()` function to
+consume the `Request` and obtain an instance of the `WebSocketContext` class.
 
 ```javascript
-const { createWebSocketControlMessage, Publisher, Format, Item } = require('@fanoutio/grip');
+let wsContext = null;
+if (gripStatus.isProxied && isWsOverHttp(request)) {
+    wsContext = await getWebSocketContextFromReq(request);
+}
 ```
 
-or
+This object contains a queue of the current batch of incoming WebSocket messages, as well
+as a queue of outgoing WebSocket messages.
+
+At this point the typical WebSocket-over-HTTP application:
+* handles an OPEN message 
+* handles a CLOSE message
+* handles any other messages
+
+OPEN messages can be checked by calling `isOpening()` on the WebSocket context.
+If so, the usual course of action is to call `accept()` as well as `subscribe()`
+on the WebSocket context. Keep in mind that these actions are simply queued up
+as outgoing WebSocket messages at this stage.
+
+```javascript
+if (wsContext.isOpening()) {
+    wsContext.accept();
+    wsContext.subscribe('test');
+}
+```
+
+For other messages, iterate the queue of incoming messages on the WebSocket context
+by checking `canRecv()` and `recv()` (or `recvRaw()`, if the message may include binary data).
+
+```javascript
+while (wsContext.canRecv()) {
+    const message = wsContext.recv();
+    
+    // handle message ...
+}
+```
+
+`recv()` returns `null` if the message was CLOSE. In this case, send a CLOSE back
+to close the WebSocket cleanly.
+
+```javascript
+    if (message == null) {
+        wsContext.close();
+        break;
+    }
+```
+
+Otherwise, `recv()` returns the string content of the WebSocket message (if `recvRaw()`
+is used, then `BINARY` messages will return a `Uint8Array` of the bytes).
+It's now up to your application to perform any application logic and handle this message.
+
+Usually, to send messages back to the caller, call one of these functions. Again, keep in
+mind that these messages are just queued at this point.
+* `send()`
+* `sendBinary()`
+* `sendControl()`
+
+For example, if you are writing an echo server, you may do something like this:
+
+```javascript
+    wsContext.send(message);
+```
+
+Finally, the outgoing messages in the WebSocket context need to be sent as the
+HTTP response. To do this, serialize the outgoing messages and send it, along
+with any headers that the WebSocket context would represent, in the HTTP response.
+
+```javascript
+const events = wsContext.getOutgoingEvents();
+const responseBody = encodeWebSocketEvents(events);
+
+return new Response(
+    responseBody,
+    {
+        status: 200,
+        headers: wsContext.toHeaders(),
+    },
+);
+```
+
+## Reference
+
+The package uses standard exports to make functions, classes, and interfaces available.
 
 ```javascript
 import { createWebSocketControlMessage, Publisher, Format, Item } from '@fanoutio/grip';
 ```
 
-## API
+| Function                                    | Description                                                                                                                    |
+|---------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `validateSig(token, key, iss)`              | Validates the specified JWT token with the provided key, and (optionally) validate the `iss` claim.                            |
+| `encodeWebSocketEvents(events)`             | Encodes the specified array of WebSocketEvent instances.                                                                       |
+| `decodeWebSocketEvents(body)`               | Decodes the specified HTTP request body into an array of WebSocketEvent instances when using the WebSocket-over-HTTP protocol. |
+| `parseGripUri(uri, additionalParams)`       | Parses the specified GRIP URI into a config object that can then be used to construct a `Publisher` instance.                  |
+| `createWebSocketControlMessage(type, args)` | Generates a WebSocket control message with the specified type and optional arguments.                                          |
+| `isWsOverHttp(req)`                         | Detects whether the current request is using the WebSocket-over-HTTP protocol.                                                 |
+| `getWebSocketContextFromReq(req, prefix)`   | Parses the body of the request and return an array of WebSocketEvent instances.                                                |
 
-The API exports the following functions, classes, and interfaces.
+| Class                    | Description                                                                                       |
+|--------------------------|---------------------------------------------------------------------------------------------------|
+| `Publisher`              | Main object used to publish messages to GRIP proxies.                                             |
+| `GripInstruct`           | Class used to create the necessary HTTP headers that instruct the GRIP proxy to hold connections. |
+| `WebSocketContext`       | WebSocket context                                                                                 |
+| `WebSocketEvent`         | WebSocket event                                                                                   |
+| `WebSocketMessageFormat` | Format used to publish messages to Web Socket clients connected to a GRIP proxy.                  |
 
-| Function | Description |
-| --- | --- |
-| `validateSig(token, key)` | Validate the specified JWT token and key. |
-| `encodeWebSocketEvents(events)` | Encode the specified array of WebSocketEvent instances. |
-| `decodeWebSocketEvents(body)` | Decode the specified HTTP request body into an array of WebSocketEvent instances when using the WebSocket-over-HTTP protocol. |
-| `parseGripUri(uri)` | Parse the specified GRIP URI into a config object that can then be used to construct a `Publisher` instance. |
-| `createWebSocketControlMessage(type, args)` | Generate a WebSocket control message with the specified type and optional arguments. |
-
-| Class | Description |
-| --- | --- |
-| `GripInstruct` | Class used to create the necessary HTTP headers that instruct the GRIP proxy to hold connections. |
-| `Publisher` | Main object used to publish HTTP response and HTTP Stream format messages to GRIP proxies. |
-| `HttpStreamFormat` | Format used to publish messages to HTTP stream clients connected to a GRIP proxy. |
-| `HttpResponseFormat` | Format used to publish messages to HTTP response clients connected to a GRIP proxy. |
-| `WebSocketContext` | WebSocket context |
-| `WebSocketEvent` | WebSocket event |
-| `WebSocketMessageFormat` | Format used to publish messages to Web Socket clients connected to a GRIP proxy. |
-| `Format` | Base class for Format used to publish messages with `Publisher`. |
-| `Item` | Base class for Item used to publish messages with `Publisher`. |
-
-| Interfaces | Description |
-| --- | --- |
-| `IGripConfig` | Represents a GRIP client's configuration |
-| `IFormat` | Represents a publishing format to be used with Publisher |
-| `IItem` | Represents a container used to contain a data object in one or more formats |
+| Interfaces     | Description                                                                 |
+|----------------|-----------------------------------------------------------------------------|
+| `IGripConfig`  | Represents a GRIP client's configuration                                    |
 
 Class `GripInstruct`
 
-| Method | Description |
-| --- | --- |
-| constructor(`channels?`) | Create a `GripInstruct` instance, configuring it with an optional array of channels to bind to. |
-| `addChannel(channels)` | Bind to additional channels. |
-| `setHoldLongPoll(timeout?)` | Set the `Grip-Hold` header to the `response` value, and specify an optional timeout value. |
-| `setHoldStream()` | Set the `Grip-Hold` header to the `stream` mode. |
+| Method                        | Description                                                                                                                                                                                          |
+|-------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| constructor(`channels?`)      | Create a `GripInstruct` instance, configuring it with an optional array of channels to bind to.                                                                                                      |
+| `addChannel(channels)`        | Bind to additional channels.                                                                                                                                                                         |
+| `setHoldLongPoll(timeout?)`   | Set the `Grip-Hold` header to the `response` value, and specify an optional timeout value.                                                                                                           |
+| `setHoldStream()`             | Set the `Grip-Hold` header to the `stream` mode.                                                                                                                                                     |
 | `setKeepAlive(data, timeout)` | Set the `Grip-Keep-Alive` header to the specified data value and timeout value. The value for `data` may be provided as either a string or `Buffer`, and the appropriate encoding will be performed. |
-| `setNextLink(uri, timeout?)` | Set the `Grip-Link` header to the specified uri, with an optional timeout value. |
-| `meta` (property) | A property to be set directly on the instance. This is serialized into the `Grip-Set-Meta` header. |
-| `toHeaders(params)` | Turns the current instance into an object that can be sent as HTTP headers. |
+| `setNextLink(uri, timeout?)`  | Set the `Grip-Link` header to the specified uri, with an optional timeout value.                                                                                                                     |
+| `meta` (property)             | A property to be set directly on the instance. This is serialized into the `Grip-Set-Meta` header.                                                                                                   |
+| `toHeaders(params)`           | Turns the current instance into an object that can be sent as HTTP headers.                                                                                                                          |
 
 Class `Publisher`
 
-| Method | Description |
-| --- | --- |
-| constructor(`configs`) | Create a `Publisher` instance, configuring it with clients that based on the specified GRIP settings. |
-| `applyConfig(configs)` | Apply additional clients based on specified GRIP configs to the publisher instance. |
-| `async publish(channel, item)` | Publish an item to the specified channel. |
+| Method                                                   | Description                                                                                         |
+|----------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| constructor(`configs, options`)                          | Create a `Publisher` instance, configuring it based on the specified GRIP settings.                 |
+| `async publishFormats(channel, formats, id?, prevId?)`   | Publish an item to the specified channel by building it from the provided formats.                  |
 | `async publishHttpResponse(channel, data, id?, prevId?)` | Publish an HTTP response format message to the specified channel, with optional ID and previous ID. |
-| `async publishHttpStream(channel, item)` | Publish an HTTP stream format message to the specified channel, with optional ID and previous ID. |
-| `addClient(client)` | Advanced: Add a PublisherClient instance that you have configured on your own. |
+| `async publishHttpStream(channel, item)`                 | Publish an HTTP stream format message to the specified channel, with optional ID and previous ID.   |
+| `applyConfig(configs)`                                   | Advanced: Apply an additional GRIP proxy based on the specified GRIP config.                        |
+| `applyConfigs(configs)`                                  | Advanced: Apply additional clients based on specified GRIP configs.                                 |
+| `addClient(client)`                                      | Advanced: Add a `IPublisherClient` instance that you have configured on your own.                   |
+| `async publish(channel, item)`                           | Advanced: Publish an item to the specified channel.                                                 |
 
-The constructor and `applyConfig` methods accept either a single object, or an array of objects that implement
+The constructor and `applyConfigs` methods accept either a single object, or an array of objects that implement
 the `IGripConfig` interface.
 
 Interface `IGripConfig`
 
-Represents the configuration for a GRIP client, such as Pushpin or Fanout Cloud.
+Represents the configuration for a GRIP proxy.
 
-| Field         | Description                                                                     |
-|---------------|---------------------------------------------------------------------------------|
-| `control_uri` | The Control URI of the GRIP client.                                             |
-| `control_iss` | (optional) The Control ISS, if required by the GRIP client.                     |
-| `key`         | (optional) The key to use with the Control ISS, if required by the GRIP client. |
-| `verify_iss`  | (optional) The ISS to use when validating a GRIP signature.                     |
-| `verify_key`  | (optional) The key to use when validating a GRIP signature.                     |
+| Field         | Description                                                                      |
+|---------------|----------------------------------------------------------------------------------|
+| `control_uri` | The Control URI of the GRIP proxy.                                               |
+| `user`        | (optional) The user to use with the Control ISS, if required by the GRIP client. |
+| `pass`        | (optional) The pass to use with the Control ISS, if required by the GRIP client. |
+| `control_iss` | (optional) The Control ISS, if required by the GRIP client.                      |
+| `key`         | (optional) The key to use with the Control ISS, if required by the GRIP client.  |
+| `verify_iss`  | (optional) The ISS to use when validating a GRIP signature.                      |
+| `verify_key`  | (optional) The key to use when validating a GRIP signature.                      |
 
 Class `Format`
 
 A base class for all publishing formats that are included in the Item class.
-Examples of format implementations include JsonObjectFormat and HttpStreamFormat.
+Examples of format implementations include HttpStreamFormat and HttpResponseFormat.
 
-### Advanced APIs
+## Additional Notes
 
-The following are exported for their types and use with code completion but with most uses of the library
-the consumer rarely needs to use them directly.
-
-| Functions | Descriptions |
-| --- | --- |
-| `createGripChannelHeader(channels)` | Create a GRIP channel header for the specified channels. |
-
-| Class             | Description                                                                                 |
-|-------------------|---------------------------------------------------------------------------------------------|
-| `Auth.Base`       | Base class for authentication to be used with `Publisher`.                                  |
-| `Auth.Basic`      | Represents Basic authentication to be used with `Publisher`.                                |
-| `Auth.Bearer`     | Represents Bearer authentication to be used with `Publisher`.                               |
-| `Auth.Jwt`        | Represents JWT authentication to be used with `Publisher`.                                  |
-| `Channel`         | Represents a channel used by a GRIP proxy.                                                  |
-| `Response`        | Represents a set of HTTP response data.                                                     |
-| `PublisherClient` | Represents an endpoint and its attributes, including authentication, used with `Publisher`. |
-
-| Interfaces | Description |
-| --- | --- |
-| `IExportedChannel` | A representation of a channel, containing the name and previous ID value|
-| `IExportedResponse` | A representation of all of the non-null data from a Response |
-| `IWebSocketEvent` | Decscribes information about a WebSocket event |
-| `IFormatExport` | Represents a format-specific hash containing the required format-specific data|
-| `IItemExport` | Describes an item that has been serialized for export |
-
-Class `Auth.Base`
-
-An abstract class that represents authentication to be used with a `PublisherClient`.
-
-Class `Auth.Basic`
-
-Represents Basic authentication to be used with a `PublisherClient`.
-
-Class `Auth.Bearer`
-
-Represents Bearer authentication to be used with a `PublisherClient`.
-
-Class `Auth.Jwt`
-
-Represents JWT (JSON Web Tokens) authentication to be used with a `PublisherClient`.
-
-Class `PublisherClient`
-
-Represents an endpoint and its configuration, including authentication, that
-is used by `Publisher` to publish messages to.  This class is typically not used
-directly, but you may instantiate this on your own if you wish to set up authentication
-directly.
-
-| Method                                          | Description                                                                                                              |
-|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| constructor(`transport`)                        | Create a `PublisherClient` instance, initializing it with the given `IPublisherTransport` instance.                      |
-| `setAuthBasic(username, password)`              | Configure this instance with Basic authentication with the specified username and password.                              |
-| `setAuthBearer(token)`                          | Configure this instance with Bearer authentication with the specified token.                                             |
-| `setAuthJwt(claim, key)`                        | Configure this instance with Jwt authentication with the specified claim and key.                                        |
-| `setVerifyComponents({ verifyIss, verifyKey })` | Configure this instance to use the provided iss and/or key to validate a Grip-Sig.                                       |
-| `getVerifyIss()`                                | Returns the iss value to use to validate a Grip-Sig.                                                                     | 
-| `getVerifyKey()`                                | Returns the key value to use to validate a Grip-Sig. If not set, and Jwt auth is used, then falls back to the JWT `key`. | 
-| `async publish(channel, item)`                  | Publish a specified item to the specified channel.                                                                       |  
-
-Interface `IPublisherTransport`
-
-Represents a transport mechanism by which to deliver publishes.
-
-| Method                     | Description                                                          |
-|----------------------------|----------------------------------------------------------------------|
-| publish(headers, content)  | Delivers a publish message using HTTP and returns the HTTP response. |
-
-Class `PublisherTransport`
-
-An implementation of `IPublisherTransport` that uses the Fetch API to deliver publishes. Also supports keep-alive.
-
-| Method                     | Description                                                                                 |
-|----------------------------|---------------------------------------------------------------------------------------------|
-| constructor(`uri`)         | Create a `PublisherTransport` instance, initializing it with the given publishing endpoint. |
-| publish(headers, content)  | Delivers a publish message using the Fetch API, and returns the HTTP response.              |
-
-## Configuring the GRIP endpoint
-
-Parse a GRIP URI to extract the URI, ISS, and key values. The values will be returned in a JavaScript object containing `control_uri`, `control_iss`, `key`, `verify_iss`, and `verify_key` fields.
-
-```javascript
-var grip = require('@fanoutio/grip');
-var config = grip.parseGripUri('https://api.fastly.com/service/<service-id>' +
-        '?verify-iss=fastly:<service-id>&key=<fastly-api-key>');
-```
-
-## Consuming this library
-
-### CommonJS
-
-The CommonJS version of this package requires Node v8 or newer.
-
-Require in your JavaScript:
-
-```javascript
-const grip = require('@fanoutio/grip');
-const grippub = new grip.Publisher({control_uri: "<endpoint_uri>"});
-```
-
-If you are building a bundle, you may also import in your JavaScript.
-
-```javascript
-import grip from '@fanoutio/grip';
-const pub = new grip.Publisher({control_uri: "<endpoint_uri>"});
-```
-
-### TypeScript
+### Usage with TypeScript
 
 This package comes with full TypeScript type definitions, so you may use it with
 TypeScript as well.
 
 ```javascript
-import grip, { IGripConfig } from '@fanoutio/grip';
-const pub = new grip.Publisher({control_uri: "<endpoint_uri>"});
+import { Publisher, IGripConfig } from '@fanoutio/grip';
+const pub = new Publisher({control_uri: "<endpoint_uri>"});
 
 // IGripConfig is a type declaration.
 ```
 
-### Demos
+### More on Keys
 
-Included in this package is a demo that publishes a message using a GRIP Stream
-to a sample server that is proxied behind the open-source Pushpin (https://pushpin.org/) server.
+The following apply to the `key` and `verify_key` fields of the GRIP configuration object.
 
-To run the demo:
+Binary values for `key` and `verify_key` may be provided as `Uint8Array`, but they may also be provided as
+[base64-encoded strings](https://developer.mozilla.org/en-US/docs/Glossary/Base64). To do so, prefix the values with
+`base64:`, and the values will be converted to `Uint8Array` as they are read.
 
-1. Clone this repository, then build the commonjs build of this library
-```
-npm install
-npm run build-commonjs
-```
+They may also be provided as [CryptoKey](https://developer.mozilla.org/en-US/docs/Web/API/CryptoKey) or
+[KeyObject](https://nodejs.org/api/crypto.html#class-keyobject), which are runtime-specific key representations
+(CryptoKey in the browser and Web-interoperable runtimes, as well as KeyObject in Node.js). Refer to your platform's
+documentation to import keys of these types.
 
-2. Start the server process.  This runs on `localhost:3000`.
-```
-node demo/grip/server
-```
+They may also be provided as JsonWebKey objects (or JSON-stringified representations of JsonWebKey
+objects or `Uint8Array` encodings of JSON-stringified representations of JsonWebKey objects), where
+`key` must be a private key or symmetric secret, and `verify_key` must be a public key or
+symmetric secret. In these cases, they will be converted to CryptoKey or KeyObject as they are read.
 
-3. Install Pushpin (see https://pushpin.org/docs/install/)
-4. Make sure Pushpin points to `localhost:3000`.
-`routes` file:
-```
-* localhost:3000
-```
-5. Start Pushpin.
-```
-pushpin
-```
-6. In another terminal window, open a long-lived connection to the
-pushpin stream.
-```
-curl http://localhost:7999/stream
-```
-7. In another terminal window, run the publish demo file.
-```
-node demo/grip/publish test "Message"
-```
-8. In the window that you opened in step 6, you should see the test message.
+Finally, they may also be provided as PEM-encoded strings (or `Uint8Array` encodings of PEM-encoded strings):
+`key` as a PEM-encoded PKCS#8 private key, and `verify_key` as a PEM-encoded SPKI public key.
+In these cases, they will be converted to CryptoKey or KeyObject as they are read.
 
-### Browser Demo
+> NOTE: If your backend is running on Fastly Compute, as of this writing (@fastly/js-compute@3.8.3),
+> Fastly Compute does not support PEM-formatted keys.
 
-This demo runs in a browser and streams from the endpoint. This demo
-uses the fetch API with its ReadableStream interface to read from the
-streaming endpoint.
+> NOTE: For backwards-compatibility reasons, if JWT authorization is used with a symmetric secret (`control_iss` and
+`key` are both provided, and `key` is not a private key) and `verify_key` is not provided, then `key` will also be
+used as the `verify_key` value.
 
-1. Follow Steps 1 through 5 in the demo above to start the server and
-proxy processes. 
+### Detailed Breaking Changes
 
-2. In a web browser, open the `demo/grip/fetch.html` file.
-
-3. Click the button labeled `Go`.  The browser will connect to the
-streaming API at `http://localhost:7999/stream`.
-
-4. In another terminal window follow step 7 in the demo above.
-
-5. In the web browser that you opened in step 2, you should see the test
-message.
+- The authorization classes now require the `buildHeader()` function to return a `Promise` that
+  resolves to a `string`. Previously they returned the `string` directly.
+- `HttpResponseFormat` now specifically works with `string` and `Uint8Array`.
+  Previously the body could be anything that supported a `.toString()` function.
+- `IWebSocketEvent` now requires the `content` field and `getContent` accessor to be
+  `string` or `Uint8Array`. Previously, this could also be `number[]`, but this is no longer
+  supported.
+- `WebSocketContext` now requires the `meta` parameter of its constructor to be an object whose
+  values are `string`. Previously, this could be any JavaScript object.
+- `WebSocketEvent` now requires the `content` parameter of its constructor to be
+  `string` or `Uint8Array`. Previously, this could also be `number[]`, but this is no longer
+  supported.
+- `createWebSocketControlMessage` now requires the `args` parameter to be an object whose
+  values are `string`. Previously, this could be any JavaScript object.
+- `GripInstruct` now requires the `meta` field, if it's used, to be an object whose
+  values are `string`. Previously, this could be any JavaScript object.
+- `IFormat` now requires the `export()` function to return an object whose values are JSON-serializable.
+  Previously, values could be of any type.
+- `IItemExport` now requires the `formats` field to be an object whose values are JSON-serializable.
+  Previously, values could be of any type.
+- Classes that have been removed:
+  - `Auth.Base`
+  - `Response`
+  - `NodeApiRequest`
+  - `NodeApiResponse`
+  - `PublisherBase`
+  - `PublisherTransport`
+- Class fields and functions that have been removed:
+  - `Auth.Basic`
+    - `user` - use `getUser()`
+    - `pass` - use `getPass()`
+  - `Auth.Bearer`
+    - `token` - use `getToken()`
+  - `Auth.Jwt`
+    - `claim` - use `getClaim()`
+    - `key` - use `getKey()`
+  - `PublisherClient`
+    - `auth` - use `getAuth()`
+    - `transport`
+    - `verifyComponents` - use `getVerifyIss()` and `getVerifyKey()`
+    - `setAuthBasic()`
+    - `setAuthBearer()`
+    - `setAuthJwt()`
+    - `setVerifyComponents()`
+    - `_startPubCall()`
+    - `_performHttpRequest()`
+    - `_finishHttpRequest()`
+  - `Publisher`
+    - `buildPublisherClient()`
+    - `parseGripUri()`
+  - `WebSockeContext`
+    - `inEvents`
+    - `readIndex`
+- Interfaces that have been removed:
+  - `FetchResponse`
+  - `IApiRequest`
+  - `IApiResponse`
+  - `IExportedResponse`
+  - `IGripConfigBase`
+  - `IPublisherTransport`
+  - `IReqHeaders`
+- Functions that have been removed:
+  - `flattenHeader()`
+  - `getWebSocketContextFromApiRequest()`
+  - `isApiRequestWsOverHttp()`
+  - `isString()`
+  - `toBuffer()`
+  - `parseGripUriCustomParams()`
+  - `parseQueryString()`
 
 ## License
 
 (C) 2015, 2020 Fanout, Inc.  
-Licensed under the MIT License, see file COPYING for details.
+(C) 2023 Fastly, Inc.
+Licensed under the MIT License, see file LICENSE.md for details.
