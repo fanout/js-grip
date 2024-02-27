@@ -49,6 +49,7 @@
   "readmeFilename": "README.md",
   "keywords": [
     "grip",
+    "fastly",
     "fanout",
     "fanoutpub",
     "realtime",
