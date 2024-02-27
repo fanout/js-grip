@@ -238,6 +238,21 @@ describe('Publisher', function () {
             await publisher.publish('chan', 'item' as unknown as IItem);
             assert.strictEqual(publishCalled, 2);
         });
+        it('apply the prefix specified in the constructor', async () => {
+            let publishCalled = 0;
+            const publisher = new Publisher(undefined, {
+                prefix: 'foo',
+            });
+            publisher.addClient({
+                publish: async function (channel: string, item: IItem) {
+                    assert.equal(item, 'item');
+                    assert.equal(channel, 'foochan');
+                    publishCalled++;
+                }
+            });
+            await publisher.publish('chan', 'item' as unknown as IItem);
+            assert.strictEqual(publishCalled, 1);
+        });
     });
     describe('#publishHttpResponse', function () {
         it('makes sure that publish is called on the client.', async function () {

@@ -1,6 +1,6 @@
 import { Item } from '../data/index.js';
 import { HttpResponseFormat, HttpStreamFormat } from '../data/index.js';
-import { PublisherClient } from './PublisherClient.js';
+import { PublisherClient, PublisherClientOptions } from './PublisherClient.js';
 import { parseGripUri, validateSig } from '../utilities/index.js';
 import type { IPublisherClient } from './IPublisherClient.js';
 import type { IGripConfig } from './IGripConfig.js';
@@ -8,8 +8,8 @@ import type { IFormat, IItem } from '../data/index.js';
 
 export type GripUrlOrConfigs = string | IGripConfig | (string | IGripConfig)[];
 
-export type PublisherOptions = {
-    fetch?: typeof fetch,
+export type PublisherOptions = PublisherClientOptions & {
+    prefix?: string,
 };
 
 export type ValidateGripSigResult = {
@@ -23,16 +23,18 @@ export type ValidateGripSigResult = {
 // using IGripConfig objects.
 export class Publisher {
     public clients: IPublisherClient[] = [];
+    public prefix: string | undefined;
 
-    constructor(config?: GripUrlOrConfigs, clientOptions?: PublisherOptions) {
-        this.applyConfigs(config ?? [], clientOptions);
+    constructor(config?: GripUrlOrConfigs, publisherOptions?: PublisherOptions) {
+        this.applyConfigs(config ?? [], publisherOptions);
+        this.prefix = publisherOptions?.prefix;
     }
 
     // Apply the specified GRIP configurations to this PublisherBase instance.
-    applyConfigs(config: GripUrlOrConfigs, clientOptions?: PublisherOptions) {
+    applyConfigs(config: GripUrlOrConfigs, publisherClientOptions?: PublisherClientOptions) {
         const configsAsArray = Array.isArray(config) ? config : [config];
         for (const configEntry of configsAsArray) {
-            this.applyConfig(configEntry, clientOptions);
+            this.applyConfig(configEntry, publisherClientOptions);
         }
     }
 
@@ -40,12 +42,12 @@ export class Publisher {
     // The parameter corresponds to a single PublisherClient instance. Each object
     // will be parsed and a PublisherClient will be created either using just
     // a URI or a URI and authentication information (Basic, JWT, or Bearer Token).
-    applyConfig(config: string | IGripConfig, clientOptions?: PublisherOptions) {
+    applyConfig(config: string | IGripConfig, publisherClientOptions?: PublisherClientOptions) {
         const gripConfig = typeof config === 'string' ? parseGripUri(config) : config;
         const client = new PublisherClient(
             gripConfig,
             {
-                fetch: clientOptions?.fetch,
+                fetch: publisherClientOptions?.fetch,
             }
         );
         this.addClient(client);
@@ -61,7 +63,7 @@ export class Publisher {
     // This function returns a promise which is resolved when the publish is complete,
     // or rejected with an exception describing the failure if the publish fails.
     async publish(channel: string, item: IItem) {
-        await Promise.all(this.clients.map((client) => client.publish(channel, item)));
+        await Promise.all(this.clients.map((client) => client.publish((this.prefix ?? '') + channel, item)));
     }
 
     // A utility method for publishing an item to the specified channel on the configured endpoint
