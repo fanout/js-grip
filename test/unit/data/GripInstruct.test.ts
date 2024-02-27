@@ -112,7 +112,7 @@ describe('GripInstruct', function () {
             const gripInstruct = new GripInstruct();
             gripInstruct.setKeepAlive(textEncoder.encode('foo'), 100);
             assert.ok(gripInstruct.keepAlive instanceof Uint8Array);
-            assert.equal(textDecoder.decode(gripInstruct.keepAlive as Uint8Array), 'foo');
+            assert.equal(textDecoder.decode(gripInstruct.keepAlive), 'foo');
             assert.equal(gripInstruct.keepAliveTimeout, 100);
         });
     });

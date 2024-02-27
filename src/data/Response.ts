@@ -34,7 +34,7 @@ export class Response {
     // of the non-null data. If the body is set to a buffer then export
     // it as 'body-bin' (as opposed to 'body') and encode it as base64.
     export() {
-        const obj = {} as IExportedResponse;
+        const obj: IExportedResponse = {};
         if (this.code != null) {
             obj.code = this.code;
         }

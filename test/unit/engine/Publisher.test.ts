@@ -7,6 +7,7 @@ import * as jose from 'jose';
 import {
     Item,
     IItem,
+    Auth,
     PublisherClient,
     Publisher,
     HttpResponseFormat,
@@ -22,21 +23,19 @@ const textEncoder = new TextEncoder();
 describe('Publisher', function () {
     describe('#constructor', function () {
         it('allows for creation of empty Publisher object', function () {
-            const pubControl = new Publisher();
-            const pc = pubControl as any;
-            assert.equal(pc.clients.length, 0);
+            const publisher = new Publisher();
+            assert.equal(publisher.clients.length, 0);
         });
         it('allows for creation of Publisher object based on single input', function () {
-            const pubControl = new Publisher({
+            const publisher = new Publisher({
                 'control_uri': 'https://www.example.com/uri',
                 'control_iss': 'iss',
                 'key': 'key==',
             });
-            const pc = pubControl as any;
-            assert.equal(pc.clients.length, 1);
+            assert.equal(publisher.clients.length, 1);
         });
         it('allows for creation of Publisher object based on multiple inputs', async function () {
-            const pubControl = new Publisher([
+            const publisher = new Publisher([
                 {
                     'control_uri': 'https://www.example.com/uri2',
                     'control_iss': 'iss2',
@@ -50,34 +49,46 @@ describe('Publisher', function () {
                     'key': 'key==3',
                 },
             ]);
-            const pc = pubControl as any;
-            assert.equal(pc.clients.length, 2);
-            assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri2/publish/');
-            assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss2');
-            assert.deepStrictEqual(pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key==2'));
-            assert.equal(pc.clients[0].getVerifyIss(), 'v_iss2');
-            assert.deepStrictEqual(pc.clients[0].getVerifyKey(), textEncoder.encode('v_key==2'));
-            assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri3/publish/');
-            assert.equal(pc.clients[1].getAuth()?.getClaim()['iss'], 'iss3');
-            assert.deepStrictEqual(pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==3'));
-            assert.equal(pc.clients[1].getVerifyIss(), undefined);
-            assert.deepStrictEqual(pc.clients[1].getVerifyKey(), textEncoder.encode('key==3'));
+            assert.equal(publisher.clients.length, 2);
+
+            assert.ok(publisher.clients[0] instanceof PublisherClient);
+            assert.equal(publisher.clients[0].publishUri, 'https://www.example.com/uri2/publish/');
+            const auth0 = publisher.clients[0].getAuth()
+            assert.ok(auth0 instanceof Auth.Jwt);
+            assert.equal(auth0.getClaim()['iss'], 'iss2');
+            assert.deepStrictEqual(auth0.getKey(), textEncoder.encode('key==2'));
+            assert.equal(publisher.clients[0].getVerifyIss(), 'v_iss2');
+            assert.deepStrictEqual(publisher.clients[0].getVerifyKey(), textEncoder.encode('v_key==2'));
+
+            assert.ok(publisher.clients[1] instanceof PublisherClient);
+            assert.equal(publisher.clients[1].publishUri, 'https://www.example.com/uri3/publish/');
+            const auth1 = publisher.clients[1].getAuth()
+            assert.ok(auth1 instanceof Auth.Jwt);
+            assert.equal(auth1.getClaim()['iss'], 'iss3');
+            assert.deepStrictEqual(auth1.getKey(), textEncoder.encode('key==3'));
+            assert.equal(publisher.clients[1].getVerifyIss(), undefined);
+            assert.deepStrictEqual(publisher.clients[1].getVerifyKey(), textEncoder.encode('key==3'));
         });
     });
     describe('#applyConfig', function () {
         it('allows for appending additional configs', async function () {
-            let pubControl = new Publisher();
-            pubControl.applyConfig({
+            const publisher = new Publisher();
+            publisher.applyConfig({
                 'control_uri': 'https://www.example.com/uri',
                 'control_iss': 'iss',
                 'key': 'key==',
             });
-            const pc = pubControl as any;
-            assert.equal(pc.clients.length, 1);
-            assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
-            assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss');
-            assert.deepStrictEqual(pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
-            pubControl.applyConfigs([
+
+            assert.equal(publisher.clients.length, 1);
+
+            assert.ok(publisher.clients[0] instanceof PublisherClient);
+            assert.equal(publisher.clients[0].publishUri, 'https://www.example.com/uri/publish/');
+            let auth0 = publisher.clients[0].getAuth()
+            assert.ok(auth0 instanceof Auth.Jwt);
+            assert.equal(auth0.getClaim()['iss'], 'iss');
+            assert.deepStrictEqual(auth0.getKey(), textEncoder.encode('key=='));
+
+            publisher.applyConfigs([
                 {
                     'control_uri': 'https://www.example.com/uri2',
                     'control_iss': 'iss2',
@@ -91,94 +102,105 @@ describe('Publisher', function () {
                     'key': 'key==3',
                 },
             ]);
-            assert.equal(pc.clients.length, 3);
-            assert.equal(pc.clients[0].publishUri, 'https://www.example.com/uri/publish/');
-            assert.equal(pc.clients[0].getAuth()?.getClaim()['iss'], 'iss');
-            assert.deepStrictEqual(pc.clients[0].getAuth()?.getKey(), textEncoder.encode('key=='));
-            assert.equal(pc.clients[0].getVerifyIss(), undefined);
-            assert.deepStrictEqual(pc.clients[0].getVerifyKey(), textEncoder.encode('key=='));
-            assert.equal(pc.clients[1].publishUri, 'https://www.example.com/uri2/publish/');
-            assert.equal(pc.clients[1].getAuth()?.getClaim()['iss'], 'iss2');
-            assert.deepStrictEqual(pc.clients[1].getAuth()?.getKey(), textEncoder.encode('key==2'));
-            assert.equal(pc.clients[1].getVerifyIss(), 'v_iss2');
-            assert.deepStrictEqual(pc.clients[1].getVerifyKey(), textEncoder.encode('v_key==2'));
-            assert.equal(pc.clients[2].publishUri, 'https://www.example.com/uri3/publish/');
-            assert.equal(pc.clients[2].getAuth()?.getClaim()['iss'], 'iss3');
-            assert.deepStrictEqual(pc.clients[2].getAuth()?.getKey(), textEncoder.encode('key==3'));
-            assert.equal(pc.clients[2].getVerifyIss(), undefined);
-            assert.deepStrictEqual(pc.clients[2].getVerifyKey(), textEncoder.encode('key==3'));
+            assert.equal(publisher.clients.length, 3);
+
+            assert.ok(publisher.clients[0] instanceof PublisherClient);
+            assert.equal(publisher.clients[0].publishUri, 'https://www.example.com/uri/publish/');
+            auth0 = publisher.clients[0].getAuth()
+            assert.ok(auth0 instanceof Auth.Jwt);
+            assert.equal(auth0.getClaim()['iss'], 'iss');
+            assert.deepStrictEqual(auth0.getKey(), textEncoder.encode('key=='));
+            assert.equal(publisher.clients[0].getVerifyIss(), undefined);
+            assert.deepStrictEqual(publisher.clients[0].getVerifyKey(), textEncoder.encode('key=='));
+
+            assert.ok(publisher.clients[1] instanceof PublisherClient);
+            assert.equal(publisher.clients[1].publishUri, 'https://www.example.com/uri2/publish/');
+            const auth1 = publisher.clients[1].getAuth()
+            assert.ok(auth1 instanceof Auth.Jwt);
+            assert.equal(auth1.getClaim()['iss'], 'iss2');
+            assert.deepStrictEqual(auth1.getKey(), textEncoder.encode('key==2'));
+            assert.equal(publisher.clients[1].getVerifyIss(), 'v_iss2');
+            assert.deepStrictEqual(publisher.clients[1].getVerifyKey(), textEncoder.encode('v_key==2'));
+
+            assert.ok(publisher.clients[2] instanceof PublisherClient);
+            assert.equal(publisher.clients[2].publishUri, 'https://www.example.com/uri3/publish/');
+            const auth2 = publisher.clients[2].getAuth()
+            assert.ok(auth2 instanceof Auth.Jwt);
+            assert.equal(auth2.getClaim()['iss'], 'iss3');
+            assert.deepStrictEqual(auth2.getKey(), textEncoder.encode('key==3'));
+            assert.equal(publisher.clients[2].getVerifyIss(), undefined);
+            assert.deepStrictEqual(publisher.clients[2].getVerifyKey(), textEncoder.encode('key==3'));
         });
     });
     describe('#addClients', function () {
         it('allows adding of a client', function () {
-            let pubControl = new Publisher({
+            const publisher = new Publisher({
                 'control_uri': 'https://www.example.com/uri',
                 'control_iss': 'iss',
                 'key': 'key==',
             });
-            const pc = pubControl as any;
-            assert.equal(pc.clients.length, 1);
-            pubControl.addClient(new PublisherClient({
+            assert.equal(publisher.clients.length, 1);
+            publisher.addClient(new PublisherClient({
                 'control_uri': 'https://www.example.com/uri',
                 'control_iss': 'iss',
                 'key': 'key==',
             }));
-            assert.equal(pc.clients.length, 2);
+            assert.equal(publisher.clients.length, 2);
         });
     });
     describe('#publish', function () {
         it('test case', async function () {
             let wasPublishCalled = false;
             const testItem = {} as Item;
-            const pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     wasPublishCalled = true;
                 }
             });
-            await pc.publish("chan", testItem);
+            await publisher.publish("chan", testItem);
             assert.ok(wasPublishCalled);
         });
         it('async', async function() {
             const testItem = {} as Item;
             let calls = 2;
-            const pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     calls--;
                 }
             });
-            pc.addClient({
+            publisher.addClient({
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     calls--;
                 }
             });
-            await pc.publish("chan", testItem);
+            await publisher.publish("chan", testItem);
             assert.equal(calls, 0);
         });
         it('async fail', async function() {
             const testItem = {} as Item;
-            const pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                 }
             });
-            pc.addClient({
+            publisher.addClient({
                 publish: function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     throw new PublishException("error 2", {value: 2});
                 }
             });
-            pc.addClient({
+            publisher.addClient({
                 publish: function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
@@ -187,7 +209,7 @@ describe('Publisher', function () {
             });
             let resultEx: any = null;
             await assert.rejects(async () => {
-                await pc.publish("chan", testItem);
+                await publisher.publish("chan", testItem);
             }, ex => {
                 resultEx = ex;
                 return true;
@@ -198,32 +220,30 @@ describe('Publisher', function () {
         });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
-            let pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(item, 'item');
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
             });
-            pc.addClient({
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(item, 'item');
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
             });
-            await pc.publish('chan', 'item' as unknown as IItem);
-            process.on('beforeExit', () => {
-                assert.strictEqual(publishCalled, 2);
-            });
+            await publisher.publish('chan', 'item' as unknown as IItem);
+            assert.strictEqual(publishCalled, 2);
         });
     });
     describe('#publishHttpResponse', function () {
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
-            const pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat('1', '2', '3',
@@ -232,14 +252,14 @@ describe('Publisher', function () {
                     wasPublishCalled = true;
                 }
             });
-            await pc.publishHttpResponse('chan', new HttpResponseFormat(
+            await publisher.publishHttpResponse('chan', new HttpResponseFormat(
                 '1', '2', '3', '4'));
             assert.ok(wasPublishCalled);
         });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
-            const pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat(
@@ -248,7 +268,7 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            pc.addClient({
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpResponseFormat(
@@ -257,17 +277,15 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            await pc.publishHttpResponse('chan', 'message');
-            process.on('beforeExit', () => {
-                assert.strictEqual(publishCalled, 2);
-            });
+            await publisher.publishHttpResponse('chan', 'message');
+            assert.strictEqual(publishCalled, 2);
         });
     });
     describe('#publishHttpStream', function () {
         it('makes sure that publish is called on the client.', async function () {
             let wasPublishCalled = false;
-            const pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat('1'))));
@@ -275,14 +293,14 @@ describe('Publisher', function () {
                     wasPublishCalled = true;
                 }
             });
-            await pc.publishHttpStream('chan', new HttpStreamFormat(
+            await publisher.publishHttpStream('chan', new HttpStreamFormat(
                 '1'));
             assert.ok(wasPublishCalled);
         });
         it('makes sure that publish is called on each client.', async function () {
             let publishCalled = 0;
-            const pc = new Publisher();
-            pc.addClient({
+            const publisher = new Publisher();
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat(
@@ -291,7 +309,7 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            pc.addClient({
+            publisher.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
                         new HttpStreamFormat(
@@ -300,23 +318,21 @@ describe('Publisher', function () {
                     publishCalled++;
                 }
             });
-            await pc.publishHttpStream('chan', 'message');
-            process.on('beforeExit', () => {
-                assert.strictEqual(publishCalled, 2);
-            });
+            await publisher.publishHttpStream('chan', 'message');
+            assert.strictEqual(publishCalled, 2);
         });
     });
     describe('#validateGripSig', () => {
         describe("When publisher has zero clients", () => {
-            let p: Publisher;
+            let publisher: Publisher;
             beforeEach(async () => {
-                p = new Publisher();
+                publisher = new Publisher();
             });
 
             describe('When no grip-sig is provided', () => {
                 let proxyStatus: ValidateGripSigResult;
                 beforeEach(async () => {
-                    proxyStatus = await p.validateGripSig(null);
+                    proxyStatus = await publisher.validateGripSig(null);
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, false);
@@ -332,7 +348,7 @@ describe('Publisher', function () {
             describe('When grip-sig is provided', () => {
                 let proxyStatus: ValidateGripSigResult;
                 beforeEach(async () => {
-                    proxyStatus = await p.validateGripSig('value');
+                    proxyStatus = await publisher.validateGripSig('value');
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, false);
@@ -347,9 +363,9 @@ describe('Publisher', function () {
         });
 
         describe("When publisher has multiple clients, and at least one doesn't require a verify key", () => {
-            let p: Publisher;
+            let publisher: Publisher;
             beforeEach(async () => {
-                p = new Publisher([
+                publisher = new Publisher([
                     {
                         control_uri: 'https://www.example1.com',
                         control_iss: 'foo',
@@ -364,7 +380,7 @@ describe('Publisher', function () {
             describe('When no grip-sig is provided', () => {
                 let proxyStatus: ValidateGripSigResult;
                 beforeEach(async () => {
-                    proxyStatus = await p.validateGripSig(null);
+                    proxyStatus = await publisher.validateGripSig(null);
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, false);
@@ -380,7 +396,7 @@ describe('Publisher', function () {
             describe('When invalid grip-sig is provided', () => {
                 let proxyStatus: ValidateGripSigResult;
                 beforeEach(async () => {
-                    proxyStatus = await p.validateGripSig('value');
+                    proxyStatus = await publisher.validateGripSig('value');
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, true);
@@ -404,7 +420,7 @@ describe('Publisher', function () {
                       .setExpirationTime('1h');
                     const token = await signJwt.sign(textEncoder.encode('key=='));
 
-                    proxyStatus = await p.validateGripSig(token);
+                    proxyStatus = await publisher.validateGripSig(token);
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, true);
@@ -419,9 +435,9 @@ describe('Publisher', function () {
         });
 
         describe("When publisher has multiple clients, and all of them require a verify key", () => {
-            let p: Publisher;
+            let publisher: Publisher;
             beforeEach(async () => {
-                p = new Publisher([
+                publisher = new Publisher([
                     {
                         control_uri: 'https://www.example1.com',
                         control_iss: 'foo',
@@ -438,7 +454,7 @@ describe('Publisher', function () {
             describe('When no grip-sig is provided', () => {
                 let proxyStatus: ValidateGripSigResult;
                 beforeEach(async () => {
-                    proxyStatus = await p.validateGripSig(null);
+                    proxyStatus = await publisher.validateGripSig(null);
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, false);
@@ -454,7 +470,7 @@ describe('Publisher', function () {
             describe('When invalid grip-sig is provided', () => {
                 let proxyStatus: ValidateGripSigResult;
                 beforeEach(async () => {
-                    proxyStatus = await p.validateGripSig('value');
+                    proxyStatus = await publisher.validateGripSig('value');
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, false);
@@ -478,7 +494,7 @@ describe('Publisher', function () {
                       .setExpirationTime('1h');
                     const token = await signJwt.sign(textEncoder.encode('key=='));
 
-                    proxyStatus = await p.validateGripSig(token);
+                    proxyStatus = await publisher.validateGripSig(token);
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, true);
@@ -503,7 +519,7 @@ describe('Publisher', function () {
                     const privateKey1 = await jose.importPKCS8(PRIVATE_KEY_1, 'RS256');
                     const token = await signJwt.sign(privateKey1);
 
-                    proxyStatus = await p.validateGripSig(token);
+                    proxyStatus = await publisher.validateGripSig(token);
                 });
                 it('returns false for isProxied', () => {
                     assert.strictEqual(proxyStatus.isProxied, true);
