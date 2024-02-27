@@ -1,5 +1,4 @@
 const path = require("path");
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const PATHS = {
     entryPoint: path.resolve(__dirname, 'src/index.browser.ts'),
@@ -44,13 +43,6 @@ const config = {
             },
         }],
     },
-    plugins: [
-        new BundleAnalyzerPlugin({
-            analyzerMode: 'static',
-            openAnalyzer: false,
-            reportFilename: 'report' + (PROD ? '.prod' : '.dev') + '.html',
-        }),
-    ],
 }
 
 module.exports = config;
