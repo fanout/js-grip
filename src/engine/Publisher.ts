@@ -118,7 +118,7 @@ export class Publisher {
         needsSigned = true;
 
         for (const client of this.clients) {
-            const verifyKey = client.getVerifyKey();
+            const verifyKey = client.getVerifyKey?.();
             if (verifyKey == null) {
                 needsSigned = false;
                 break;
@@ -126,7 +126,7 @@ export class Publisher {
 
             // We only need to validate the signature for one client
             if (!signatureValidated) {
-                const verifyIss = client.getVerifyIss();
+                const verifyIss = client.getVerifyIss?.();
                 if (verifyIss == null) {
                     signatureValidated = await validateSig(gripSigHeaderValue, verifyKey);
                 } else {

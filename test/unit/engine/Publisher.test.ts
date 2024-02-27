@@ -137,7 +137,7 @@ describe('Publisher', function () {
                     assert.equal(item, testItem);
                     wasPublishCalled = true;
                 }
-            } as PublisherClient);
+            });
             await pc.publish("chan", testItem);
             assert.ok(wasPublishCalled);
         });
@@ -151,14 +151,14 @@ describe('Publisher', function () {
                     assert.equal(item, testItem);
                     calls--;
                 }
-            } as PublisherClient);
+            });
             pc.addClient({
                 publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     calls--;
                 }
-            } as PublisherClient);
+            });
             await pc.publish("chan", testItem);
             assert.equal(calls, 0);
         });
@@ -166,25 +166,25 @@ describe('Publisher', function () {
             const testItem = {} as Item;
             const pc = new Publisher();
             pc.addClient({
-                publish: function (channel, item) {
+                publish: async function (channel, item) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                 }
-            } as PublisherClient);
+            });
             pc.addClient({
                 publish: function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     throw new PublishException("error 2", {value: 2});
                 }
-            } as unknown as PublisherClient);
+            });
             pc.addClient({
                 publish: function (channel: string, item: IItem) {
                     assert.equal(channel, "chan");
                     assert.equal(item, testItem);
                     throw new PublishException("error 3", {value: 3});
                 }
-            } as unknown as PublisherClient);
+            });
             let resultEx: any = null;
             await assert.rejects(async () => {
                 await pc.publish("chan", testItem);
@@ -205,14 +205,14 @@ describe('Publisher', function () {
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
-            } as PublisherClient);
+            });
             pc.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(item, 'item');
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
-            } as PublisherClient);
+            });
             await pc.publish('chan', 'item' as unknown as IItem);
             process.on('beforeExit', () => {
                 assert.strictEqual(publishCalled, 2);
@@ -231,7 +231,7 @@ describe('Publisher', function () {
                     assert.equal(channel, 'chan');
                     wasPublishCalled = true;
                 }
-            } as PublisherClient);
+            });
             await pc.publishHttpResponse('chan', new HttpResponseFormat(
                 '1', '2', '3', '4'));
             assert.ok(wasPublishCalled);
@@ -247,7 +247,7 @@ describe('Publisher', function () {
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
-            } as PublisherClient);
+            });
             pc.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
@@ -256,7 +256,7 @@ describe('Publisher', function () {
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
-            } as PublisherClient);
+            });
             await pc.publishHttpResponse('chan', 'message');
             process.on('beforeExit', () => {
                 assert.strictEqual(publishCalled, 2);
@@ -274,7 +274,7 @@ describe('Publisher', function () {
                     assert.equal(channel, 'chan');
                     wasPublishCalled = true;
                 }
-            } as PublisherClient);
+            });
             await pc.publishHttpStream('chan', new HttpStreamFormat(
                 '1'));
             assert.ok(wasPublishCalled);
@@ -290,7 +290,7 @@ describe('Publisher', function () {
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
-            } as PublisherClient);
+            });
             pc.addClient({
                 publish: async function (channel: string, item: IItem) {
                     assert.equal(JSON.stringify(item), JSON.stringify(new Item(
@@ -299,7 +299,7 @@ describe('Publisher', function () {
                     assert.equal(channel, 'chan');
                     publishCalled++;
                 }
-            } as PublisherClient);
+            });
             await pc.publishHttpStream('chan', 'message');
             process.on('beforeExit', () => {
                 assert.strictEqual(publishCalled, 2);
