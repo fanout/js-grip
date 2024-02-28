@@ -106,7 +106,10 @@ export class WebSocketContext {
         if (result == null) {
             return null;
         } else {
-            return result.toString();
+            if (result instanceof Uint8Array) {
+                return textDecoder.decode(result);
+            }
+            return result;
         }
     }
 
