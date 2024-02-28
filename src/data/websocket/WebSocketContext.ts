@@ -8,8 +8,8 @@ const textDecoder = new TextDecoder();
 
 export class WebSocketContext {
     id: string;
-    inEvents: IWebSocketEvent[];
-    readIndex: number = 0;
+    _inEvents: IWebSocketEvent[];
+    opening: boolean = false;
     accepted: boolean = false;
     closeCode: number | null = null;
     closed: boolean = false;
@@ -23,12 +23,15 @@ export class WebSocketContext {
         this.id = id;
         this.meta = JSON.parse(JSON.stringify(meta));
         this.origMeta = meta;
-        this.inEvents = inEvents;
+        this._inEvents = inEvents;
+        if (inEvents[0]?.type === 'OPEN') {
+            this.opening = true;
+        }
         this.prefix = prefix;
     }
 
     isOpening() {
-        return this.inEvents.length > 0 && this.inEvents[0].type === 'OPEN';
+        return this.opening;
     }
 
     accept() {
@@ -41,12 +44,9 @@ export class WebSocketContext {
     }
 
     canRecv() {
-        for (let n = this.readIndex; n < this.inEvents.length; n++) {
-            if (['TEXT', 'BINARY', 'CLOSE', 'DISCONNECT'].indexOf(this.inEvents[n].type) > -1) {
-                return true;
-            }
-        }
-        return false;
+        return this._inEvents.some(event =>
+            ['TEXT', 'BINARY', 'CLOSE', 'DISCONNECT'].includes(event.type)
+        );
     }
 
     disconnect() {
@@ -54,17 +54,18 @@ export class WebSocketContext {
     }
 
     recvRaw() {
-        let e = null;
-        while (e == null && this.readIndex < this.inEvents.length) {
-            if (['TEXT', 'BINARY', 'CLOSE', 'DISCONNECT'].indexOf(this.inEvents[this.readIndex].type) > -1) {
-                e = this.inEvents[this.readIndex];
-            } else if (this.inEvents[this.readIndex].type === 'PING') {
+        let e: IWebSocketEvent | undefined = undefined;
+        while (true) {
+            e = this._inEvents.shift();
+            if (e == null) {
+                throw new Error('Read from empty buffer.');
+            }
+            if (['TEXT', 'BINARY', 'CLOSE', 'DISCONNECT'].includes(e.type)) {
+                break;
+            }
+            if (e.type === 'PING') {
                 this.outEvents.push(new WebSocketEvent('PONG'));
             }
-            this.readIndex += 1;
-        }
-        if (e == null) {
-            throw new Error('Read from empty buffer.');
         }
 
         const { type } = e;
