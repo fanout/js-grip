@@ -18,7 +18,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(await validateSig(token, 'key=='));
             });
-            it("check that a signature can't be validated if it's expired", async () => {
+            it('check that a signature can\'t be validated if it\'s expired', async () => {
 
                 const signJwt = new jose.SignJWT({ 'claim': 'hello' })
                   .setProtectedHeader({ alg: 'HS256' })
@@ -27,7 +27,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(!await validateSig(token, 'key=='));
             });
-            it("check that a signature can't be validated if the key doesn't match", async () => {
+            it('check that a signature can\'t be validated if the key doesn\'t match', async () => {
 
                 const signJwt = new jose.SignJWT({ 'claim': 'hello' })
                   .setProtectedHeader({ alg: 'HS256' })
@@ -36,7 +36,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(!await validateSig(token, 'key==='));
             });
-            it("check the ISS of a claim", async () => {
+            it('check the ISS of a claim', async () => {
 
                 const signJwt = new jose.SignJWT({
                     'claim': 'hello',
@@ -48,7 +48,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(await validateSig(token, 'key==', 'foo'));
             });
-            it("check claim with missing ISS won't validate", async () => {
+            it('check claim with missing ISS won\'t validate', async () => {
 
                 const signJwt = new jose.SignJWT({ 'claim': 'hello' })
                   .setProtectedHeader({ alg: 'HS256' })
@@ -57,7 +57,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(!await validateSig(token, 'key==', 'foo'));
             });
-            it("check claim with mismatched ISS won't validate", async () => {
+            it('check claim with mismatched ISS won\'t validate', async () => {
 
                 const signJwt = new jose.SignJWT({
                     'claim': 'hello',
@@ -95,7 +95,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(await validateSig(token, publicKey1));
             });
-            it("check that a signature can't be validated if it's expired", async () => {
+            it('check that a signature can\'t be validated if it\'s expired', async () => {
 
                 const signJwt = new jose.SignJWT({ 'claim': 'hello' })
                   .setProtectedHeader({ alg: 'RS256' })
@@ -104,7 +104,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(!await validateSig(token, PUBLIC_KEY_1));
             });
-            it("check that a signature can't be validated if the key doesn't match", async () => {
+            it('check that a signature can\'t be validated if the key doesn\'t match', async () => {
 
                 const signJwt = new jose.SignJWT({ 'claim': 'hello' })
                   .setProtectedHeader({ alg: 'RS256' })
@@ -113,7 +113,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(!await validateSig(token, PUBLIC_KEY_FASTLY_FANOUT_PEM));
             });
-            it("check the ISS of a claim", async () => {
+            it('check the ISS of a claim', async () => {
 
                 const signJwt = new jose.SignJWT({
                     'claim': 'hello',
@@ -125,7 +125,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(await validateSig(token, PUBLIC_KEY_1, 'foo'));
             });
-            it("check claim with missing ISS won't validate", async () => {
+            it('check claim with missing ISS won\'t validate', async () => {
 
                 const signJwt = new jose.SignJWT({
                     'claim': 'hello',
@@ -136,7 +136,7 @@ describe('utilities/jwt', () => {
 
                 assert.ok(!await validateSig(token, PUBLIC_KEY_1, 'foo'));
             });
-            it("check claim with mismatched ISS won't validate", async () => {
+            it('check claim with mismatched ISS won\'t validate', async () => {
 
                 const signJwt = new jose.SignJWT({
                     'claim': 'hello',

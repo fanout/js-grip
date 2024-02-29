@@ -9,37 +9,37 @@ const textEncoder = new TextEncoder();
 describe('auth', () => {
     describe('Basic', () => {
         it('test case', async () => {
-            const authBasic = new Auth.Basic("user", "pass");
-            assert.equal(authBasic.getUser(), "user");
-            assert.equal(authBasic.getPass(), "pass");
-            assert.equal(
+            const authBasic = new Auth.Basic('user', 'pass');
+            assert.strictEqual(authBasic.getUser(), 'user');
+            assert.strictEqual(authBasic.getPass(), 'pass');
+            assert.strictEqual(
                 await authBasic.buildHeader(),
-                "Basic " + encodeBytesToBase64String(textEncoder.encode("user:pass"))
+                `Basic ${encodeBytesToBase64String(textEncoder.encode('user:pass'))}`
             );
         });
     });
     describe('Bearer', () => {
         it('test case', async () => {
-            let authBearer = new Auth.Bearer("token");
-            assert.equal(authBearer.getToken(), "token");
-            assert.equal(await authBearer.buildHeader(), "Bearer token");
+            let authBearer = new Auth.Bearer('token');
+            assert.strictEqual(authBearer.getToken(), 'token');
+            assert.strictEqual(await authBearer.buildHeader(), 'Bearer token');
         });
     });
     describe('Jwt', () => {
         it('test case', async () => {
             const cl = {};
-            let authJwt = new Auth.Jwt(cl, textEncoder.encode("key"));
-            assert.equal(authJwt.getClaim(), cl);
-            assert.deepStrictEqual(authJwt.getKey(), textEncoder.encode("key"));
+            let authJwt = new Auth.Jwt(cl, textEncoder.encode('key'));
+            assert.strictEqual(authJwt.getClaim(), cl);
+            assert.deepStrictEqual(authJwt.getKey(), textEncoder.encode('key'));
 
-            authJwt = new Auth.Jwt({ iss: "hello" }, textEncoder.encode("key=="));
+            authJwt = new Auth.Jwt({ iss: 'hello' }, textEncoder.encode('key=='));
             const claim = await jose.jwtVerify(
               (await authJwt.buildHeader()).slice(7),
-              textEncoder.encode("key==")
+              textEncoder.encode('key==')
             );
 
             assert.ok(claim.payload.exp != null);
-            assert.equal(claim.payload.iss, 'hello');
+            assert.strictEqual(claim.payload.iss, 'hello');
         });
     });
 });

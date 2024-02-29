@@ -5,34 +5,34 @@ import { Channel, GripInstruct } from '../../../src/index.js';
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
-describe('GripInstruct', function () {
+describe('GripInstruct', () => {
 
-    describe('Initialize', function () {
-        it('should allow creating a GripInstruct with no channels', function () {
+    describe('Initialize', () => {
+        it('should allow creating a GripInstruct with no channels', () => {
             const gripInstruct = new GripInstruct();
             const channels = gripInstruct.channels;
             assert.ok(Array.isArray(channels));
             assert.ok(channels.length === 0);
         });
-        it('should allow creating a GripInstruct with a channel name', function () {
+        it('should allow creating a GripInstruct with a channel name', () => {
             const gripInstruct = new GripInstruct('foo');
             const channels = gripInstruct.channels;
             assert.ok(Array.isArray(channels));
             assert.ok(channels.length === 1);
             assert.ok(channels[0] instanceof Channel);
-            assert.equal(channels[0].name, 'foo');
+            assert.strictEqual(channels[0].name, 'foo');
         });
-        it('should allow creating a GripInstruct with channel names', function () {
+        it('should allow creating a GripInstruct with channel names', () => {
             const gripInstruct = new GripInstruct(['foo', 'bar']);
             const channels = gripInstruct.channels;
             assert.ok(Array.isArray(channels));
             assert.ok(channels.length === 2);
             assert.ok(channels[0] instanceof Channel);
-            assert.equal(channels[0].name, 'foo');
+            assert.strictEqual(channels[0].name, 'foo');
             assert.ok(channels[1] instanceof Channel);
-            assert.equal(channels[1].name, 'bar');
+            assert.strictEqual(channels[1].name, 'bar');
         });
-        it('should allow creating a GripInstruct with a Channel object', function () {
+        it('should allow creating a GripInstruct with a Channel object', () => {
             const channel = new Channel('foo');
             const gripInstruct = new GripInstruct(channel);
             const channels = gripInstruct.channels;
@@ -42,8 +42,8 @@ describe('GripInstruct', function () {
         });
     });
 
-    describe('#addChannel', function () {
-        it('addChannel() with a channel name/names/Channel', function () {
+    describe('#addChannel', () => {
+        it('addChannel() with a channel name/names/Channel', () => {
             const gripInstruct = new GripInstruct();
             const channels = gripInstruct.channels;
             assert.ok(Array.isArray(channels));
@@ -54,86 +54,86 @@ describe('GripInstruct', function () {
             // @ts-ignore
             assert.ok(channels.length === 1);
             assert.ok(channels[0] instanceof Channel);
-            assert.equal(channels[0].name, 'foo');
+            assert.strictEqual(channels[0].name, 'foo');
             gripInstruct.addChannel(['bar', 'baz']);
             // @ts-ignore
             assert.ok(channels.length === 3);
             assert.ok(channels[0] instanceof Channel);
-            assert.equal(channels[0].name, 'foo');
+            assert.strictEqual(channels[0].name, 'foo');
             assert.ok(channels[1] instanceof Channel);
-            assert.equal(channels[1].name, 'bar');
+            assert.strictEqual(channels[1].name, 'bar');
             assert.ok(channels[2] instanceof Channel);
-            assert.equal(channels[2].name, 'baz');
+            assert.strictEqual(channels[2].name, 'baz');
             gripInstruct.addChannel(new Channel('hoge'));
             // @ts-ignore
             assert.ok(channels.length === 4);
             assert.ok(channels[0] instanceof Channel);
-            assert.equal(channels[0].name, 'foo');
+            assert.strictEqual(channels[0].name, 'foo');
             assert.ok(channels[1] instanceof Channel);
-            assert.equal(channels[1].name, 'bar');
+            assert.strictEqual(channels[1].name, 'bar');
             assert.ok(channels[2] instanceof Channel);
-            assert.equal(channels[2].name, 'baz');
+            assert.strictEqual(channels[2].name, 'baz');
             assert.ok(channels[3] instanceof Channel);
-            assert.equal(channels[3].name, 'hoge');
+            assert.strictEqual(channels[3].name, 'hoge');
         });
     });
 
-    describe('#setHoldLongPoll', function () {
-        it('setHoldLongPoll without timeout', function () {
+    describe('#setHoldLongPoll', () => {
+        it('setHoldLongPoll without timeout', () => {
             const gripInstruct = new GripInstruct();
             gripInstruct.setHoldLongPoll();
-            assert.equal(gripInstruct.hold, 'response');
+            assert.strictEqual(gripInstruct.hold, 'response');
         });
-        it('setHoldLongPoll with timeout', function () {
+        it('setHoldLongPoll with timeout', () => {
             const gripInstruct = new GripInstruct();
             gripInstruct.setHoldLongPoll(100);
-            assert.equal(gripInstruct.hold, 'response');
-            assert.equal(gripInstruct.timeout, 100);
+            assert.strictEqual(gripInstruct.hold, 'response');
+            assert.strictEqual(gripInstruct.timeout, 100);
         });
     });
 
-    describe('#setHoldStream', function () {
-        it('setHoldStream', function () {
+    describe('#setHoldStream', () => {
+        it('setHoldStream', () => {
             const gripInstruct = new GripInstruct();
             gripInstruct.setHoldStream();
-            assert.equal(gripInstruct.hold, 'stream');
+            assert.strictEqual(gripInstruct.hold, 'stream');
         });
     });
 
-    describe('#setKeepAlive', function () {
-        it('setKeepAlive with string', function () {
+    describe('#setKeepAlive', () => {
+        it('setKeepAlive with string', () => {
             const gripInstruct = new GripInstruct();
             gripInstruct.setKeepAlive('foo', 100);
             assert.ok(typeof gripInstruct.keepAlive === 'string');
-            assert.equal(gripInstruct.keepAlive, 'foo');
-            assert.equal(gripInstruct.keepAliveTimeout, 100);
+            assert.strictEqual(gripInstruct.keepAlive, 'foo');
+            assert.strictEqual(gripInstruct.keepAliveTimeout, 100);
         });
-        it('setKeepAlive with Uint8Array', function () {
+        it('setKeepAlive with Uint8Array', () => {
             const gripInstruct = new GripInstruct();
             gripInstruct.setKeepAlive(textEncoder.encode('foo'), 100);
             assert.ok(gripInstruct.keepAlive instanceof Uint8Array);
-            assert.equal(textDecoder.decode(gripInstruct.keepAlive), 'foo');
-            assert.equal(gripInstruct.keepAliveTimeout, 100);
+            assert.strictEqual(textDecoder.decode(gripInstruct.keepAlive), 'foo');
+            assert.strictEqual(gripInstruct.keepAliveTimeout, 100);
         });
     });
 
-    describe('#setNextLink', function () {
-        it('setNextLink without timeout', function () {
+    describe('#setNextLink', () => {
+        it('setNextLink without timeout', () => {
             const gripInstruct = new GripInstruct();
             gripInstruct.setNextLink('https://www.example.com/path/');
-            assert.equal(gripInstruct.nextLink, 'https://www.example.com/path/');
-            assert.equal(gripInstruct.nextLinkTimeout, 0);
+            assert.strictEqual(gripInstruct.nextLink, 'https://www.example.com/path/');
+            assert.strictEqual(gripInstruct.nextLinkTimeout, 0);
         });
-        it('setNextLink with timeout', function () {
+        it('setNextLink with timeout', () => {
             const gripInstruct = new GripInstruct();
             gripInstruct.setNextLink('https://www.example.com/path/', 100);
-            assert.equal(gripInstruct.nextLink, 'https://www.example.com/path/');
-            assert.equal(gripInstruct.nextLinkTimeout, 100);
+            assert.strictEqual(gripInstruct.nextLink, 'https://www.example.com/path/');
+            assert.strictEqual(gripInstruct.nextLinkTimeout, 100);
         });
     });
 
-    describe('#toHeaders', function() {
-        it('toHeaders for long poll', function() {
+    describe('#toHeaders', () => {
+        it('toHeaders for long poll', () => {
             const gripInstruct = new GripInstruct('foo');
             gripInstruct.setHoldLongPoll(100);
             const headers = gripInstruct.toHeaders();
@@ -143,7 +143,7 @@ describe('GripInstruct', function () {
                 'Grip-Timeout': '100',
             });
         });
-        it('toHeaders for long poll with keep-alive', function() {
+        it('toHeaders for long poll with keep-alive', () => {
             const gripInstruct = new GripInstruct('foo');
             gripInstruct.setHoldLongPoll(100);
             gripInstruct.setKeepAlive('bar', 100)
@@ -155,7 +155,7 @@ describe('GripInstruct', function () {
                 'Grip-Keep-Alive': 'bar; format=cstring; timeout=100',
             });
         });
-        it('toHeaders for long poll with set-meta', function() {
+        it('toHeaders for long poll with set-meta', () => {
             const gripInstruct = new GripInstruct('foo');
             gripInstruct.setHoldLongPoll(100);
             // Meta is to be set directly
@@ -171,7 +171,7 @@ describe('GripInstruct', function () {
                 'Grip-Set-Meta': 'bar="baz", hoge="piyo"',
             });
         });
-        it('toHeaders for stream', function() {
+        it('toHeaders for stream', () => {
             const gripInstruct = new GripInstruct('foo');
             gripInstruct.setHoldStream();
             const headers = gripInstruct.toHeaders();
@@ -180,7 +180,7 @@ describe('GripInstruct', function () {
                 'Grip-Hold': 'stream',
             });
         });
-        it('toHeaders for stream with next link', function() {
+        it('toHeaders for stream with next link', () => {
             const gripInstruct = new GripInstruct('foo');
             gripInstruct.setHoldStream();
             gripInstruct.setNextLink('https://www.example.com/path/', 100);

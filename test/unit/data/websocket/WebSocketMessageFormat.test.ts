@@ -4,35 +4,35 @@ import { encodeBytesToBase64String, WebSocketMessageFormat } from '../../../../s
 
 const textEncoder = new TextEncoder();
 
-describe('WebSocketMessageFormat', function () {
-    describe('#constructor', function () {
-        it('test case', function () {
+describe('WebSocketMessageFormat', () => {
+    describe('#constructor', () => {
+        it('test case', () => {
             const ws = new WebSocketMessageFormat('content');
-            assert.equal(ws.content, 'content');
+            assert.strictEqual(ws.content, 'content');
         });
     });
-    describe('#name', function () {
-        it('test case', function () {
+    describe('#name', () => {
+        it('test case', () => {
             const ws = new WebSocketMessageFormat('content');
-            assert.equal(ws.name(), 'ws-message');
+            assert.strictEqual(ws.name(), 'ws-message');
         });
     });
-    describe('#export', function () {
-        it('test case', function () {
+    describe('#export', () => {
+        it('test case', () => {
             const ws = new WebSocketMessageFormat('message');
-            assert.equal(ws.export()['content'], 'message');
+            assert.strictEqual(ws.export()['content'], 'message');
         });
-        it('test case', function () {
+        it('test case', () => {
             const ws = new WebSocketMessageFormat(textEncoder.encode('message'));
             assert.deepStrictEqual(
               ws.export()['content-bin'],
               encodeBytesToBase64String(textEncoder.encode('message')),
             );
         });
-        it('test case', function () {
+        it('test case', () => {
             const ws = new WebSocketMessageFormat(null, true, 1009);
-            assert.equal(ws.export()['action'], 'close');
-            assert.equal(ws.export()['code'], 1009);
+            assert.strictEqual(ws.export()['action'], 'close');
+            assert.strictEqual(ws.export()['code'], 1009);
         });
     });
 });

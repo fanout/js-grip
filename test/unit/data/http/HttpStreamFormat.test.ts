@@ -4,40 +4,40 @@ import { encodeBytesToBase64String, HttpStreamFormat } from '../../../../src/ind
 
 const textEncoder = new TextEncoder();
 
-describe('HttpStreamFormat', function () {
-    describe('#constructor', function () {
-        it('test case', function () {
+describe('HttpStreamFormat', () => {
+    describe('#constructor', () => {
+        it('test case', () => {
             const hf = new HttpStreamFormat('content');
-            assert.equal(hf.content, 'content');
-            assert.equal(hf.close, false);
+            assert.strictEqual(hf.content, 'content');
+            assert.strictEqual(hf.close, false);
         });
-        it('test case', function () {
+        it('test case', () => {
             const hf = new HttpStreamFormat('content', true);
-            assert.equal(hf.content, 'content');
-            assert.equal(hf.close, true);
+            assert.strictEqual(hf.content, 'content');
+            assert.strictEqual(hf.close, true);
         });
     });
-    describe('#name', function () {
-        it('test case', function () {
+    describe('#name', () => {
+        it('test case', () => {
             const hf = new HttpStreamFormat('content', true);
-            assert.equal(hf.name(), 'http-stream');
+            assert.strictEqual(hf.name(), 'http-stream');
         });
     });
-    describe('#export', function () {
-        it('test case', function () {
+    describe('#export', () => {
+        it('test case', () => {
             const hf = new HttpStreamFormat('message');
-            assert.equal(hf.export()['content'], 'message');
+            assert.strictEqual(hf.export()['content'], 'message');
         });
-        it('test case', function () {
+        it('test case', () => {
             const hf = new HttpStreamFormat(textEncoder.encode('message'));
             assert.deepStrictEqual(
               hf.export()['content-bin'],
               encodeBytesToBase64String(textEncoder.encode('message')),
             );
         });
-        it('test case', function () {
+        it('test case', () => {
             const hf = new HttpStreamFormat(null, true);
-            assert.equal(hf.export()['action'], 'close');
+            assert.strictEqual(hf.export()['action'], 'close');
         });
     });
 });

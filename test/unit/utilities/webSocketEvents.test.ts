@@ -12,97 +12,97 @@ import {
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
-describe('gripUtilities', function () {
-    describe('#encodeWebSocketEvents', function () {
-        it('test case', function() {
+describe('gripUtilities', () => {
+    describe('#encodeWebSocketEvents', () => {
+        it('test case', () => {
             const events = encodeWebSocketEvents([
                 new WebSocketEvent('TEXT', 'Hello'),
                 new WebSocketEvent('TEXT', ''),
                 new WebSocketEvent('TEXT', null),
             ]);
-            assert.equal(textDecoder.decode(events), 'TEXT 5\r\nHello\r\nTEXT 0\r\n\r\nTEXT\r\n');
+            assert.strictEqual(textDecoder.decode(events), 'TEXT 5\r\nHello\r\nTEXT 0\r\n\r\nTEXT\r\n');
         });
-        it('test case', function() {
+        it('test case', () => {
             const events = encodeWebSocketEvents([
                 new WebSocketEvent('OPEN'),
             ]);
-            assert.equal(textDecoder.decode(events), 'OPEN\r\n');
+            assert.strictEqual(textDecoder.decode(events), 'OPEN\r\n');
         });
     });
-    describe('#decodeWebSocketEvents', function () {
-        it('test case', function() {
+    describe('#decodeWebSocketEvents', () => {
+        it('test case', () => {
             const events = decodeWebSocketEvents('OPEN\r\nTEXT 5\r\nHello' +
                 '\r\nTEXT 0\r\n\r\nCLOSE\r\nTEXT\r\nCLOSE\r\n');
-            assert.equal(events.length, 6);
-            assert.equal(events[0].type, 'OPEN');
-            assert.equal(events[0].content, null);
-            assert.equal(events[1].type, 'TEXT');
-            assert.equal(events[1].content, 'Hello');
-            assert.equal(events[2].type, 'TEXT');
-            assert.equal(events[2].content, '');
-            assert.equal(events[3].type, 'CLOSE');
-            assert.equal(events[3].content, null);
-            assert.equal(events[4].type, 'TEXT');
-            assert.equal(events[4].content, null);
-            assert.equal(events[5].type, 'CLOSE');
-            assert.equal(events[5].content, null);
+            assert.strictEqual(events.length, 6);
+            assert.strictEqual(events[0].type, 'OPEN');
+            assert.strictEqual(events[0].content, null);
+            assert.strictEqual(events[1].type, 'TEXT');
+            assert.strictEqual(events[1].content, 'Hello');
+            assert.strictEqual(events[2].type, 'TEXT');
+            assert.strictEqual(events[2].content, '');
+            assert.strictEqual(events[3].type, 'CLOSE');
+            assert.strictEqual(events[3].content, null);
+            assert.strictEqual(events[4].type, 'TEXT');
+            assert.strictEqual(events[4].content, null);
+            assert.strictEqual(events[5].type, 'CLOSE');
+            assert.strictEqual(events[5].content, null);
         });
-        it('test case', function() {
+        it('test case', () => {
             const events = decodeWebSocketEvents(
               textEncoder.encode('OPEN\r\nTEXT 5\r\nHello' +
                 '\r\nTEXT 0\r\n\r\nCLOSE\r\nTEXT\r\nCLOSE\r\n')
             );
-            assert.equal(events.length, 6);
-            assert.equal(events[0].type, 'OPEN');
-            assert.equal(events[0].content, null);
-            assert.equal(events[1].type, 'TEXT');
+            assert.strictEqual(events.length, 6);
+            assert.strictEqual(events[0].type, 'OPEN');
+            assert.strictEqual(events[0].content, null);
+            assert.strictEqual(events[1].type, 'TEXT');
             assert.deepStrictEqual(events[1].content, textEncoder.encode('Hello'));
-            assert.equal(events[2].type, 'TEXT');
+            assert.strictEqual(events[2].type, 'TEXT');
             assert.deepStrictEqual(events[2].content, new Uint8Array());
-            assert.equal(events[3].type, 'CLOSE');
-            assert.equal(events[3].content, null);
-            assert.equal(events[4].type, 'TEXT');
-            assert.equal(events[4].content, null);
-            assert.equal(events[5].type, 'CLOSE');
-            assert.equal(events[5].content, null);
+            assert.strictEqual(events[3].type, 'CLOSE');
+            assert.strictEqual(events[3].content, null);
+            assert.strictEqual(events[4].type, 'TEXT');
+            assert.strictEqual(events[4].content, null);
+            assert.strictEqual(events[5].type, 'CLOSE');
+            assert.strictEqual(events[5].content, null);
         });
-        it('test case', function() {
+        it('test case', () => {
             const events = decodeWebSocketEvents('OPEN\r\n');
-            assert.equal(events.length, 1);
-            assert.equal(events[0].type, 'OPEN');
-            assert.equal(events[0].content, null);
+            assert.strictEqual(events.length, 1);
+            assert.strictEqual(events[0].type, 'OPEN');
+            assert.strictEqual(events[0].content, null);
         });
-        it('test case', function() {
+        it('test case', () => {
             const events = decodeWebSocketEvents('TEXT 5\r\nHello\r\n');
-            assert.equal(events.length, 1);
-            assert.equal(events[0].type, 'TEXT');
-            assert.equal(events[0].content, 'Hello');
+            assert.strictEqual(events.length, 1);
+            assert.strictEqual(events[0].type, 'TEXT');
+            assert.strictEqual(events[0].content, 'Hello');
         });
-        it('test case that should throw', function() {
+        it('test case that should throw', () => {
             assert.throws(
-                function () {
+                () => {
                     decodeWebSocketEvents('TEXT 5');
                 },
                 Error
             );
         });
-        it('test case that should throw', function() {
+        it('test case that should throw', () => {
             assert.throws(
-                function () {
+                () => {
                     decodeWebSocketEvents('OPEN\r\nTEXT');
                 },
                 Error
             );
         });
     });
-    describe('#createWebSocketControlMessage', function () {
-        it('test case', function() {
+    describe('#createWebSocketControlMessage', () => {
+        it('test case', () => {
             const message = createWebSocketControlMessage('type');
-            assert.equal(JSON.stringify({'type': 'type'}), message);
+            assert.strictEqual(JSON.stringify({'type': 'type'}), message);
         });
-        it('test case', function() {
+        it('test case', () => {
             const message = createWebSocketControlMessage('type', {'arg': 'val'});
-            assert.equal(JSON.stringify({'arg': 'val', 'type': 'type'}), message);
+            assert.strictEqual(JSON.stringify({'arg': 'val', 'type': 'type'}), message);
         });
     });
 });

@@ -4,47 +4,47 @@ import { encodeBytesToBase64String, Response } from '../../../src/index.js';
 
 const textEncoder = new TextEncoder();
 
-describe('Response', function () {
-    describe('#constructor', function () {
-        it('test case', function () {
+describe('Response', () => {
+    describe('#constructor', () => {
+        it('test case', () => {
             const hf = new Response();
-            assert.equal(hf.code, null);
-            assert.equal(hf.reason, null);
-            assert.equal(hf.headers, null);
-            assert.equal(hf.body, null);
+            assert.strictEqual(hf.code, null);
+            assert.strictEqual(hf.reason, null);
+            assert.strictEqual(hf.headers, null);
+            assert.strictEqual(hf.body, null);
         });
-        it('test case', function () {
+        it('test case', () => {
             const hf = new Response('code', 'reason',
                 'headers', 'body');
-            assert.equal(hf.code, 'code');
-            assert.equal(hf.reason, 'reason');
-            assert.equal(hf.headers, 'headers');
-            assert.equal(hf.body, 'body');
+            assert.strictEqual(hf.code, 'code');
+            assert.strictEqual(hf.reason, 'reason');
+            assert.deepStrictEqual(hf.headers, 'headers');
+            assert.strictEqual(hf.body, 'body');
         });
-        it('test case', function () {
+        it('test case', () => {
             const hf = new Response({ code: 'code',
                 reason: 'reason', headers: 'headers', body: 'body' });
-            assert.equal(hf.code, 'code');
-            assert.equal(hf.reason, 'reason');
-            assert.equal(hf.headers, 'headers');
-            assert.equal(hf.body, 'body');
+            assert.strictEqual(hf.code, 'code');
+            assert.strictEqual(hf.reason, 'reason');
+            assert.deepStrictEqual(hf.headers, 'headers');
+            assert.strictEqual(hf.body, 'body');
         });
     });
-    describe('#export', function () {
-        it('test case', function () {
+    describe('#export', () => {
+        it('test case', () => {
             const hf = new Response({ body: 'body' });
-            assert.equal(JSON.stringify(hf.export()), JSON.stringify({ body: 'body' }));
+            assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify({ body: 'body' }));
         });
-        it('test case', function () {
+        it('test case', () => {
             const hf = new Response({ code: 'code',
                 reason: 'reason', headers: 'headers', body: 'body' });
-            assert.equal(JSON.stringify(hf.export()), JSON.stringify(
+            assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify(
                 { code: 'code', reason: 'reason', headers: 'headers', body: 'body' }));
         });
-        it('test case', function () {
+        it('test case', () => {
             const hf = new Response({ code: 'code',
                 reason: 'reason', headers: 'headers', body: textEncoder.encode('body') });
-            assert.equal(JSON.stringify(hf.export()), JSON.stringify({
+            assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify({
                 code: 'code',
                 reason: 'reason',
                 headers: 'headers',

@@ -5,7 +5,7 @@ import {
   getWebSocketContextFromReq,
   isWsOverHttp,
   WebSocketDecodeEventException
-} from "../../../src/index.js";
+} from '../../../src/index.js';
 
 describe('isWsOverHttp', () => {
 
@@ -24,13 +24,13 @@ describe('isWsOverHttp', () => {
     );
   });
 
-  it("returns true for normal case", () => {
+  it('returns true for normal case', () => {
 
     assert.ok(isWsOverHttp(req));
 
   });
 
-  it("returns false if method isn't POST", () => {
+  it('returns false if method isn\'t POST', () => {
 
     const getReq = new Request(
       req,
@@ -52,7 +52,7 @@ describe('isWsOverHttp', () => {
 
   });
 
-  it("returns false if Content-Type header is not 'application/websocket-events'", () => {
+  it('returns false if Content-Type header is not \'application/websocket-events\'', () => {
 
     req.headers.set('content-type', 'text/plain');
     assert.ok(!isWsOverHttp(req));
@@ -68,7 +68,7 @@ describe('isWsOverHttp', () => {
 
   });
 
-  it("returns false if Accept header doesn't include 'application/websocket-events'", () => {
+  it('returns false if Accept header doesn\'t include \'application/websocket-events\'', () => {
 
     req.headers.set('accept', 'text/plain');
     assert.ok(!isWsOverHttp(req));
@@ -97,7 +97,7 @@ describe('getWebSocketContextFromReq', () => {
 
   beforeEach(() => {
     req = new Request(
-      "https://www.example.com",
+      'https://www.example.com',
       {
         method: 'POST',
         headers: {
@@ -141,14 +141,14 @@ describe('getWebSocketContextFromReq', () => {
     });
   });
 
-  it("Fails if body has bad format", async () => {
+  it('Fails if body has bad format', async () => {
 
     // Should be possible to write this, but broken in node < 21:
     // req = new Request(req, {
     //   body: 'foobar'
     // });
     req = new Request(
-      "https://www.example.com",
+      'https://www.example.com',
       {
         method: 'POST',
         headers: {
