@@ -1,4 +1,4 @@
-import type { PublishContext } from '../engine/index.js';
+import type { PublishContext } from './index.js';
 
 export class PublishException {
     message: string;

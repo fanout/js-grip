@@ -1,7 +1,8 @@
 import * as jose from 'jose';
 import * as Auth from '../auth/index.js';
 import { isSymmetricSecret, loadKey, JwkKey, PemKey } from '../utilities/index.js';
-import { IItem, PublishException } from '../data/index.js';
+import { PublishException } from './PublishException.js';
+import type { IItem } from '../data/index.js';
 import type { IGripConfig } from './IGripConfig.js';
 import type { IPublisherClient } from './IPublisherClient.js';
 

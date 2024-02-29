@@ -9,4 +9,3 @@ export * from './IFormatExport.js';
 export * from './IItem.js';
 export * from './IItemExport.js';
 export * from './Item.js';
-export * from './PublishException.js';
