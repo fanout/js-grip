@@ -10,7 +10,7 @@ export function encodeCString(str: string) {
         } else if (c === '\t') {
             output += '\\t';
         } else if (c.charCodeAt(0) < 0x20) {
-            throw new Error("can't encode");
+            throw new Error('can\'t encode');
         } else {
             output += c;
         }

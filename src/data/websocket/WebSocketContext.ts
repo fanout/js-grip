@@ -103,14 +103,10 @@ export class WebSocketContext {
 
     recv() {
         const result = this.recvRaw();
-        if (result == null) {
-            return null;
-        } else {
-            if (result instanceof Uint8Array) {
-                return textDecoder.decode(result);
-            }
-            return result;
+        if (result instanceof Uint8Array) {
+            return textDecoder.decode(result);
         }
+        return result;
     }
 
     send(message: string | Uint8Array) {

@@ -1,5 +1,3 @@
-import * as jose from 'jose';
-
 // The authorization interface for building auth headers in conjunction
 // with HTTP requests used for publishing messages.
 export interface IAuth {

@@ -19,9 +19,9 @@ export function isWsOverHttpImpl(method: string | undefined, headers: Headers) {
       contentTypeHeader = contentTypeHeader.slice(0, at);
     }
     contentTypeHeader = contentTypeHeader.trim();
-    debug("content-type header", contentTypeHeader);
+    debug('content-type header', contentTypeHeader);
   } else {
-    debug("content-type header not present");
+    debug('content-type header not present');
   }
 
   if (contentTypeHeader !== CONTENT_TYPE_WEBSOCKET_EVENTS) {
@@ -31,10 +31,10 @@ export function isWsOverHttpImpl(method: string | undefined, headers: Headers) {
   const acceptTypesHeader = headers.get('accept');
 
   if (acceptTypesHeader == null) {
-    debug("accept header not present");
+    debug('accept header not present');
     return false;
   }
-  debug("accept header", acceptTypesHeader);
+  debug('accept header', acceptTypesHeader);
 
   for (let acceptType of acceptTypesHeader.split(',')) {
     const at = acceptType.indexOf(';');
@@ -61,38 +61,38 @@ export async function getWebSocketContextImpl(headers: Headers, getBody: () => P
     throw new ConnectionIdMissingException();
   }
 
-  debug("Connection ID", cid);
+  debug('Connection ID', cid);
 
   // Handle meta keys
-  debug("Handling Meta - start");
+  debug('Handling Meta - start');
   const meta: Record<string, string> = {};
   for (const [key, value] of headers.entries()) {
     const lKey = key.toLowerCase();
     if (lKey.startsWith('meta-')) {
       const k = lKey.slice(5);
       meta[k] = value;
-      debug(k, "=", value);
+      debug(k, '=', value);
     }
   }
-  debug("Handling Meta - end");
+  debug('Handling Meta - end');
 
   const body = await getBody();
 
 
-  debug("Decode body - start");
+  debug('Decode body - start');
   let events = null;
   try {
     events = decodeWebSocketEvents(body);
   } catch (err) {
     throw new WebSocketDecodeEventException();
   }
-  debug("Decode body - end");
+  debug('Decode body - end');
 
-  debug("Websocket Events", events);
+  debug('Websocket Events', events);
 
-  debug("Creating Websocket Context - start");
+  debug('Creating Websocket Context - start');
   const wsContext = new WebSocketContext(cid, meta, events, prefix);
-  debug("Creating Websocket Context - end");
+  debug('Creating Websocket Context - end');
 
   return wsContext;
 }
