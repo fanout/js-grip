@@ -152,7 +152,7 @@ export class WebSocketContext {
             events.push(event);
         }
         if (this.closed) {
-            const octets = jspack.Pack('>H', [this.outCloseCode]);
+            const octets = jspack.Pack('>H', [this.outCloseCode ?? 0]);
             if (octets) {
                 events.push(new WebSocketEvent('CLOSE', new Uint8Array(octets)));
             }

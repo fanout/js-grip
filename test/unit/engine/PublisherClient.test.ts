@@ -220,7 +220,6 @@ describe('PublisherClient', () => {
                     throw new Error('fail');
                 }
             });
-            let resultEx: any = null;
             await assert.rejects(async () => {
                 await pcc.publish('channel', itm);
             }, ex => {

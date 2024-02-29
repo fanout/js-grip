@@ -14,6 +14,12 @@ export type PublisherClientOptions = {
     fetch?: typeof fetch,
 };
 
+export type PublishContext = {
+    statusCode: number,
+    headers?: Headers,
+    httpBody?: unknown;
+};
+
 const textEncoder = new TextEncoder();
 
 // The PublisherClient class allows consumers to publish to an endpoint of
@@ -119,11 +125,11 @@ export class PublisherClient implements IPublisherClient {
             data = err;
         }
 
-        const context = {
+        const context: PublishContext = {
             statusCode: res.status,
             headers: res.headers,
             httpBody: data,
-        }
+        };
 
         if (mode === 'end') {
             if (context.statusCode < 200 || context.statusCode >= 300) {

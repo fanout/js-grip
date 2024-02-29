@@ -23,7 +23,7 @@ export function createKeepAliveHeader(data: string | Uint8Array, timeout: number
     return output;
 }
 
-export function createMetaHeader(data: object) {
+export function createMetaHeader(data: Record<string, string>) {
     return Object.entries(data)
         .map(([key, value]) => {
             return `${key}="${escapeQuotes(value)}"`;

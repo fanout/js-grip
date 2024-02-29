@@ -2,6 +2,13 @@ import { encodeBytesToBase64String } from '../utilities/index.js';
 import type { IExportedResponse } from './IExportedResponse.js';
 import type { IFormatExport } from './IFormatExport.js';
 
+export type ResponseParams = {
+    code?: string | null,
+    reason?: string | null,
+    headers?: Record<string, string> | null,
+    body?: Uint8Array | string | null,
+}
+
 // The Response class is used to represent a set of HTTP response data.
 // Populated instances of this class are serialized to JSON and passed
 // to the GRIP proxy in the body. The GRIP proxy then parses the message
@@ -11,18 +18,23 @@ export class Response {
     code: string | null;
     reason: string | null;
     headers: Record<string, string> | null;
-    body: object | null;
+    body: Uint8Array | string | null;
 
-    constructor(...args: any[]) {
-        let code, reason, headers, body;
-        // Initialize with the message code, reason, headers, and body to send
-        // to the client when the message is published. If only one parameter
-        // is passed then treat it as a dictionary object containing all of
-        // the data in the form of key/value pairs.
-        if (args.length === 1) {
-            ({ code = null, reason = null, headers = null, body = null } = args[0]);
-        } else {
-            [code = null, reason = null, headers = null, body = null] = args;
+    constructor(responseObject: ResponseParams);
+    constructor(
+        code?: string | null,
+        reason?: string | null,
+        headers?: Record<string, string> | null,
+        body?: Uint8Array | string | null,
+    );
+    constructor(
+        code: ResponseParams | string | null = null,
+        reason: string | null = null,
+        headers: Record<string, string> | null = null,
+        body: Uint8Array | string | null = null,
+    ) {
+        if (code !== null && typeof code !== 'string') {
+            ({ code = null, reason = null, headers = null, body = null } = code);
         }
         this.code = code;
         this.reason = reason;

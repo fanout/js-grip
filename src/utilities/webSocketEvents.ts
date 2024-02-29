@@ -83,7 +83,7 @@ export function decodeWebSocketEvents(body: Uint8Array | string): IWebSocketEven
 // arguments. WebSocket control messages are passed to GRIP proxies and
 // example usage includes subscribing/unsubscribing a WebSocket connection
 // to/from a channel.
-export function createWebSocketControlMessage(type: string, args: object | null = null) {
+export function createWebSocketControlMessage(type: string, args: Record<string, string> | null = null) {
     const out = Object.assign({}, args, { type });
     return JSON.stringify(out);
 }

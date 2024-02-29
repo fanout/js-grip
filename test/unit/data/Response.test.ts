@@ -15,18 +15,18 @@ describe('Response', () => {
         });
         it('test case', () => {
             const hf = new Response('code', 'reason',
-                'headers', 'body');
+                {'_': 'headers'}, 'body');
             assert.strictEqual(hf.code, 'code');
             assert.strictEqual(hf.reason, 'reason');
-            assert.deepStrictEqual(hf.headers, 'headers');
+            assert.deepStrictEqual(hf.headers, {'_': 'headers'});
             assert.strictEqual(hf.body, 'body');
         });
         it('test case', () => {
             const hf = new Response({ code: 'code',
-                reason: 'reason', headers: 'headers', body: 'body' });
+                reason: 'reason', headers: {'_': 'headers'}, body: 'body' });
             assert.strictEqual(hf.code, 'code');
             assert.strictEqual(hf.reason, 'reason');
-            assert.deepStrictEqual(hf.headers, 'headers');
+            assert.deepStrictEqual(hf.headers, {'_': 'headers'});
             assert.strictEqual(hf.body, 'body');
         });
     });
@@ -37,17 +37,17 @@ describe('Response', () => {
         });
         it('test case', () => {
             const hf = new Response({ code: 'code',
-                reason: 'reason', headers: 'headers', body: 'body' });
+                reason: 'reason', headers: {'_': 'headers'}, body: 'body' });
             assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify(
-                { code: 'code', reason: 'reason', headers: 'headers', body: 'body' }));
+                { code: 'code', reason: 'reason', headers: {'_': 'headers'}, body: 'body' }));
         });
         it('test case', () => {
             const hf = new Response({ code: 'code',
-                reason: 'reason', headers: 'headers', body: textEncoder.encode('body') });
+                reason: 'reason', headers: {'_': 'headers'}, body: textEncoder.encode('body') });
             assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify({
                 code: 'code',
                 reason: 'reason',
-                headers: 'headers',
+                headers: {'_': 'headers'},
                 'body-bin': encodeBytesToBase64String(textEncoder.encode('body')),
             }));
         });

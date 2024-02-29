@@ -11,7 +11,7 @@ export class GripInstruct {
     public keepAliveTimeout = 0;
     public nextLink?: string;
     public nextLinkTimeout = 0;
-    public meta?: object; // Intended to be modified/set directly
+    public meta?: Record<string, string>; // Intended to be modified/set directly
 
     public constructor(channels?: Channel | Channel[] | string | string[]) {
         if (channels != null) {
@@ -48,7 +48,7 @@ export class GripInstruct {
         this.nextLinkTimeout = timeout;
     }
 
-    public toHeaders(additionalHeaders?: object) {
+    public toHeaders(additionalHeaders?: Record<string, string>) {
         const headers: Record<string, string> = {};
         headers['Grip-Channel'] = createGripChannelHeader(this.channels);
         if (this.status != null) {

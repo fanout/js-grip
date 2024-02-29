@@ -61,8 +61,9 @@ function isPem(keyString: string) {
   );
 }
 
-function isJsonWebKey(obj: any): obj is JsonWebKey {
-  return obj.kty != null;
+function isJsonWebKey(obj: unknown): obj is JsonWebKey {
+  if (obj == null) { return false; }
+  return (obj as JsonWebKey).kty != null;
 }
 
 export function loadKey(key: string | JsonWebKey | Uint8Array | jose.KeyLike): Uint8Array | jose.KeyLike | PemKey | JwkKey {

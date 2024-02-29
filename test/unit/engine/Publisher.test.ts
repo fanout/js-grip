@@ -195,26 +195,24 @@ describe('Publisher', () => {
                 publish(channel: string, item: IItem) {
                     assert.strictEqual(channel, 'chan');
                     assert.strictEqual(item, testItem);
-                    throw new PublishException('error 2', {value: 2});
+                    throw new PublishException('error 2', { statusCode: 2 });
                 }
             });
             publisher.addClient({
                 publish(channel: string, item: IItem) {
                     assert.strictEqual(channel, 'chan');
                     assert.strictEqual(item, testItem);
-                    throw new PublishException('error 3', {value: 3});
+                    throw new PublishException('error 3', { statusCode: 3 });
                 }
             });
-            let resultEx: any = null;
             await assert.rejects(async () => {
                 await publisher.publish('chan', testItem);
             }, ex => {
-                resultEx = ex;
+                assert.ok(ex instanceof PublishException);
+                assert.strictEqual(ex.message, 'error 2');
+                assert.strictEqual(ex.context.statusCode, 2);
                 return true;
             });
-            assert.ok(resultEx instanceof PublishException);
-            assert.strictEqual(resultEx.message, 'error 2');
-            assert.strictEqual(resultEx.context.value, 2);
         });
         it('makes sure that publish is called on each client.', async () => {
             let publishCalled = 0;
@@ -259,14 +257,14 @@ describe('Publisher', () => {
             publisher.addClient({
                 async publish(channel: string, item: IItem) {
                     assert.strictEqual(JSON.stringify(item), JSON.stringify(new Item(
-                        new HttpResponseFormat('1', '2', '3',
+                        new HttpResponseFormat('1', '2', {'_': '3'},
                             '4'))));
                     assert.strictEqual(channel, 'chan');
                     wasPublishCalled = true;
                 }
             });
             await publisher.publishHttpResponse('chan', new HttpResponseFormat(
-                '1', '2', '3', '4'));
+                '1', '2', {'_': '3'}, '4'));
             assert.ok(wasPublishCalled);
         });
         it('makes sure that publish is called on each client.', async () => {
