@@ -163,7 +163,7 @@ describe('PublisherClient', () => {
             await pcc.publish('channel', itm);
             assert.ok(wasWorkerCalled);
         });
-        it('auth', async () => {
+        it('creates appropriate auth header', async () => {
             let wasWorkerCalled = false;
             const itm = new Item(new TestFormat('bodyval'));
             const exportedItem = itm.export();
@@ -187,7 +187,7 @@ describe('PublisherClient', () => {
             await pcc.publish('channel', itm);
             assert.ok(wasWorkerCalled);
         });
-        it('no auth', async () => {
+        it('includes no auth headers when there is no auth', async () => {
             let wasWorkerCalled = false;
             const itm = new Item(new TestFormat('bodyval'));
             const exportedItem = itm.export();
@@ -209,7 +209,7 @@ describe('PublisherClient', () => {
             await pcc.publish('channel', itm);
             assert.ok(wasWorkerCalled);
         });
-        it('fail', async () => {
+        it('fails when fetch throws', async () => {
             const itm = new Item(new TestFormat('bodyval'));
             const exportedItem = itm.export();
             exportedItem['channel'] = 'channel';
@@ -228,7 +228,7 @@ describe('PublisherClient', () => {
                 return true;
             });
         });
-        it('test', async () => {
+        it('succeeds when fetch returns a valid result', async () => {
             const itm = new Item(new TestFormat('bodyval'));
             const exportedItem = itm.export();
             exportedItem['channel'] = 'channel';
@@ -248,7 +248,7 @@ describe('PublisherClient', () => {
                 await pcc.publish('channel', itm);
             });
         });
-        it('failure', async () => {
+        it('fails when publish status code is outside 200 range', async () => {
             const itm = new Item(new TestFormat('bodyval'));
             const exportedItem = itm.export();
             exportedItem['channel'] = 'channel';
@@ -273,7 +273,7 @@ describe('PublisherClient', () => {
                 return true;
             });
         });
-        it('request close', async () => {
+        it('fails when response closes unexpectedly', async () => {
             const itm = new Item(new TestFormat('bodyval'));
             const exportedItem = itm.export();
             exportedItem['channel'] = 'channel';

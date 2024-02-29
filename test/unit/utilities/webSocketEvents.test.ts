@@ -14,7 +14,7 @@ const textDecoder = new TextDecoder();
 
 describe('gripUtilities', () => {
     describe('#encodeWebSocketEvents', () => {
-        it('test case', () => {
+        it('encodes multiple TEXT events', () => {
             const events = encodeWebSocketEvents([
                 new WebSocketEvent('TEXT', 'Hello'),
                 new WebSocketEvent('TEXT', ''),
@@ -22,7 +22,7 @@ describe('gripUtilities', () => {
             ]);
             assert.strictEqual(textDecoder.decode(events), 'TEXT 5\r\nHello\r\nTEXT 0\r\n\r\nTEXT\r\n');
         });
-        it('test case', () => {
+        it('encodes single OPEN event', () => {
             const events = encodeWebSocketEvents([
                 new WebSocketEvent('OPEN'),
             ]);
@@ -30,7 +30,7 @@ describe('gripUtilities', () => {
         });
     });
     describe('#decodeWebSocketEvents', () => {
-        it('test case', () => {
+        it('decodes string input', () => {
             const events = decodeWebSocketEvents('OPEN\r\nTEXT 5\r\nHello' +
                 '\r\nTEXT 0\r\n\r\nCLOSE\r\nTEXT\r\nCLOSE\r\n');
             assert.strictEqual(events.length, 6);
@@ -47,7 +47,7 @@ describe('gripUtilities', () => {
             assert.strictEqual(events[5].type, 'CLOSE');
             assert.strictEqual(events[5].content, null);
         });
-        it('test case', () => {
+        it('decodes binary input string', () => {
             const events = decodeWebSocketEvents(
               textEncoder.encode('OPEN\r\nTEXT 5\r\nHello' +
                 '\r\nTEXT 0\r\n\r\nCLOSE\r\nTEXT\r\nCLOSE\r\n')
@@ -66,19 +66,19 @@ describe('gripUtilities', () => {
             assert.strictEqual(events[5].type, 'CLOSE');
             assert.strictEqual(events[5].content, null);
         });
-        it('test case', () => {
+        it('decodes an OPEN event', () => {
             const events = decodeWebSocketEvents('OPEN\r\n');
             assert.strictEqual(events.length, 1);
             assert.strictEqual(events[0].type, 'OPEN');
             assert.strictEqual(events[0].content, null);
         });
-        it('test case', () => {
+        it('decides a TEXT event', () => {
             const events = decodeWebSocketEvents('TEXT 5\r\nHello\r\n');
             assert.strictEqual(events.length, 1);
             assert.strictEqual(events[0].type, 'TEXT');
             assert.strictEqual(events[0].content, 'Hello');
         });
-        it('test case that should throw', () => {
+        it('throws when TEXT has no content', () => {
             assert.throws(
                 () => {
                     decodeWebSocketEvents('TEXT 5');
@@ -86,7 +86,7 @@ describe('gripUtilities', () => {
                 Error
             );
         });
-        it('test case that should throw', () => {
+        it('throws when TEXT has nothing', () => {
             assert.throws(
                 () => {
                     decodeWebSocketEvents('OPEN\r\nTEXT');
@@ -96,11 +96,11 @@ describe('gripUtilities', () => {
         });
     });
     describe('#createWebSocketControlMessage', () => {
-        it('test case', () => {
+        it('creates a control message with single string type', () => {
             const message = createWebSocketControlMessage('type');
             assert.strictEqual(JSON.stringify({'type': 'type'}), message);
         });
-        it('test case', () => {
+        it('creates a control message with string and args', () => {
             const message = createWebSocketControlMessage('type', {'arg': 'val'});
             assert.strictEqual(JSON.stringify({'arg': 'val', 'type': 'type'}), message);
         });

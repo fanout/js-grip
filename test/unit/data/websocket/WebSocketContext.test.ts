@@ -7,8 +7,8 @@ const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();
 
 describe('WebSocketContext', () => {
-	describe('open', () => {
-		it('test case', () => {
+	describe('opening', () => {
+		it('can accept accept a context with OPEN', () => {
 			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('OPEN')]);
 			assert.strictEqual(ws.id, 'conn-1');
 			assert.ok(ws.isOpening());
@@ -19,7 +19,7 @@ describe('WebSocketContext', () => {
 		});
 	});
 	describe('receive', () => {
-		it('test case', () => {
+		it('can receive a message from context with TEXT', () => {
 			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('TEXT', textEncoder.encode('hello'))]);
 			assert.ok(!ws.isOpening());
 			assert.ok(ws.canRecv());
@@ -29,7 +29,7 @@ describe('WebSocketContext', () => {
 		});
 	});
 	describe('send', () => {
-		it('test case', () => {
+		it('can send messages through context', () => {
 			const ws = new WebSocketContext('conn-1', {}, []);
 			assert.ok(!ws.isOpening());
 			assert.ok(!ws.canRecv());
@@ -62,7 +62,7 @@ describe('WebSocketContext', () => {
 		});
 	});
 	describe('control', () => {
-		it('test case', () => {
+		it('can send control messages', () => {
 			const ws = new WebSocketContext('conn-1', {}, []);
 			assert.strictEqual(ws.outEvents.length, 0);
 			ws.subscribe('foo');
@@ -85,7 +85,7 @@ describe('WebSocketContext', () => {
 		});
 	});
 	describe('close', () => {
-		it('test case', () => {
+		it('can handle a CLOSE message', () => {
 			const data = jspack.Pack('>H', [100]);
 			assert.ok(data);
 			const ws = new WebSocketContext('conn-1', {}, [new WebSocketEvent('CLOSE', new Uint8Array(data))]);
@@ -95,7 +95,7 @@ describe('WebSocketContext', () => {
 			assert.ok(msg == null);
 			assert.strictEqual(ws.closeCode, 100);
 		});
-		it('test case', () => {
+		it('can send a CLOSE message', () => {
 			const ws = new WebSocketContext('conn-1', {}, []);
 			assert.ok(!ws.isOpening());
 			assert.ok(!ws.canRecv());
@@ -105,7 +105,7 @@ describe('WebSocketContext', () => {
 		});
 	});
 	describe('disconnect', () => {
-		it('test case', () => {
+		it('can send a DISCONNECT message', () => {
 			const ws = new WebSocketContext('conn-5', {}, []);
 			assert.strictEqual(ws.outEvents.length, 0);
 			ws.disconnect();

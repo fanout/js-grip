@@ -21,7 +21,7 @@ describe('HttpResponseFormat', () => {
             assert.deepStrictEqual(hf.headers, {'_': 'headers'});
             assert.strictEqual(hf.body, 'body');
         });
-        it('test case', () => {
+        it('constructs with code, reason, headers, and body packed in the first parameter', () => {
             const hf = new HttpResponseFormat({ code: 'code',
                 reason: 'reason', headers: {'_': 'headers'}, body: 'body' });
             assert.strictEqual(hf.code, 'code');
@@ -31,23 +31,23 @@ describe('HttpResponseFormat', () => {
         });
     });
     describe('#name', () => {
-        it('test case', () => {
+        it('returns the name \'http-response\'', () => {
             const hf = new HttpResponseFormat('body');
             assert.strictEqual(hf.name(), 'http-response');
         });
     });
     describe('#export', () => {
-        it('test case', () => {
+        it('exports an object with body only, and the other fields are left out', () => {
             const hf = new HttpResponseFormat({ body: 'body' });
             assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify({ body: 'body' }));
         });
-        it('test case', () => {
+        it('exports an object with code, reason, headers, and body', () => {
             const hf = new HttpResponseFormat({ code: 'code',
                 reason: 'reason', headers: {'_': 'headers'}, body: 'body' });
             assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify(
                 { code: 'code', reason: 'reason', headers: {'_': 'headers'}, body: 'body' }));
         });
-        it('test case', () => {
+        it('exports an object with code, reason, headers, and binary body', () => {
             const hf = new HttpResponseFormat({ code: 'code',
                 reason: 'reason', headers: {'_': 'headers'}, body: textEncoder.encode('body') });
             assert.strictEqual(JSON.stringify(hf.export()), JSON.stringify(

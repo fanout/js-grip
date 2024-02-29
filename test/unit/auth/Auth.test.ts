@@ -8,7 +8,7 @@ const textEncoder = new TextEncoder();
 
 describe('auth', () => {
     describe('Basic', () => {
-        it('test case', async () => {
+        it('can be instantiated and can generate an appropriate header', async () => {
             const authBasic = new Auth.Basic('user', 'pass');
             assert.strictEqual(authBasic.getUser(), 'user');
             assert.strictEqual(authBasic.getPass(), 'pass');
@@ -19,14 +19,14 @@ describe('auth', () => {
         });
     });
     describe('Bearer', () => {
-        it('test case', async () => {
+        it('can be instantiated and can generate an appropriate header', async () => {
             let authBearer = new Auth.Bearer('token');
             assert.strictEqual(authBearer.getToken(), 'token');
             assert.strictEqual(await authBearer.buildHeader(), 'Bearer token');
         });
     });
     describe('Jwt', () => {
-        it('test case', async () => {
+        it('can be instantiated and can generate an appropriate header', async () => {
             const cl = {};
             let authJwt = new Auth.Jwt(cl, textEncoder.encode('key'));
             assert.strictEqual(authJwt.getClaim(), cl);

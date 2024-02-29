@@ -147,7 +147,7 @@ describe('Publisher', () => {
         });
     });
     describe('#publish', () => {
-        it('test case', async () => {
+        it('calls publish of PublisherClient', async () => {
             let wasPublishCalled = false;
             const testItem = {} as Item;
             const publisher = new Publisher();
@@ -161,9 +161,9 @@ describe('Publisher', () => {
             await publisher.publish('chan', testItem);
             assert.ok(wasPublishCalled);
         });
-        it('async', async () => {
-            const testItem = {} as Item;
+        it('calls publish of all publisher clients', async () => {
             let calls = 2;
+            const testItem = {} as Item;
             const publisher = new Publisher();
             publisher.addClient({
                 async publish(channel, item) {
@@ -182,7 +182,7 @@ describe('Publisher', () => {
             await publisher.publish('chan', testItem);
             assert.strictEqual(calls, 0);
         });
-        it('async fail', async () => {
+        it('rejects when a publish fails', async () => {
             const testItem = {} as Item;
             const publisher = new Publisher();
             publisher.addClient({
@@ -234,7 +234,7 @@ describe('Publisher', () => {
             await publisher.publish('chan', 'item' as unknown as IItem);
             assert.strictEqual(publishCalled, 2);
         });
-        it('apply the prefix specified in the constructor', async () => {
+        it('applies the prefix specified in the constructor', async () => {
             let publishCalled = 0;
             const publisher = new Publisher(undefined, {
                 prefix: 'foo',
