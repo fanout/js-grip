@@ -23,18 +23,13 @@
     }
   },
   "files": [
-    "browser/**/*",
     "build/**/*",
     "types/**/*"
   ],
   "types": "./build/src/index.d.ts",
   "scripts": {
     "prepack": "npm run build",
-    "build": "npm run test && npm run build-package && npm run build-browser",
-    "build-browser": "npm run build-browser:clean && npm run build-browser:build-dev && npm run build-browser:build-prod",
-    "build-browser:clean": "rimraf browser",
-    "build-browser:build-dev": "NODE_ENV=development webpack",
-    "build-browser:build-prod": "NODE_ENV=production webpack",
+    "build": "npm run test && npm run build-package",
     "build-package": "npm run build-package:clean && npm run build-package:compile",
     "build-package:clean": "rimraf build",
     "build-package:compile": "tsc --build tsconfig.build.json",
@@ -64,11 +59,8 @@
     "c8": "^8.0.1",
     "glob": "^10.3.10",
     "rimraf": "^3.0.2",
-    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2",
-    "webpack": "^5.90.1",
-    "webpack-cli": "^5.1.4"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "debug": "^4.3.4",
