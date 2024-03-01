@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [4.0.0] - 2024-03-01
+- Major update improving simplicity
+- Simplified build, now exported as ESM modules only.
+- Now based on Web-interoperable APIs (such as `fetch()` and `crypto.subtle`).
+  - Usage on Web-interoperable runtimes no longer requires polyfills for Node.js
+    functionality such as `node:crypto`.
+  - `isWsOverHttp()` and `getWebSocketContextFromReq()` functions now work with
+    `Request` objects rather than Node.js's `IncomingMessage` objects.
+- Separated out Node.js support into its own export, `"@fanoutio/grip/node"`.
+  - `isNodeReqWsOverHttp()` and `getWebSocketContextFromNodeReq()` functions work with
+    Node.js's `IncomingMessage` objects.
+- `GRIP_URL` now allows `key` and `verify-key` query parameters to be provided as:
+  - JSON stringified representation of `JsonWebKey`
+  - base64-encoded representations (prefixed with `base64:`) of `Uint8Array`, JSON-stringified `JsonWebKey`,
+    or PEM file (SPKI or PKCS#8).
+- `parseGripUri` now accepts a second parameter which can be used to merge parameters into a `IGripConfig`.
+- `validateGripSig` is now available on `Publisher`, allowing you to easily check a
+  `Grip-Sig` header against the publisher clients registered with a `Publisher`.
+- `Publisher` can now be configured with a custom channel prefix that will be applied
+  when publishing messages.
+- `Publisher` can now be configured with an override `fetch()` function that will be
+  called when publishing messages.
+- Public Keys for Fastly Fanout are now exported as constants.
+
 ## [3.3.1] - 2023-09-14
 - Updated dependency versions
 
@@ -92,3 +116,13 @@ v 1.2.4 03-08-2015  - Added buffer encoding to decodeWebSocketEvents.
 v 1.2.5 03-25-2015  - Split code into multiple files and added tests and docs.  
 v 1.2.6 12-10-2017  - Implement workaround for parseGripUri.
 v 1.2.7 12-13-2017  - Clean package dir.
+
+
+[unreleased]: https://github.com/fanout/js-grip/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/fanout/js-grip/compare/v3.3.1...v4.0.0
+[3.3.1]: https://github.com/fanout/js-grip/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/fanout/js-grip/compare/v3.2.0...v3.3.0
+[3.2.0]: https://github.com/fanout/js-grip/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/fanout/js-grip/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/fanout/js-grip/compare/v2.0.0-beta.0...v3.0.0
+[2.0.0-beta.0]: https://github.com/fanout/js-grip/releases/tag/v2.0.0-beta.0
