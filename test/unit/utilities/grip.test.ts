@@ -81,7 +81,7 @@ describe('utilities/grip', () => {
         it('merges parameters from second parameter', () => {
             const uri = 'https://api.fastly.com/service/service?' +
               'key=apikey&verify-iss=fastly:service';
-            const config = parseGripUri(uri, { 'verify-key': 'base64:geag12132w==' });
+            const config = parseGripUri(uri, { 'verify-key': 'base64:geag12132w==', 'verify-iss': undefined });
             assert.strictEqual(config['control_uri'], 'https://api.fastly.com/service/service');
             assert.strictEqual(config['control_iss'], undefined);
             assert.strictEqual(config['key'], 'apikey');

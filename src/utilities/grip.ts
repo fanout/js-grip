@@ -16,15 +16,16 @@ export function parseChannels(inChannels: Channel | Channel[] | string | string[
 // Additional values can be provided that get merged with query parameters
 // before parsing them. This is useful for values that get particularly long,
 // such as JWT_VERIFY_KEY.
-export function parseGripUri(uri: string, additional?: Record<string, string>) {
+export function parseGripUri(uri: string, additional?: Record<string, string | undefined>) {
     const parsedUrl = new URL(uri);
     const params = parsedUrl.searchParams;
 
     if (additional != null) {
         for (const [key, value] of Object.entries(additional)) {
-            if (value != null) {
-                params.set(key, value);
+            if (value === undefined) {
+                continue;
             }
+            params.set(key, value);
         }
     }
 
