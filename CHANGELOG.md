@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [4.0.1] - 2024-03-04
+
+### Added
+
+- `parseGripUri` second parameter can have `undefined` values and they will successfully be
+  ignored.
+
 ## [4.0.0] - 2024-03-01
 - Major update improving simplicity
 - Simplified build, now exported as ESM modules only.
@@ -118,7 +125,8 @@ v 1.2.6 12-10-2017  - Implement workaround for parseGripUri.
 v 1.2.7 12-13-2017  - Clean package dir.
 
 
-[unreleased]: https://github.com/fanout/js-grip/compare/v4.0.0...HEAD
+[unreleased]: https://github.com/fanout/js-grip/compare/v4.0.1...HEAD
+[4.0.1]: https://github.com/fanout/js-grip/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/fanout/js-grip/compare/v3.3.1...v4.0.0
 [3.3.1]: https://github.com/fanout/js-grip/compare/v3.3.0...v3.3.1
 [3.3.0]: https://github.com/fanout/js-grip/compare/v3.2.0...v3.3.0
