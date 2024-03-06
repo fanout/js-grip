@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Changed
+
+- docs: Write `127.0.0.1` instead of `localhost`
+
 ## [4.0.1] - 2024-03-04
 
 ### Added
