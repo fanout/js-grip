@@ -1,24 +1,38 @@
+// noinspection DuplicatedCode
+
 /// <reference types="@fastly/js-compute" />
 import { SecretStore } from 'fastly:secret-store';
 import {
+    encodeWebSocketEvents,
+    getWebSocketContextFromReq,
+    isWsOverHttp,
     parseGripUri,
     Publisher,
-    encodeWebSocketEvents,
     WebSocketMessageFormat,
-    isWsOverHttp,
-    getWebSocketContextFromReq,
 } from '@fanoutio/grip';
+import { buildFanoutGripConfig } from '@fanoutio/grip/fastly-fanout';
 
 addEventListener('fetch', (event) => event.respondWith(handleRequest(event)));
 
-async function handleRequest(event) {
+async function handleRequest({request}) {
 
     // Configure the Publisher.
     // Settings are stored in a secret store
     const secretStore = new SecretStore('fastly_websocket_config');
-    const gripUrl = (await secretStore.get('GRIP_URL'))?.plaintext() ?? 'http://localhost:5561/';
-    const gripVerifyKey = (await secretStore.get('GRIP_VERIFY_KEY')).plaintext();
-    const gripConfig = parseGripUri(gripUrl, { 'verify-key': gripVerifyKey });
+    let gripConfig = 'http://127.0.0.1:5561/';
+    const gripUrl = (await secretStore.get('GRIP_URL'))?.plaintext();
+    if (gripUrl) {
+        gripConfig = parseGripUri(gripUrl, { 'verify-key': (await secretStore.get('GRIP_VERIFY_KEY'))?.plaintext() });
+    } else {
+        const fanoutServiceId = (await secretStore.get('FANOUT_SERVICE_ID'))?.plaintext();
+        const fanoutApiToken = (await secretStore.get('FANOUT_API_TOKEN'))?.plaintext();
+        if (fanoutServiceId != null && fanoutApiToken != null) {
+            gripConfig = buildFanoutGripConfig({
+                serviceId: fanoutServiceId,
+                apiToken: fanoutApiToken,
+            });
+        }
+    }
 
     // In Compute, we create a custom Publisher config that adds a backend
     // to the fetch parameter
@@ -28,8 +42,7 @@ async function handleRequest(event) {
         },
     });
 
-    const request = event.request;
-    const requestUrl = new URL(event.request.url);
+    const requestUrl = new URL(request.url);
 
     // Find whether we are behind GRIP
     const gripStatus = await publisher.validateGripSig(request.headers.get('grip-sig'));
@@ -41,7 +54,6 @@ async function handleRequest(event) {
     }
 
     if (request.method === 'POST' && requestUrl.pathname === '/api/websocket') {
-
         // Make sure we're behind a GRIP proxy before we proceed
         if (!gripStatus.isProxied) {
             return new Response(
@@ -107,11 +119,10 @@ async function handleRequest(event) {
     }
 
     if (request.method === 'POST' && requestUrl.pathname === '/api/broadcast') {
-
         // Only accept text bodies
         if (request.headers.get('content-type')?.split(';')[0] !== 'text/plain') {
             return new Response(
-                'Body must be test/plain\n', {
+                'Body must be text/plain\n', {
                     status: 415,
                     headers: {
                         'Content-Type': 'text/plain',

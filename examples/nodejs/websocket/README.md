@@ -19,12 +19,12 @@ After you have set up Pushpin and started the application, test the example
 following these steps.
 
 > NOTE: If you are using Fastly Fanout as the GRIP proxy, follow these steps, but
-replace `localhost:7999` with the public URL of your Fanout Forwarding service.
+replace `127.0.0.1:7999` with the public URL of your Fanout Forwarding service.
 
 1. Open a new terminal window, and type the following:
 
 ```
-wscat -c http://localhost:7999/api/websocket
+wscat -c http://127.0.0.1:7999/api/websocket
 ```
 
 You should see the following prompt: 
@@ -33,7 +33,7 @@ Connected (press CTRL+C to quit)
 > 
 ```
 
-wscat is now connected to the GRIP proxy over a WebSocket. The WebSocket is subscribed to
+`wscat` is now connected to the GRIP proxy over a WebSocket. The WebSocket is subscribed to
 a channel internally called `test`.
 
 2. Enter a line of text at the prompt. The application will echo it back to you through
@@ -49,7 +49,7 @@ Connected (press CTRL+C to quit)
 3. Open a separate terminal window, and type the following:
 
 ```
-curl -X POST -d "Hello" "https://localhost:7999/api/broadcast"
+curl -X POST -d "Hello" "https://127.0.0.1:7999/api/broadcast"
 ```
 
 This publishes the given message (to the channel `test`).  You should see the message `Hello`

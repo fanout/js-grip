@@ -16,12 +16,12 @@ After you have set up Pushpin and started the application, test the example
 following these steps.
 
 > NOTE: If you are using Fastly Fanout as the GRIP proxy, follow these steps, but
-replace `localhost:7999` with the public URL of your Fanout Forwarding service.
+replace `127.0.0.1:7999` with the public URL of your Fanout Forwarding service.
 
 1. Open a new terminal window, and type the following:
 
 ```
-curl http://localhost:7999/api/stream
+curl http://127.0.0.1:7999/api/stream
 ```
 
 You should see the following response text, and then the response should hang open:
@@ -29,12 +29,12 @@ You should see the following response text, and then the response should hang op
 [stream open]
 ```
 
-curl now has an open HTTP stream, held open by Pushpin (listening on a channel internally called `test`).
+`curl` now has an open HTTP stream, held open by Pushpin (listening on a channel internally called `test`).
 
 2. Open a separate terminal window, and type the following:
 
 ```
-curl -X POST -d "Hello" "https://localhost:7999/api/broadcast"
+curl -X POST -d "Hello" "https://127.0.0.1:7999/api/broadcast"
 ```
 
 This publishes the given message (to the channel `test`).  You should see the message `Hello`

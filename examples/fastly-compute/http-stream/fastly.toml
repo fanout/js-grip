@@ -12,13 +12,13 @@ name = "fastly-http-stream"
   [local_server.backends]
 
     [local_server.backends.publisher]
-      override_host = "localhost:5561"
-      url = "http://localhost:5561/"
+      override_host = "127.0.0.1:5561"
+      url = "http://127.0.0.1:5561/"
 
   [local_server.secret_stores]
 
     [[local_server.secret_stores.fastly_http_stream_config]]
-      data = "http://localhost:5561/"
+      data = "http://127.0.0.1:5561/"
       key = "GRIP_URL"
 
 [setup]

@@ -1,12 +1,26 @@
+// noinspection DuplicatedCode
+
 import http from 'node:http';
 import { parseGripUri, Publisher, encodeWebSocketEvents, WebSocketMessageFormat } from '@fanoutio/grip';
+import { buildFanoutGripConfig } from '@fanoutio/grip/fastly-fanout';
 import { isNodeReqWsOverHttp, getWebSocketContextFromNodeReq } from '@fanoutio/grip/node';
 import 'isomorphic-fetch'; // Only needed for Node < 16.15
 
 // Configure the Publisher.
-const gripURL = process.env.GRIP_URL ?? 'http://localhost:5561/';
-const gripVerifyKey = process.env.GRIP_VERIFY_KEY;
-const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey });
+let gripConfig = 'http://127.0.0.1:5561/';
+const gripUrl = process.env.GRIP_URL;
+if (gripUrl) {
+    gripConfig = parseGripUri(gripUrl, { 'verify-key': process.env.GRIP_VERIFY_KEY });
+} else {
+    const fanoutServiceId = process.env.FANOUT_SERVICE_ID;
+    const fanoutApiToken = process.env.FANOUT_API_TOKEN;
+    if (fanoutServiceId != null && fanoutApiToken != null) {
+        gripConfig = buildFanoutGripConfig({
+            serviceId: fanoutServiceId,
+            apiToken: fanoutApiToken,
+        });
+    }
+}
 const publisher = new Publisher(gripConfig);
 
 const server = http.createServer(async (req, res) => {
@@ -23,7 +37,6 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && requestUrl.pathname === '/api/websocket') {
-
         // Make sure we're behind a GRIP proxy before we proceed
         if (!gripStatus.isProxied) {
             res.writeHead(200, {
@@ -77,13 +90,12 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && requestUrl.pathname === '/api/broadcast') {
-
         // Only accept text bodies
         if (req.headers['content-type'].split(';')[0] !== 'text/plain') {
             res.writeHead(415, {
                 'Content-Type': 'text/plain',
             });
-            res.end('Body must be test/plain\n');
+            res.end('Body must be text/plain\n');
             return;
         }
 

@@ -15,13 +15,13 @@ This example also requires `curl`, which is included with most OSes.
 After you have set up Pushpin and started the application, test the example
 following these steps.
 
-> NOTE: If you are using Fastly Fanout as the GRIP proxy, follow these steps, but
-replace `localhost:7999` with the public URL of your Fanout Forwarding service.
+> NOTE: If you are using Fastly Fanout as the GRIP proxy,
+replace `127.0.0.1:7999` with the public URL of your Fanout Forwarding service.
 
 1. Open a new terminal window, and type the following:
 
 ```
-curl http://localhost:7999/api/stream
+curl http://127.0.0.1:7999/api/stream
 ```
 
 You should see the following response text, and then the response should hang open: 
@@ -29,12 +29,12 @@ You should see the following response text, and then the response should hang op
 [stream open]
 ```
 
-curl now has an open HTTP stream, held open by Pushpin (listening on a channel internally called `test`).
+`curl` now has an open HTTP stream, held open by Pushpin (listening on a channel internally called `test`).
 
 2. Open a separate terminal window, and type the following:
 
 ```
-curl -X POST -d "Hello" "https://localhost:7999/api/broadcast"
+curl -X POST -d "Hello" "https://127.0.0.1:7999/api/broadcast"
 ```
 
 This publishes the given message (to the channel `test`).  You should see the message `Hello`
@@ -64,7 +64,7 @@ if (!gripStatus.isProxied) {
 
 If successful, then the handler goes on to set up a GRIP instruction.
 This instruction asks the GRIP proxy to hold the current connection open
-as a streaming connection, listening to the channel named `'test'`.
+as a streaming connection, listening on the channel named `'test'`.
 
 ```javascript
 const gripInstruct = new GripInstruct('test');
@@ -88,8 +88,8 @@ connection open with the client.
 
 2. A `POST` request at `/api/publish`
 
-This handler starts by checking to make sure the content type specifies that the body
-is of type `text/plain`. Afterward, the handler reads the request body into a string.
+This handler starts by checking to make sure the content type is `text/plain`.
+Afterward, the handler reads the request body into a string.
 
 ```javascript
 if (req.headers['content-type'].split(';')[0] !== 'text/plain') {

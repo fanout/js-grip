@@ -1,7 +1,7 @@
 # Examples for Fastly Compute
 
 The examples in this directory illustrate the use of GRIP using
-[Fastly Compute](https://www.fastly.com/documentation/guides/compute/javascript/) as the backend.
+a [Fastly Compute](https://www.fastly.com/documentation/guides/compute/javascript/) application as the backend.
 
 * [`http-stream/`](./http-stream) - HTTP streaming using GRIP.
 * [`websocket/`](./websocket) - WebSocket-over-HTTP using GRIP.
@@ -28,7 +28,7 @@ See [Running the examples on Fastly Fanout](#running-the-examples-with-fastly-fa
    Pushpin configuration):
 
 ```
-* localhost:3000
+* 127.0.0.1:3000
 ```
 
 2. Start Pushpin.
@@ -40,7 +40,7 @@ pushpin
 By default, it will listen on port 7999, with a publishing
 endpoint open on port 5561. Leave Pushpin running in that terminal window.
 
-3. In a new terminal window, switch to this example's directory, and
+3. In a new terminal window, switch to the example's directory, and
    install dependencies:
 
 ```
@@ -62,7 +62,7 @@ For local development, configuration values (backend, Secret Store) have been
 pre-set in the [`fastly.toml` Compute package manifest](https://www.fastly.com/documentation/reference/compute/fastly-toml/)
 file.
 
-# Description of common code between the examples
+## Description of common code between the examples
 
 Each example has the same general structure:
 * Setting up the request handler
@@ -70,47 +70,65 @@ Each example has the same general structure:
 * Checking GRIP status
 * Handling (specific to the example)
 
-## The request handler
+### The request handler
 
-As [do all Compute JavaScript](https://www.fastly.com/documentation/guides/compute/javascript/#main-interface)
+Following the format of [Fastly Compute JavaScript](https://www.fastly.com/documentation/guides/compute/javascript/#main-interface)
 applications, these examples use the `addEventHandler` function to declare the `fetch` event handler.
 
 ```javascript
 addEventListener('fetch', (event) => event.respondWith(handleRequest(event)));
 
-async function handleRequest(event) {
-    const request = event.request;
-    const requestUrl = new URL(event.request.url);
+async function handleRequest({request}) {
+    const requestUrl = new URL(request.url);
 
     // handler code ...
 };
 ```
 
-## Configuration of GRIP
+### Configuration of GRIP
 
-Each example interfaces with GRIP using the `Publisher` class. The Compute backend
-application instantiates the `Publisher` class using a `GRIP_URL` value set in
-a Fastly [Secret Store](https://docs.fastly.com/en/guides/working-with-secret-stores).
-A Secret Store is used, because the GRIP_URL may contain secrets or API tokens.
+Each example interfaces with GRIP using the `Publisher` class.
 
-In the examples, the utility function `parseGripUri` is used to merge in the
-`GRIP_VERIFY_KEY` if it's required by the proxy (as is the case when using Fastly Fanout
-for the GRIP proxy).
+To configure `Publisher`, a GRIP configuration object `gripConfig` is used.
+The example applications give it a default value of `http://127.0.0.1:5561/` to point to
+local Pushpin.
 
-In the Compute example, this initialization happens inside the request handler,
-because the Secret Store can only be consulted during the handling of messages,
-not during application initialization.
+```javascript
+let gripConfig = 'http://127.0.0.1:5561/';
+```
+
+It may be overridden using a `GRIP_URL`, which in the Fastly Compute backend application is set as
+a value in the Fastly [Secret Store](https://docs.fastly.com/en/guides/working-with-secret-stores).
+Additionally, in the example, the utility function `parseGripUri` is used to merge in the `GRIP_VERIFY_KEY`
+if it's required by the proxy.
 
 The name of the Secret Store depends on the example. In the following example, the
 settings are read from the Secret Store named `fastly_http_stream_config`.
 ```javascript
 const secretStore = new SecretStore('fastly_http_stream_config');
-const gripUrl = (await secretStore.get('GRIP_URL'))?.plaintext() ?? 'http://localhost:5561/';
-const gripVerifyKey = (await secretStore.get('GRIP_VERIFY_KEY')).plaintext();
-const gripConfig = parseGripUri(gripUrl, { 'verify-key': gripVerifyKey });
+const gripUrl = (await secretStore.get('GRIP_URL'))?.plaintext();
+if (gripUrl) {
+    gripConfig = parseGripUri(gripUrl, { 'verify-key': (await secretStore.get('GRIP_VERIFY_KEY'))?.plaintext() });
+}
 ```
 
-Once the configuration is read, it's used to instantiate the `Publisher` class.
+Alternatively, the environment variables `FANOUT_SERVICE_ID` and `FANOUT_API_TOKEN`
+are checked, and if present, they are used with the `buildFanoutGripConfig()` function to
+build the `gripConfig`.
+
+```javascript
+const fanoutServiceId = (await secretStore.get('FANOUT_SERVICE_ID'))?.plaintext();
+const fanoutApiToken = (await secretStore.get('FANOUT_API_TOKEN'))?.plaintext();
+if (fanoutServiceId != null && fanoutApiToken != null) {
+    gripConfig = buildFanoutGripConfig({
+        serviceId: fanoutServiceId,
+        apiToken: fanoutApiToken,
+    });
+}
+```
+
+Finally, this `gripConfig` is used to instantiate `Publisher`.
+
 ```javascript
 const publisher = new Publisher(gripConfig, {
     fetch(input, init) {
@@ -128,10 +146,14 @@ override this behavior.
 In Compute, a backend needs to be specified to make outgoing `fetch` calls, so the
 example assigns the backend called `'publisher'` before calling the global fetch.
 
-## GRIP status
+In the Compute example, this initialization happens inside the request handler,
+because the Secret Store can only be accessed during the handling of messages,
+not during application initialization.
 
-The example application is intended to be called via a GRIP proxy. When the handler
-runs, a GRIP proxy will have inserted a `Grip-Sig` header into the request, which it has
+### GRIP status
+
+The backend application is intended to be called via a GRIP proxy. When the handler runs,
+a GRIP proxy will have inserted a `Grip-Sig` header into the request, which it has
 signed with a secret or key.
 
 The request handler calls `publisher.validateGripSig` to validate this header,
@@ -148,7 +170,7 @@ This result can be checked for three fields:
   configuration signs incoming requests.
 `gripStatus.isSigned` - When `true`, indicates that the signature validation was successful.
 
-## Handling the request
+### Handling the request
 
 Following this, the request handler in each example handles the request in its
 respective way. Refer to the README in each project for details.
@@ -158,11 +180,21 @@ Found error.
 
 Refer to the README in each project for details on how to work with the example.
 
-# Running the examples with Fastly Fanout as the GRIP proxy
+## Running the examples with Fastly Fanout as the GRIP proxy
 
-By running these examples on your actual Fastly service, they can be run behind
+By publishing these examples publicly to a Fastly service, they can be run behind
 [Fastly Fanout](https://docs.fastly.com/products/fanout) to benefit from a global
 network and holding client connections at the edge.
+
+Aside from your backend application running publicly on the internet,
+you will need a separate Fastly Compute service with Fanout enabled.
+This Fastly service runs a small program at the edge that examines
+each request and performs a "handoff" to Fanout for relevant requests,
+allowing Fanout to hold client connections and interpret GRIP messages.
+
+The [Fastly Fanout Forwarding Starter Kit (JavaScript)](https://github.com/fastly/compute-starter-kit-javascript-fanout-forward#readme)
+can be used for this purpose. In many cases it can be used as is,
+or as a starting point for further customization.
 
 To do this, you can use [a free Fastly developer account](https://www.fastly.com/signup),
 and then set up a [free trial of Fanout](https://www.fastly.com/documentation/guides/concepts/real-time-messaging/fanout/#enable-fanout).
@@ -175,88 +207,115 @@ Note that this means there will be two Fastly services:
 
 First, set up the Fastly service that will forward requests through Fanout.
 
-The following steps use the [Fastly Cloud Deploy](https://www.fastly.com/documentation/reference/tools/cloud-deploy/)
-tool and the Web UIs to set up a Fastly account and service.
-
-> TIP: If you are familiar with the [Fastly CLI](https://www.fastly.com/documentation/reference/tools/cli/),
-then you can use it instead to perform them manually, if you like.
+The following steps describe the process of setting up the
+[Fastly Fanout Forwarding Starter Kit (JavaScript)](https://github.com/fastly/compute-starter-kit-javascript-fanout-forward#readme)
+on your Fastly account.
 
 1. If you don't already have a Fastly account, sign up for [a free developer account](https://www.fastly.com/signup).
 
 2. Create a new API token (personal access token) that has `global` scope for your
    account.
 
-3. Browse to the [Fastly Fanout Forwarding Starter Kit (JavaScript)](https://github.com/fastly/compute-starter-kit-javascript-fanout-forward#readme)
-   in your web browser.
+3. If you haven't already installed the Fastly CLI, [install it](https://www.fastly.com/documentation/reference/tools/cli/).
 
-4. In the `README` file, and click the _Deploy to Fastly_ button. You'll be taken to the **Cloud Deploy** tool. Then:
-    1. Step 1 - Provide your credentials to log in to GitHub
-    2. Step 2 - Provide your Fastly API token.
-    3. Step 3 - You'll be asked to provide a repository name at which to fork the starter kit.
-    4. Step 4 - You'll be given a service ID. Note the service ID, and then click _Deploy_.
-    5. You'll be taken to a progress screen that lists your new Fastly service's domain name and service ID.
+4. Set up the Fastly CLI with a [user profile](https://www.fastly.com/documentation/reference/tools/cli/#configuring),
+   using your API token from above.
 
-5. As the deployment proceeds, you may continue with the following steps to set up the example backend code.
-   You'll come back to this service to set up Fanout and origin host later.
+5. Create a new directory where you will set up Fastly Fanout Forwarding, and switch to the
+   directory.
+
+```
+mkdir fastly-fanout-forward
+cd fastly-fanout-forward
+```
+
+6. Initialize the directory as a Fastly Compute application. Provide a name for the application, a description, and
+   author info.
+
+```
+fastly compute init --from=https://github.com/fastly/compute-starter-kit-javascript-fanout-forward
+```
+
+7. Deploy the application to your Fastly account.
+
+```
+fastly compute publish --status-check-off
+```
+
+* You will be asked whether you want to create a new service. Reply `y`. Provide the following values:
+  * **Service name**: CUse the default value, or provide a name that you like.
+  * **Domain**: Use the default value, or choose a subdomain of **edgecompute.app** that you like.
+  * **Backend**: For now, do not specify any backends.
+* Your service will be packaged and deployed to a new service.
+  * Make a note of the new service's ID (You'll need it to configure the publisher in the next section).
+
+8. You'll come back to Fastly to set up Fanout and origin host later.
 
 ### Setting up the example (backend) code
 
 The steps below describe how to deploy each example to a new service in your Fastly account.
 
-1. If you haven't installed the Fastly CLI, [install it](https://www.fastly.com/documentation/reference/tools/cli/).
-2. Set up the Fastly CLI with a [user profile](https://www.fastly.com/documentation/reference/tools/cli/#configuring).
-3. Switch to the example's directory.
-4. Install the example's dependencies
+1. In a new terminal window, switch to the example's directory.
+
+2. Install the example's dependencies
    ```
    npm install
+   ``` 
+
+3. Publish this to a Fastly service
    ```
-5. Publish this to a Fastly service
+   fastly compute publish --status-check-off
    ```
-   npm run deploy
-   ```
-   * Because there is no Fastly service associated with the package, you'll be asked if
-     you'd like to create a new service. Reply **y** (for yes). Provide the following values:
-     * **Service-name**: Use the default value, or provide a name that you like
+   * You will be asked whether you want to create a new service. Reply `y`. Provide the following values:
+     * **Service name**: Use the default value, or provide a name that you like
      * **Domain**: Use the default value, or choose a subdomain of **edgecompute.app** that you like
      * **Backend**: Enter one backend:
        * Backend (hostname or IP address): **api.fastly.com**
        * Backend port number: Use the default value of **443**
        * Backend name: **publisher**
        * Do not enter any more backends
-     * **Secret Stores**: you will be asked to provide values for the Secret Store values. The values will not be displayed
-       as you enter them. 
-       * `GRIP_URL` - Set this to `https://api.fastly.com/service/<SERVICE_ID>?key=<FASTLY_API_TOKEN>&verify-iss=fastly:<SERVICE_ID>`.
-         * Replace both cases of `<SERVICE_ID>` in the URL with the service ID of the Fastly Forwarding service.
-         * Replace `<FASTLY_API_TOKEN>` in the URL with your Fastly API token.
-       * `GRIP_VERIFY_KEY` - Set this to the value `{"kty":"EC","crv":"P-256","x":"CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg","y":"7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M"}`
+     * **Secret Stores**: you will be asked to provide values for Secret Store entries.
+       > NOTE: The values will **NOT** be displayed as you enter them.
 
-### Enable Fanout on your Fastly Forwarding service, and point it at your backend
+       You may either provide `FANOUT_SERVICE_ID` and `FANOUT_API_TOKEN`, or `GRIP_URL` and `GRIP_VERIFY_KEY`. 
 
-1. Visit the management page for the Fastly Forwarding service.
-  * The URL looks something like this: `https://manage.fastly.com/configure/services/<SERVICE_ID>`
+       1. Using `FANOUT_SERVICE_ID` and `FANOUT_API_TOKEN`:
+           * `FANOUT_SERVICE_ID` - Set this to your Fastly service ID.
+           * `FANOUT_API_TOKEN` - Set this to your Fastly API token.
+       2. Using `GRIP_URL`:
+           * `GRIP_URL` - Set this to `'https://api.fastly.com/service/<SERVICE_ID>?key=<FASTLY_API_TOKEN>&verify-iss=fastly:<SERVICE_ID>'`.
+               * Replace both instances of `<SERVICE_ID>` in the URL with your Fastly service ID.
+               * Replace `<FASTLY_API_TOKEN>` in the URL with your Fastly API token.
+               * Don't forget to put single quotes around the whole thing, so that Glitch can treat the colon and ampersand literally.
+           * `GRIP_VERIFY_KEY` - Set this to the value `{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg\",\"y\":\"7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M\"}`
 
-2. Click the Edit Configuration button and then click "Clone to edit".
+### Enable Fanout on your Fastly service, and point it at your backend
 
-3. Set up your Fastly service with a **Origin Host** that points to your backend.
-  * In the editor, navigate to **Origin** > **Hosts**
-  * Use the public domain of your backend that you specified when you deployed it.
-  * After you add the domain name, edit the host and set the name to the string `origin`.
-  * Make sure it's set up with the right port number.
-  * Scroll down, and set the **Override host** value to the domain as well.
-  * Click **Update**
+1. Switch back to the terminal window where you deployed your Fastly Fanout Forwarding service.
+
+2. Type the following command to add the example application to your Fastly service as a backend with the name `origin`.
+   Insert the public hostname of your example backend in the command below.
+
+```
+fastly backend create --autoclone --version=active --name=origin --address=<example public hostname>    
+```
+
+3. Activate the newly created version.
+
+```
+fastly service-version activate --version=latest
+```
 
 4. Enable Fanout on your service.
-  * In the editor, navigate to **Settings** > **Fanout**
-  * Click the ON/OFF switch to enable Fanout on your service.
 
-5. Activate this new version.
-  * Scroll up and click the **Activate** button.
+```
+fastly products --enable=fanout
+```
+5. Wait a moment for the updates to deploy across Fastly's network.
 
-6. Wait a moment for the updated version to deploy across Fastly's network.
+6. Go on to follow the steps under each example's `README` file.
 
-7. Go on to follow the steps under each example's `README` file.
-
-When you do this, access the application at your Fastly service's domain name
+When you do this, access the application at your Fastly service's domain name (e.g., `https://<something>.edgecompute.app/`)
 instead of your local Pushpin address.
 
 Back to [examples](../)
