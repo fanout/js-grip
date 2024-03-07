@@ -69,7 +69,7 @@ const publisher = new Publisher(process.env.GRIP_URL); // A GRIP_URL representin
 
 // or 
 
-const gripURL = process.env.GRIP_URL ?? 'http://127.0.0.1:5561/';
+const gripURL = process.env.GRIP_URL || 'http://127.0.0.1:5561/';
 const gripVerifyKey = process.env.GRIP_VERIFY_KEY;
 const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey }); // Merge a key into the GRIP_URL
 const publisher = new Publisher(gripConfig);
@@ -180,7 +180,7 @@ The `verify_key` is sometimes large, especially when public keys are used. In th
 stored separately as a `GRIP_VERIFY_KEY`, and the values are merged at runtime:
 
 ```javascript
-const gripURL = process.env.GRIP_URL ?? 'http://127.0.0.1:5561/';
+const gripURL = process.env.GRIP_URL || 'http://127.0.0.1:5561/';
 const gripVerifyKey = process.env.GRIP_VERIFY_KEY;
 const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey });
 ```
@@ -205,7 +205,7 @@ const publisher = new Publisher({
 
 // or
 
-const gripURL = process.env.GRIP_URL ?? 'http://127.0.0.1:5561/';
+const gripURL = process.env.GRIP_URL || 'http://127.0.0.1:5561/';
 const gripVerifyKey = process.env.GRIP_VERIFY_KEY;
 const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey });
 const publisher = new Publisher(gripConfig); // You can pass a gripConfig if you've already parsed it
