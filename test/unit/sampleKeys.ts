@@ -1,4 +1,4 @@
-export const PRIVATE_KEY_1 = `-----BEGIN PRIVATE KEY-----
+export const SAMPLEKEY_RSA_PRIVATE_PEM: string = `-----BEGIN PRIVATE KEY-----
 MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCCMxxZcp61Nv1D
 tniMJhtDlBC9Z29LiTF3KqTGDyn7WaJ9ScRJkZcWcGKbtf6P6qIdbBID2z9K5FUi
 Fkw3BkrwOqy2q5tse2u7iyyj7TCbylW1fvya+br5Tv/F1kcEv55aC2yZHdY4l1au
@@ -27,7 +27,7 @@ UymCwYDNiv4dJL8eTournOEwCXuXA/Zx/L6/I6hKz1+NceAwbcN++DmSY33mY0vE
 WRkOLRlYprgzM/+Mk+pX3w==
 -----END PRIVATE KEY-----`;
 
-export const PRIVATE_KEY_1_JWK = {
+export const SAMPLEKEY_RSA_PRIVATE_JWK: JsonWebKey = {
   'kty': 'RSA',
   'd': 'Fu4VchNjrBqRJBnAxT3400ACarkKuszgr1INTuxgwmmY2mPhc-t2JneIhk_ZE1OJVZEw4wj77p6j96rhpVcwX3qV7F3ws3xRDuiF5iDhzK4nxh0lM84DheDJ3vfL7iQpKUaVy6mbjr_ofiokLiuZfeGkk1D0jA9QJGzT_NcLjxR6H_oDQ9yho3LwlTz5OgYd82hoYl3sIQBw-PppeC6slH1jBIYYyApXVknbCTZYLTNkAls3vJ_00lpFtf9uZ0v2wgpnC-5O61gXijabYV_0hczFTvaSojfsp7u1haA5kxqED_uZ6NaFNWlrvo57pTyGm6pWKdunUAzK7MJCP8_aAQ',
   'n': 'gjMcWXKetTb9Q7Z4jCYbQ5QQvWdvS4kxdyqkxg8p-1mifUnESZGXFnBim7X-j-qiHWwSA9s_SuRVIhZMNwZK8DqstqubbHtru4sso-0wm8pVtX78mvm6-U7_xdZHBL-eWgtsmR3WOJdWrjb4J73OyyX7aGmSuFsejtwfRCjR3mG_6IuVVTwLoUNQYbiwORaP1oUbYcel1m-kizESTeADLlIrMLEg0KxW0YhdTNYKw8Nyukr_CBQDnSv9CXOgvw4V3iraQ1F0a6cSRokADjgaTKXq-yplQRIEXpfoA4bh75CTb5ZbjswzNb6DT37SAYZJOr7vyW8mP_hAKe4MWq2Ldw',
@@ -39,7 +39,7 @@ export const PRIVATE_KEY_1_JWK = {
   'qi': 'QthCP7DG7PLHl73j3Sbd9RsT8vqAoXC3CPJFBjWrGFV30a9idB3QxOag3ABW_V5tWVd73QQZs8Ei_9pk71FqyVMpgsGAzYr-HSS_Hk6Lq5zhMAl7lwP2cfy-vyOoSs9fjXHgMG3Dfvg5kmN95mNLxFkZDi0ZWKa4MzP_jJPqV98',
 };
 
-export const PUBLIC_KEY_1  = `-----BEGIN PUBLIC KEY-----
+export const SAMPLEKEY_RSA_PUBLIC_PEM: string  = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgjMcWXKetTb9Q7Z4jCYb
 Q5QQvWdvS4kxdyqkxg8p+1mifUnESZGXFnBim7X+j+qiHWwSA9s/SuRVIhZMNwZK
 8DqstqubbHtru4sso+0wm8pVtX78mvm6+U7/xdZHBL+eWgtsmR3WOJdWrjb4J73O
@@ -49,13 +49,25 @@ TKXq+yplQRIEXpfoA4bh75CTb5ZbjswzNb6DT37SAYZJOr7vyW8mP/hAKe4MWq2L
 dwIDAQAB
 -----END PUBLIC KEY-----`;
 
-export const PUBLIC_KEY_1_JWK = {
+export const SAMPLEKEY_RSA_PUBLIC_JWK: JsonWebKey = {
   'kty': 'RSA',
   'n': 'gjMcWXKetTb9Q7Z4jCYbQ5QQvWdvS4kxdyqkxg8p-1mifUnESZGXFnBim7X-j-qiHWwSA9s_SuRVIhZMNwZK8DqstqubbHtru4sso-0wm8pVtX78mvm6-U7_xdZHBL-eWgtsmR3WOJdWrjb4J73OyyX7aGmSuFsejtwfRCjR3mG_6IuVVTwLoUNQYbiwORaP1oUbYcel1m-kizESTeADLlIrMLEg0KxW0YhdTNYKw8Nyukr_CBQDnSv9CXOgvw4V3iraQ1F0a6cSRokADjgaTKXq-yplQRIEXpfoA4bh75CTb5ZbjswzNb6DT37SAYZJOr7vyW8mP_hAKe4MWq2Ldw',
-  'e': 'AQAB'
+  'e': 'AQAB',
 };
 
-export const SYMMETRIC_KEY_1_JWK = {
+export const SAMPLEKEY_EC_PUBLIC_PEM: string = `-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErO+ULLX1N3bqMwaCM5Y8KlxA8JXi
+xrHS2QzO9dokERaAfij71G77qQaBWaIuwrYLuxSEekTqyuAE0D4OBumozw==
+-----END PUBLIC KEY-----`;
+
+export const SAMPLEKEY_EC_PUBLIC_JWK: JsonWebKey = {
+  'kty': 'EC',
+  'crv': 'P-256',
+  'x': 'rO-ULLX1N3bqMwaCM5Y8KlxA8JXixrHS2QzO9dokERY',
+  'y': 'gH4o-9Ru-6kGgVmiLsK2C7sUhHpE6srgBNA-DgbpqM8',
+};
+
+export const SAMPLEKEY_HMAC_JWK: JsonWebKey = {
   'kty': 'oct',
   'k': 'hO62z0B7Vvj8PgkMN7yaUzYS8MSf2fi4_WH-M5jlnmt3OW3sO6B9H5yjdoRD6Zq_eCQLft7K9ymVRinqiTofKQ'
 };

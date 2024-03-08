@@ -13,7 +13,7 @@ import {
     PublishException,
     ValidateGripSigResult,
 } from '../../../src/index.js';
-import { PRIVATE_KEY_1, PUBLIC_KEY_1 } from '../sampleKeys.js';
+import { SAMPLEKEY_RSA_PRIVATE_PEM, SAMPLEKEY_RSA_PUBLIC_PEM } from '../sampleKeys.js';
 import type { IItem, } from '../../../src/index.js';
 
 const textEncoder = new TextEncoder();
@@ -457,7 +457,7 @@ describe('Publisher', () => {
                     {
                         control_uri: 'https://www.example2.com',
                         verify_iss: 'bar',
-                        verify_key: PUBLIC_KEY_1,
+                        verify_key: SAMPLEKEY_RSA_PUBLIC_PEM,
                     },
                 ]);
             });
@@ -527,7 +527,7 @@ describe('Publisher', () => {
                     })
                       .setProtectedHeader({ alg: 'RS256' })
                       .setExpirationTime('1h');
-                    const privateKey1 = await jose.importPKCS8(PRIVATE_KEY_1, 'RS256');
+                    const privateKey1 = await jose.importPKCS8(SAMPLEKEY_RSA_PRIVATE_PEM, 'RS256');
                     const token = await signJwt.sign(privateKey1);
 
                     proxyStatus = await publisher.validateGripSig(token);

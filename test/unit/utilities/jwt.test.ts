@@ -1,8 +1,12 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert';
 import * as jose from 'jose';
-import { PUBLIC_KEY_FASTLY_FANOUT_PEM, validateSig } from '../../../src/index.js';
-import { PRIVATE_KEY_1, PUBLIC_KEY_1 } from '../sampleKeys.js';
+import { validateSig } from '../../../src/index.js';
+import {
+    SAMPLEKEY_EC_PUBLIC_PEM,
+    SAMPLEKEY_RSA_PRIVATE_PEM,
+    SAMPLEKEY_RSA_PUBLIC_PEM,
+} from '../sampleKeys.js';
 
 const textEncoder = new TextEncoder();
 
@@ -73,7 +77,7 @@ describe('utilities/jwt', () => {
         describe('Using RS256', () => {
             let privateKey1: jose.KeyLike;
             before(async () => {
-                privateKey1 = await jose.importPKCS8(PRIVATE_KEY_1, 'RS256');
+                privateKey1 = await jose.importPKCS8(SAMPLEKEY_RSA_PRIVATE_PEM, 'RS256');
             });
             it('check that a signature can be validated', async () => {
 
@@ -82,7 +86,7 @@ describe('utilities/jwt', () => {
                   .setExpirationTime('1h');
                 const token = await signJwt.sign(privateKey1);
 
-                assert.ok(await validateSig(token, PUBLIC_KEY_1));
+                assert.ok(await validateSig(token, SAMPLEKEY_RSA_PUBLIC_PEM));
             });
             it('check that a signature can be validated when the key is loaded beforehand', async () => {
 
@@ -91,7 +95,7 @@ describe('utilities/jwt', () => {
                   .setExpirationTime('1h');
                 const token = await signJwt.sign(privateKey1);
 
-                const publicKey1 = await jose.importSPKI(PUBLIC_KEY_1, 'RS256');
+                const publicKey1 = await jose.importSPKI(SAMPLEKEY_RSA_PUBLIC_PEM, 'RS256');
 
                 assert.ok(await validateSig(token, publicKey1));
             });
@@ -102,7 +106,7 @@ describe('utilities/jwt', () => {
                   .setExpirationTime('-1h');
                 const token = await signJwt.sign(privateKey1);
 
-                assert.ok(!await validateSig(token, PUBLIC_KEY_1));
+                assert.ok(!await validateSig(token, SAMPLEKEY_RSA_PUBLIC_PEM));
             });
             it('check that a signature can\'t be validated if the key doesn\'t match', async () => {
 
@@ -111,7 +115,7 @@ describe('utilities/jwt', () => {
                   .setExpirationTime('1h');
                 const token = await signJwt.sign(privateKey1);
 
-                assert.ok(!await validateSig(token, PUBLIC_KEY_FASTLY_FANOUT_PEM));
+                assert.ok(!await validateSig(token, SAMPLEKEY_EC_PUBLIC_PEM));
             });
             it('check the ISS of a claim', async () => {
 
@@ -123,7 +127,7 @@ describe('utilities/jwt', () => {
                     .setExpirationTime('1h');
                 const token = await signJwt.sign(privateKey1);
 
-                assert.ok(await validateSig(token, PUBLIC_KEY_1, 'foo'));
+                assert.ok(await validateSig(token, SAMPLEKEY_RSA_PUBLIC_PEM, 'foo'));
             });
             it('check claim with missing ISS won\'t validate', async () => {
 
@@ -134,7 +138,7 @@ describe('utilities/jwt', () => {
                     .setExpirationTime('1h');
                 const token = await signJwt.sign(privateKey1);
 
-                assert.ok(!await validateSig(token, PUBLIC_KEY_1, 'foo'));
+                assert.ok(!await validateSig(token, SAMPLEKEY_RSA_PUBLIC_PEM, 'foo'));
             });
             it('check claim with mismatched ISS won\'t validate', async () => {
 
@@ -146,7 +150,7 @@ describe('utilities/jwt', () => {
                     .setExpirationTime('1h');
                 const token = await signJwt.sign(privateKey1);
 
-                assert.ok(!await validateSig(token, PUBLIC_KEY_1, 'foo'));
+                assert.ok(!await validateSig(token, SAMPLEKEY_RSA_PUBLIC_PEM, 'foo'));
             });
         });
     });
