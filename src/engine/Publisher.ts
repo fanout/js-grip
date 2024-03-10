@@ -6,7 +6,12 @@ import type { IPublisherClient } from './IPublisherClient.js';
 import type { IGripConfig } from './IGripConfig.js';
 import type { IFormat, IItem } from '../data/index.js';
 
-export type GripUrlOrConfigs = string | IGripConfig | (string | IGripConfig)[];
+/**
+ * @deprecated
+ */
+export type GripUrlOrConfigs = GripConfig | GripConfig[];
+
+export type GripConfig = string | IGripConfig;
 
 export type PublisherOptions = PublisherClientOptions & {
     prefix?: string,
@@ -25,13 +30,13 @@ export class Publisher {
     public clients: IPublisherClient[] = [];
     public prefix: string | undefined;
 
-    constructor(config?: GripUrlOrConfigs, publisherOptions?: PublisherOptions) {
+    constructor(config?: GripConfig | GripConfig[], publisherOptions?: PublisherOptions) {
         this.applyConfigs(config ?? [], publisherOptions);
         this.prefix = publisherOptions?.prefix;
     }
 
     // Apply the specified GRIP configurations to this PublisherBase instance.
-    applyConfigs(config: GripUrlOrConfigs, publisherClientOptions?: PublisherClientOptions) {
+    applyConfigs(config: GripConfig | GripConfig[], publisherClientOptions?: PublisherClientOptions) {
         const configsAsArray = Array.isArray(config) ? config : [config];
         for (const configEntry of configsAsArray) {
             this.applyConfig(configEntry, publisherClientOptions);
