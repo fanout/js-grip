@@ -187,10 +187,6 @@ const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey });
 
 > TIP: Because GRIP_URL can contain secrets (API token or private/shared key for signing), it should
 > be handled with care.
-> 
-> For example, if you're using Fastly Compute, you should use a 
-> Fastly [Secret Store](https://docs.fastly.com/en/guides/working-with-secret-stores). See the [Fastly
-> Compute examples](./examples/fastly-compute) for a working example.
 
 ### Instantiate the `Publisher` object
 
