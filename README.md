@@ -227,6 +227,9 @@ const publisher = new Publisher(gripConfig); // You can pass a gripConfig if you
 const publisher = new Publisher(process.env.GRIP_URL); // You can even pass a GRIP_URL directly
 ```
 
+> NOTE: If your backend application is running on Fastly Compute, then you'll need to further configure the
+> `Publisher`. See [Sending publish messages from Fastly Compute](#sending-publish-messages-from-a-fastly-compute-application) below.
+
 ### Validating Incoming Requests
 
 When an incoming client request arrives at the GRIP proxy over HTTP, the proxy forwards the request to
@@ -283,16 +286,8 @@ class uses the [global `fetch()`](https://developer.mozilla.org/en-US/docs/Web/A
 function as the underlying mechanism. By providing a value for `fetch`, we are able to
 override this behavior.
 
-For example, if you're running in Fastly Compute, a `backend` parameter needs to be specified to make
-outgoing `fetch()` calls.
-
-```javascript
-const publisher = new Publisher(gripConfig, {
-    fetch(input, init) {
-        return fetch(String(input), { ...init, backend: 'publisher' });
-    },
-});
-```
+> TIP: You may want to do this if your backend is running on Fastly Compute. See the section
+> below on [publishing messages from a Fastly Compute application](#sending-publish-messages-from-a-fastly-compute-application)
 
 #### Prefixes
 
@@ -302,6 +297,24 @@ To do this, set the `prefix` value in the configuration parameter when instantia
 ```javascript
 const publisher = new Publisher(process.env.GRIP_URL, { prefix: 'foo_' });
 await publisher.publishHttpStream('test', 'Test Publish!'); // Message is sent to channel named 'foo_test'
+```
+
+#### Sending publish messages from a Fastly Compute application
+
+Publishing messages through the `Publisher` class uses the [global `fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+function as the underlying mechanism. If your backend application is running on Fastly Compute, a `backend` parameter
+is usually required when making a `fetch` call (unless [Dynamic Backends](https://www.fastly.com/documentation/guides/integrations/backends/#dynamic-backends)
+is enabled for your service).
+
+One simple way to accomplish this by providing an override for `fetch` when constructing your `Publisher` instance. 
+This example inserts a `backend` parameter value of `'publisher'` when the `Publisher` makes outgoing `fetch()` calls.
+
+```javascript
+const publisher = new Publisher(gripConfig, {
+    fetch(input, init) {
+        return fetch(String(input), { ...init, backend: 'publisher' });
+    },
+});
 ```
 
 ### Advanced: Publisher with multiple GRIP proxies
