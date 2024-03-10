@@ -168,6 +168,22 @@ and should be set to the following values:
   {"kty":"EC","crv":"P-256","x":"CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg","y":"7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M"}
   ```
 
+To easily build this GRIP configuration, you can use the `buildFanoutGripConfig()` function exported from
+`@fanoutio/grip/fastly-compute`.
+
+```javascript
+import { buildFanoutGripConfig } from '@fanoutio/grip/fastly-compute';
+
+const gripConfig = buildFanoutGripConfig({
+  serviceId: '<service-id>',         // Service of GRIP proxy
+  apiToken: '<fastly-api-token>',    // API token that has 'global' scope on above service
+});
+
+const publisher = new Publisher(gripConfig);
+```
+
+> TIP: API tokens should be handled with care.
+
 ### The GRIP_URL
 
 The fields in a GRIP configuration object can be combined into a single compact URL. The URL
