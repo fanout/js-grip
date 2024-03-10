@@ -20,6 +20,10 @@
     "./node": {
       "types": "./build/node/index.d.ts",
       "default": "./build/node/index.js"
+    },
+    "./fastly-fanout": {
+      "types": "./build/fastly-fanout/index.d.ts",
+      "default": "./build/fastly-fanout/index.js"
     }
   },
   "files": [
