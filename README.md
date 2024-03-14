@@ -162,17 +162,36 @@ and should be set to the following values:
 * `key` - A [Fastly API token](https://docs.fastly.com/en/guides/using-api-tokens) that has `global` scope access to
   your service, as a string value. 
 * `verify_iss` - The string value `fastly:<service-id>`, where `<service-id>` is your Fastly service ID.
-* `verify_key` - The following string value, which is also available from this library as the exported constant
+* `verify_key` - The following object, which is also available from this library as the exported constant
   `PUBLIC_KEY_FASTLY_FANOUT_JWK`. 
+  ```json
+  {
+    "kty":"EC",
+    "crv":"P-256",
+    "x":"CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg",
+    "y":"7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M"
+  }
   ```
-  {"kty":"EC","crv":"P-256","x":"CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg","y":"7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M"}
-  ```
-
-To easily build this GRIP configuration, you can use the `buildFanoutGripConfig()` function exported from
-`@fanoutio/grip/fastly-compute`.
 
 ```javascript
-import { buildFanoutGripConfig } from '@fanoutio/grip/fastly-compute';
+import { PUBLIC_KEY_FASTLY_FANOUT_JWK } from '@fanoutio/grip/fastly-fanout';
+
+// Replace '<SERVICE_ID>' and '<FASTLY_API_TOKEN>' with appropriate values
+const gripConfig = {
+  control_uri: 'https://api.fastly.com/service/<SERVICE_ID>',
+  key: '<FASTLY_API_TOKEN>',
+  verify_iss: 'fastly:<SERVICE_ID>',
+  verify_key: PUBLIC_KEY_FASTLY_FANOUT_JWK,
+};
+
+const publisher = new Publisher(gripConfig);
+```
+
+As a convenience, you can use the `buildFanoutGripConfig()` function exported from `@fanoutio/grip/fastly-compute` to
+build the GRIP configuration object for Fastly Fanout.
+
+```javascript
+import { buildFanoutGripConfig, Publisher } from '@fanoutio/grip/fastly-compute';
 
 const gripConfig = buildFanoutGripConfig({
   serviceId: '<service-id>',         // Service of GRIP proxy
@@ -181,6 +200,9 @@ const gripConfig = buildFanoutGripConfig({
 
 const publisher = new Publisher(gripConfig);
 ```
+
+> TIP: It's also possible to configure Fastly Fanout using `GRIP_URL`. See [GRIP_URL](#the-grip_url) for
+> details.
 
 > TIP: API tokens should be handled with care.
 
@@ -203,6 +225,15 @@ const gripConfig = parseGripUri(gripURL, { 'verify-key': gripVerifyKey });
 
 > TIP: Because GRIP_URL can contain secrets (API token or private/shared key for signing), it should
 > be handled with care.
+
+> TIP: `GRIP_URL` and `GRIP_VERIFY_KEY` can be used with Fastly Fanout as well. This can simplify your code by
+> allowing it to be configured through a single code path.
+> 
+> To do so, use these values (replace `<SERVICE_ID>` and `<FASTLY_API_TOKEN>` with appropriate values):
+> ```
+> GRIP_URL='https://api.fastly.com/service/<SERVICE_ID>?key=<FASTLY_API_TOKEN>&verify-iss=fastly:<SERVICE_ID>'
+> GRIP_VERIFY_KEY='{"kty":"EC","crv":"P-256","x":"CKo5A1ebyFcnmVV8SE5On-8G81JyBjSvcrx4VLetWCg","y":"7gwJqaU6N8TP88--twjkwoB36f-pT3QsmI46nPhjO7M"}'
+> ```
 
 ### Instantiate the `Publisher` object
 
