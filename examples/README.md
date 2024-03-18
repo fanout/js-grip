@@ -12,3 +12,7 @@ each example.
   the origin.
     * [`http-stream/`](./fastly-compute/http-stream) - HTTP streaming using GRIP.
     * [`websocket/`](./fastly-compute/websocket) - WebSocket-over-HTTP using GRIP.
+
+* [`bun/`](./bun) - Usage with a Bun application as the origin.
+  * [`http-stream/`](./bun/http-stream) - HTTP streaming using GRIP.
+  * [`websocket/`](./bun/websocket) - WebSocket-over-HTTP using GRIP.

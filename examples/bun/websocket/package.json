@@ -1,0 +1,16 @@
+{
+  "name": "http-stream",
+  "type": "module",
+  "scripts": {
+    "start": "bun ./index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@fanoutio/grip": "^4.1.0-beta.0"
+  }
+}
