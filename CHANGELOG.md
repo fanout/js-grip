@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [4.1.0] - 2024-03-18
+
+### Added
+
+- feat: Added buildGripConfig function for Fastly Fanout
+- docs: Update docs on publishing through Fastly Fanout
+
 ## [4.0.2] - 2024-03-06
 
 ### Fixed
@@ -135,7 +142,8 @@ v 1.2.6 12-10-2017  - Implement workaround for parseGripUri.
 v 1.2.7 12-13-2017  - Clean package dir.
 
 
-[unreleased]: https://github.com/fanout/js-grip/compare/v4.0.2...HEAD
+[unreleased]: https://github.com/fanout/js-grip/compare/v4.1.0...HEAD
+[4.1.0]: https://github.com/fanout/js-grip/compare/v4.0.2...v4.1.0
 [4.0.2]: https://github.com/fanout/js-grip/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/fanout/js-grip/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/fanout/js-grip/compare/v3.3.1...v4.0.0
