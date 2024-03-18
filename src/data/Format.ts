@@ -1,5 +1,5 @@
-import type { IFormat } from './IFormat.js';
-import type { IFormatExport } from './IFormatExport.js';
+import { type IFormat } from './IFormat.js';
+import { type IFormatExport } from './IFormatExport.js';
 
 // The Format class is provided as a base class for all publishing
 // formats that are included in the Item class. Examples of format

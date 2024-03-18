@@ -1,6 +1,6 @@
+import { type IFormat } from '../IFormat.js';
+import { type IFormatExport } from '../IFormatExport.js';
 import { encodeBytesToBase64String } from '../../utilities/index.js';
-import type { IFormat } from '../IFormat.js';
-import type { IFormatExport } from '../IFormatExport.js';
 
 // The WebSocketMessageFormat class is the format used to publish data to
 // WebSocket clients connected to GRIP proxies.

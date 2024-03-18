@@ -1,9 +1,9 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
 
+import { type IGripConfig } from '../../../src/index.js';
 import { PUBLIC_KEY_FASTLY_FANOUT_JWK } from '../../../src/fastly-fanout/keys.js';
 import { buildFanoutGripConfig, buildFanoutGripUrl } from '../../../src/fastly-fanout/utils.js';
-import { IGripConfig } from '../../../src/index.js';
 
 describe('buildFanoutGripConfig', () => {
 

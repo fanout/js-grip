@@ -4,6 +4,7 @@ import { beforeEach, describe, it } from 'node:test';
 import assert from 'node:assert';
 import * as jose from 'jose';
 import {
+    type IItem,
     Item,
     Auth,
     PublisherClient,
@@ -14,7 +15,6 @@ import {
     ValidateGripSigResult,
 } from '../../../src/index.js';
 import { SAMPLEKEY_RSA_PRIVATE_PEM, SAMPLEKEY_RSA_PUBLIC_PEM } from '../sampleKeys.js';
-import type { IItem, } from '../../../src/index.js';
 
 const textEncoder = new TextEncoder();
 

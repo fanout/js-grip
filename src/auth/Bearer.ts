@@ -1,4 +1,4 @@
-import type { IAuth } from './IAuth.js';
+import { type IAuth } from './IAuth.js';
 
 // Bearer authentication class used for building auth headers containing a literal token.
 export class Bearer implements IAuth {

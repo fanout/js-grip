@@ -1,4 +1,4 @@
-import type { IFormatExport } from './IFormatExport.js';
+import { type IFormatExport } from './IFormatExport.js';
 
 export interface IItemExport {
     channel?: string;

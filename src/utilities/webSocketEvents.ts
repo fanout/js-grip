@@ -1,6 +1,5 @@
-import { WebSocketEvent } from '../data/index.js';
+import { type IWebSocketEvent, WebSocketEvent } from '../data/index.js';
 import { concatUint8Arrays } from './typedarray.js';
-import type { IWebSocketEvent } from '../data/index.js';
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();

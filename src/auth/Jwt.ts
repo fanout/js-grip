@@ -1,6 +1,6 @@
 import * as jose from 'jose';
 import { isSymmetricSecret, JwkKey, PemKey } from '../utilities/index.js';
-import type { IAuth } from './IAuth.js';
+import { type IAuth } from './IAuth.js';
 
 // JWT authentication class used for building auth headers containing
 // JSON web token information in the form of a claim and corresponding key.

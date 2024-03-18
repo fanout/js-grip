@@ -1,8 +1,8 @@
+import { type IncomingMessage, type IncomingHttpHeaders } from 'node:http';
 import {
   getWebSocketContextImpl,
   isWsOverHttpImpl
 } from '../../utilities/index.js';
-import type { IncomingMessage, IncomingHttpHeaders } from 'node:http';
 
 function headersFromNodeIncomingHttpHeaders(incomingHttpHeaders: IncomingHttpHeaders) {
   const headers = new Headers();

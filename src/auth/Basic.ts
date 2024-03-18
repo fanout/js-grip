@@ -1,5 +1,5 @@
 import { encodeBytesToBase64String } from '../utilities/index.js';
-import type { IAuth } from './IAuth.js';
+import { type IAuth } from './IAuth.js';
 
 export class Basic implements IAuth {
     private readonly _user: string;
