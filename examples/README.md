@@ -16,3 +16,7 @@ each example.
 * [`bun/`](./bun) - Usage with a Bun application as the origin.
   * [`http-stream/`](./bun/http-stream) - HTTP streaming using GRIP.
   * [`websocket/`](./bun/websocket) - WebSocket-over-HTTP using GRIP.
+
+* [`deno/`](./deno) - Usage with a Deno application as the origin.
+  * [`http-stream/`](./deno/http-stream) - HTTP streaming using GRIP.
+  * [`websocket/`](./deno/websocket) - WebSocket-over-HTTP using GRIP.

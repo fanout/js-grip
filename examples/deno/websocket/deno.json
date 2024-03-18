@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "start": "deno run --allow-env --allow-read --allow-net index.ts"
+  },
+  "deploy": {
+    "project": "038ad35d-3201-4204-a76a-de9c79eb71c1",
+    "exclude": [
+      "**/node_modules"
+    ],
+    "include": [],
+    "entrypoint": "index.ts"
+  }
+}

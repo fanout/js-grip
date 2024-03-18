@@ -1,0 +1,37 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:@fanoutio/grip@^4.1": "npm:@fanoutio/grip@4.1.0"
+    },
+    "npm": {
+      "@fanoutio/grip@4.1.0": {
+        "integrity": "sha512-jZW71/QIFWdQHCVgQs6VVNeYuvd2G2v+nX2hCiI6Q4BSPj4hkMboemyAkwnT7QoPjHbP4x54AzY+gzMZQTrWUA==",
+        "dependencies": {
+          "debug": "debug@4.3.4",
+          "jose": "jose@5.2.3",
+          "jspack": "jspack@0.0.4"
+        }
+      },
+      "debug@4.3.4": {
+        "integrity": "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==",
+        "dependencies": {
+          "ms": "ms@2.1.2"
+        }
+      },
+      "jose@5.2.3": {
+        "integrity": "sha512-KUXdbctm1uHVL8BYhnyHkgp3zDX5KW8ZhAKVFEfUbU2P8Alpzjb+48hHvjOdQIyPshoblhzsuqOwEEAbtHVirA==",
+        "dependencies": {}
+      },
+      "jspack@0.0.4": {
+        "integrity": "sha512-DC/lSTXYDDdYWzyY/9A1kMzp6Ov9mCRhZQ1cGg4te2w3y4/aKZTSspvbYN4LUsvSzMCb/H8z4TV9mYYW/bs3PQ==",
+        "dependencies": {}
+      },
+      "ms@2.1.2": {
+        "integrity": "sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {}
+}
