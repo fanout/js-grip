@@ -112,7 +112,7 @@ if (gripUrl) {
 }
 ```
 
-Alternatively, the environment variables `FANOUT_SERVICE_ID` and `FANOUT_API_TOKEN`
+Alternatively, the Secret Store values for `FANOUT_SERVICE_ID` and `FANOUT_API_TOKEN`
 are checked, and if present, they are used with the `buildFanoutGripConfig()` function to
 build the `gripConfig`.
 
