@@ -93,8 +93,9 @@ connection open with the client.
 
 2. A `POST` request at `/api/publish`
 
-This handler starts by checking to make sure the content type specifies that the body
-is of type `text/plain`. Afterward, the handler reads the request body into a string.
+This handler starts by checking to make sure the content type header specifies that
+the body is of type `text/plain`. Afterward, the handler reads the request body into
+a string.
 
 ```javascript
 if (request.headers.get('content-type')?.split(';')[0] !== 'text/plain') {

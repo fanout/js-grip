@@ -221,7 +221,7 @@ fastly compute publish --status-check-off
 ```
 
 * You will be asked whether you want to create a new service. Reply `y`. Provide the following values:
-    * **Service name**: CUse the default value, or provide a name that you like.
+    * **Service name**: Use the default value, or provide a name that you like.
     * **Domain**: Use the default value, or choose a subdomain of **edgecompute.app** that you like.
     * **Backend**: For now, do not specify any backends.
 * Your service will be packaged and deployed to a new service.
