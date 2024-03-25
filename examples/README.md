@@ -24,3 +24,7 @@ each example.
 * [`cloudflare-workers/`](./cloudflare-workers) - Usage with a Cloudflare Workers application as the origin.
   * [`http-stream/`](./cloudflare-workers/http-stream) - HTTP streaming using GRIP.
   * [`websocket/`](./cloudflare-workers/websocket) - WebSocket-over-HTTP using GRIP.
+
+* [`remix/`](./remix) - Usage with a Remix application as the origin.
+  * [`http-stream/`](./remix/http-stream) - HTTP streaming using GRIP.
+  * [`websocket/`](./remix/websocket) - WebSocket-over-HTTP using GRIP.
