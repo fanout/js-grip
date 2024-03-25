@@ -106,7 +106,7 @@ come back to this document for reference.
 ## Using js-grip
 
 [Generic Realtime Intermediary Protocol](https://pushpin.org/docs/protocols/grip/), otherwise known as GRIP,
-is a mechanism that allows your backend application to use a GRIP-compatible HTTP proxy server to hold
+is a mechanism that allows your origin application to use a GRIP-compatible HTTP proxy server to hold
 incoming connections open.
 
 GRIP is composed of two parts:
@@ -145,7 +145,7 @@ GRIP proxy and its publishing endpoint. It has the following fields:
 `key` and `verify_key` may also be provided as `string` or `Uint8Array` that
 encodes keys in PEM or JWK formats. See [More on Keys](#more-on-keys).
 
-> NOTE: If your backend is running on Fastly Compute, as of this writing (@fastly/js-compute@3.8.3),
+> NOTE: If your origin application is running on Fastly Compute,
 > Fastly Compute does not support PEM-formatted keys.
 
 > NOTE: For backwards-compatibility reasons, if JWT authorization is used with a symmetric secret (`control_iss` and
@@ -259,15 +259,15 @@ const publisher = new Publisher(gripConfig); // You can pass a gripConfig if you
 const publisher = new Publisher(process.env.GRIP_URL); // You can even pass a GRIP_URL directly
 ```
 
-> NOTE: If your backend application is running on Fastly Compute, then you'll need to further configure the
-> `Publisher`. See [Sending publish messages from Fastly Compute](#sending-publish-messages-from-a-fastly-compute-application) below.
+> NOTE: If your origin application is running on Fastly Compute, then you'll need to further configure the
+> `Publisher`. See [Overriding fetch](#overriding-fetch) below.
 
 ### Validating Incoming Requests
 
 When an incoming client request arrives at the GRIP proxy over HTTP, the proxy forwards the request to
-your backend application and adds the `Grip-Sig` header to the proxied request.
+your origin application and adds the `Grip-Sig` header to the proxied request.
 
-It's highly recommended that your backend application validate this `Grip-Sig` to make sure it's coming
+It's highly recommended that your origin application validate this `Grip-Sig` to make sure it's coming
 from your GRIP proxy. To do this, call `publisher.validateGripSig()`:
 
 ```javascript
@@ -276,114 +276,35 @@ const gripSig = req.headers.get('Grip-Sig');
 const { isProxied, isSigned } = await publisher.validateGripSig(gripSig);
 ```
 
-If your publisher is configured with a `verify_key`, then the signature of `Grip-Sig` will be checked 
-with that key. Both `isSigned` and `isProxied` will be `true` only if the key was able to verify the
-signature.
+If your publisher requires validation (i.e., is configured with a `verify_key`), then the signature of
+`Grip-Sig` will be checked with that key. If the key was able to successfully able to verify the signature
+(including checking for expiry), then both `isSigned` and `isProxied` will be `true`. Otherwise, they
+will both be `false`.
 
-If your publisher is not configured with a `verify_key`, then `isSigned` will be `false`, and
-`isProxied` will only check for the presence of `Grip-Sig`.
+If your publisher does not require validation, then the signature is not checked. `isSigned` will be `false`,
+and `isProxied` will be `true` if `Grip-Sig` is present, and `false` if it is not present.
 
 > NOTE: For backwards-compatibility reasons, if JWT authorization is used with a symmetric secret (`control_iss` and
 `key` are both provided, and `key` is not a private key) and `verify_key` is not provided, then `key` will be
 used as the `verify_key` value as well.
 
-### Publishing messages to channels
+### Subscribing
 
-To publish a message, call one of the publishing methods on the publisher, which depends on the
-type of GRIP interaction.
-
-For an HTTP long-polling response message:
-```javascript
-// publisher instantiated above
-await publisher.publishHttpResponse('<channel>', 'Test Publish!');
-```
-
-For an HTTP streaming message:
-```javascript
-// publisher instantiated above
-await publisher.publishHttpStream('<channel>', 'Test Publish!');
-```
-
-For a WebSocket-over-HTTP message:
-```javascript
-// publisher instantiated above
-await publisher.publishFormats('<channel>', new WebSocketMessageFormat('Test Publish!'));
-```
-
-#### Overriding fetch
-
-The `Publisher` class constructor accepts an optional second parameter that is used
-to customize its behavior. By default, publishing messages through the `Publisher`
-class uses the [global `fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
-function as the underlying mechanism. By providing a value for `fetch`, we are able to
-override this behavior.
-
-> TIP: You may want to do this if your backend is running on Fastly Compute. See the section
-> below on [publishing messages from a Fastly Compute application](#sending-publish-messages-from-a-fastly-compute-application)
-
-#### Prefixes
-
-For namespacing reasons, it's sometimes useful to prefix the channel name when publishing.
-To do this, set the `prefix` value in the configuration parameter when instantiating the `Publisher`.
-
-```javascript
-const publisher = new Publisher(process.env.GRIP_URL, { prefix: 'foo_' });
-await publisher.publishHttpStream('test', 'Test Publish!'); // Message is sent to channel named 'foo_test'
-```
-
-#### Sending publish messages from a Fastly Compute application
-
-Publishing messages through the `Publisher` class uses the [global `fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
-function as the underlying mechanism. If your backend application is running on Fastly Compute, a `backend` parameter
-is usually required when making a `fetch` call (unless [Dynamic Backends](https://www.fastly.com/documentation/guides/integrations/backends/#dynamic-backends)
-is enabled for your service).
-
-One simple way to accomplish this by providing an override for `fetch` when constructing your `Publisher` instance. 
-This example inserts a `backend` parameter value of `'publisher'` when the `Publisher` makes outgoing `fetch()` calls.
-
-```javascript
-const publisher = new Publisher(gripConfig, {
-    fetch(input, init) {
-        return fetch(String(input), { ...init, backend: 'publisher' });
-    },
-});
-```
-
-### Advanced: Publisher with multiple GRIP proxies
-
-It's also possible to instantiate a `Publisher` with more than one GRIP proxy.
-To do this, simply pass an array of GRIP configurations to the constructor.
-
-When you do this, validating incoming requests works slightly differently:
-If all the GRIP configurations require validation, then `isProxied` and `isSigned` are `true` if
-at least one GRIP configuration successfully verifies the signature.
-If one or more of the GRIP configurations does not require validation, then the signature
-is not checked. `isSigned` is `false`, and `isProxied` is set based on the presence of `Grip-Sig`.
-
-When publishing messages, each GRIP configuration is published to in parallel. The promise returned
-from the publish call resolves when publishing to all configurations completes, or rejects when publishing
-to any of the configurations fails.
-
-## Subscribing
-
-Once you've verified that your request is proxied behind GRIP, your backend
+Once you've verified that your request is proxied behind GRIP, your origin
 application can, as part of its execution, decide to have the GRIP proxy
 hold the connection and subscribe it to channels.
 
-This is done either as a `GripInstruct` for HTTP long-polling and streaming,
-or as a `WebSocketContext` for WebSocket-over-HTTP.
-
-### GripInstruct
-
-With an HTTP transport such as long-polling and streaming, your backend application
+With an HTTP transport such as long-polling and streaming, your origin application
 includes HTTP headers known as GRIP instructions along with the response.
-These instructions indicate the action that the GRIP proxy is to take.
+These instructions indicate the action that the GRIP proxy is to take, and
+is abstracted as a `GripInstruct` object.
 
+To set GRIP instructions, instantiate `GripInstruct` and call its functions.
 When it comes time to return the response, include the GRIP instructions with
 the response by calling `toHeaders()` on them and including them with the
 response headers.
 
-#### HTTP long-polling
+#### HTTP long-polling subscription
 
 ```javascript
 const gripInstruct = new GripInstruct();
@@ -405,9 +326,9 @@ return new Response(
 ```
 
 > TIP: If the response status code is 304, some platforms will refuse to
-> send custom HTTP response headers. To work around this issue, you can 
+> send custom HTTP response headers. To work around this issue, you can
 > call `gripInstruct.setStatus()`.
-> 
+>
 > ```javascript
 > const gripInstruct = new GripInstruct();
 > gripInstruct.addChannel('<channel>');
@@ -429,7 +350,7 @@ return new Response(
 > );
 > ```
 
-#### HTTP streaming
+#### HTTP streaming subscription
 
 ```javascript
 const gripInstruct = new GripInstruct();
@@ -448,18 +369,123 @@ return new Response(
 );
 ```
 
+#### WebSocket-over-HTTP subscription
+
+To subscribe WebSocket-over-HTTP requests to a channel, use a `WebSocketContext` object.
+See the [WebSocket-over-HTTP](#websocket-over-http) section below for details.
+
+### Publishing messages to channels
+
+To publish a message, call one of the publishing methods on the publisher, which depends on the
+type of GRIP interaction.
+
+#### HTTP long-polling publishing
+
+To publish an HTTP long-polling response message:
+```javascript
+// publisher instantiated above
+await publisher.publishHttpResponse('<channel>', 'Test Publish!');
+```
+
+#### HTTP streaming publishing
+
+To publish an HTTP streaming message:
+```javascript
+// publisher instantiated above
+await publisher.publishHttpStream('<channel>', 'Test Publish!');
+```
+
+#### WebSocket-over-HTTP publishing
+
+To publish a WebSocket-over-HTTP message:
+```javascript
+// publisher instantiated above
+await publisher.publishFormats('<channel>', new WebSocketMessageFormat('Test Publish!'));
+```
+
+See the [WebSocket-over-HTTP](#websocket-over-http) section below for details.
+
+### Customizing `Publisher`
+
+The `Publisher` class constructor accepts an optional second parameter that is used
+to customize its behavior.
+
+#### Prefixes
+
+For namespacing reasons, it's sometimes useful to prefix the channel name when publishing.
+To do this, set the `prefix` property in the configuration parameter when instantiating the `Publisher`.
+
+```javascript
+const publisher = new Publisher(process.env.GRIP_URL, { prefix: 'foo_' });
+await publisher.publishHttpStream('test', 'Test Publish!'); // Message is sent to channel named 'foo_test'
+```
+
+#### Overriding fetch
+
+By default, publishing messages through the `Publisher`
+class uses the [global `fetch()`](https://developer.mozilla.org/en-US/docs/Web/API/fetch)
+function as the underlying mechanism.
+
+Sometimes you may wish to override this behavior. To do this, set the `fetch` property in
+the configuration parameter to a custom function when instantiating the `Publisher`. Once
+you do this, publishing messages through the `Publisher` instance will call your custom function,
+passing it the same parameters as it would when calling `fetch()`. You are then free to modify
+these values and then call the global `fetch()`, or even provide the entire implementation yourself.
+
+> TIP: If your origin application is running on Fastly Compute, you'll need to do this to
+> specify the `backend` parameter when performing a `fetch()`. See the section below.
+
+##### Publishing messages from a Fastly Compute origin application
+
+If your origin application is running on Fastly Compute, a [`backend` parameter
+is usually required when making a `fetch()`](https://www.fastly.com/documentation/guides/compute/javascript/#communicating-with-backend-servers-and-the-fastly-cache)
+call. (You won't need to do this if you are using the [Dynamic Backends](https://www.fastly.com/documentation/guides/integrations/backends/#dynamic-backends) feature.)
+
+One way to accomplish this is by providing an override function for `fetch` that 
+inserts a `backend` parameter.
+
+In the following example, the `backend` property of the second parameter is
+set to `'publisher'` before calling the global `fetch()`:
+```javascript
+const publisher = new Publisher(gripConfig, {
+    fetch(input, init) {
+        return fetch(input, { ...init, backend: 'publisher' });
+    },
+});
+```
+
+#### Advanced: Publisher with multiple GRIP proxies
+
+It's also possible to instantiate a `Publisher` with more than one GRIP proxy.
+To do this, simply pass an array of GRIP configurations to the constructor.
+
+When you do this, validating incoming requests works slightly differently:
+
+If all the GRIP configurations require validation (i.e., are configured with `verify_key`),
+then the signature of `Grip-Sig` will be checked. If at least one GRIP configuration's key
+was able to successfully able to verify the signature (including checking for expiry),
+then both `isSigned` and `isProxied` will be `true`. Otherwise, they will both be `false`.
+
+If at least one GRIP configuration does not require validation, then the signature is not
+checked. `isSigned` will be `false`, and `isProxied` will be `true` if `Grip-Sig` is present,
+and `false` if it is not present.
+
+When publishing messages, each GRIP configuration is published to in parallel. The promise returned
+from the `publish()` call (or one of its variants) resolves when publishing to all configurations
+completes, or rejects when publishing to any of the configurations fails.
+
 ### WebSocket-over-HTTP
 
-The [WebSocket-Over-HTTP](https://pushpin.org/docs/protocols/websocket-over-http/) protocol is a
-simple, text-based protocol for acting as a gateway between a WebSocket client and a conventional HTTP server.
-It is available as a feature of Pushpin and Fastly Fanout.
+[WebSocket-Over-HTTP](https://pushpin.org/docs/protocols/websocket-over-http/) is a feature of Pushpin and
+Fastly Fanout that is a simple, text-based protocol for acting as a gateway between a WebSocket client (often
+a web browser) and a conventional HTTP server.
 
 Events from the WebSocket client, including opening, closing, and sending of messages,
-are transformed by the GRIP proxy into HTTP POST requests and arrive at the backend application.
+are transformed by the GRIP proxy into HTTP POST requests and arrive at the origin application.
 
-The backend can use the `isWsOverHttp()` function to on the `Request` to detect whether
-the reqeust is using this protocol, and if it is, the `getWebSocketContextFromReq()` function to
-consume the `Request` and obtain an instance of the `WebSocketContext` class.
+The origin application can use the `isWsOverHttp()` function and pass in a `Request` to detect whether
+the request is using the WebSocket-over-HTTP protocol. If it is, the origin application can call the `getWebSocketContextFromReq()`
+function to consume the `Request`'s body and obtain an instance of the `WebSocketContext` class.
 
 ```javascript
 let wsContext = null;
@@ -638,6 +664,8 @@ const pub = new Publisher({control_uri: "<endpoint_uri>"});
 
 The following apply to the `key` and `verify_key` fields of the GRIP configuration object.
 
+If present, `key` must be a private key or symmetric secret, and `verify_key` must be a public key or symmetric secret.
+
 Binary values for `key` and `verify_key` may be provided as `Uint8Array`, but they may also be provided as
 [base64-encoded strings](https://developer.mozilla.org/en-US/docs/Glossary/Base64). To do so, prefix the values with
 `base64:`, and the values will be converted to `Uint8Array` as they are read.
@@ -647,17 +675,16 @@ They may also be provided as [CryptoKey](https://developer.mozilla.org/en-US/doc
 (CryptoKey in the browser and Web-interoperable runtimes, as well as KeyObject in Node.js). Refer to your platform's
 documentation to import keys of these types.
 
-They may also be provided as JsonWebKey objects (or JSON-stringified representations of JsonWebKey
-objects or `Uint8Array` encodings of JSON-stringified representations of JsonWebKey objects), where
-`key` must be a private key or symmetric secret, and `verify_key` must be a public key or
-symmetric secret. In these cases, they will be converted to CryptoKey or KeyObject as they are read.
+They may also be provided as [JsonWebKey](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/importKey#json_web_key)
+objects (or JSON-stringified representations of `JsonWebKey` objects, or `Uint8Array` encodings of JSON-stringified
+representations of `JsonWebKey` objects). In these cases, they will be converted to CryptoKey or KeyObject as they are read.
 
 Finally, they may also be provided as PEM-encoded strings (or `Uint8Array` encodings of PEM-encoded strings):
 `key` as a PEM-encoded PKCS#8 private key, and `verify_key` as a PEM-encoded SPKI public key.
 In these cases, they will be converted to CryptoKey or KeyObject as they are read.
 
-> NOTE: If your backend is running on Fastly Compute, as of this writing (@fastly/js-compute@3.8.3),
-> Fastly Compute does not support PEM-formatted keys.
+> NOTE: If your origin application is running on Fastly Compute,
+> note that Fastly Compute does not support PEM-formatted keys.
 
 > NOTE: For backwards-compatibility reasons, if JWT authorization is used with a symmetric secret (`control_iss` and
 `key` are both provided, and `key` is not a private key) and `verify_key` is not provided, then `key` will also be
