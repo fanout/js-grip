@@ -191,7 +191,8 @@ As a convenience, you can use the `buildFanoutGripConfig()` function exported fr
 build the GRIP configuration object for Fastly Fanout.
 
 ```javascript
-import { buildFanoutGripConfig, Publisher } from '@fanoutio/grip/fastly-compute';
+import { buildFanoutGripConfig } from '@fanoutio/grip/fastly-compute';
+import { Publisher } from '@fanoutio/grip';
 
 const gripConfig = buildFanoutGripConfig({
   serviceId: '<service-id>',         // Service of GRIP proxy
