@@ -28,3 +28,7 @@ each example.
 * [`remix/`](./remix) - Usage with a Remix application as the origin.
   * [`http-stream/`](./remix/http-stream) - HTTP streaming using GRIP.
   * [`websocket/`](./remix/websocket) - WebSocket-over-HTTP using GRIP.
+
+* [`nextjs/`](./nextjs) - Usage with a Next.js application as the origin.
+  * [`http-stream/`](./nextjs/http-stream) - HTTP streaming using GRIP.
+  * [`websocket/`](./nextjs/websocket) - WebSocket-over-HTTP using GRIP.
