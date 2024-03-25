@@ -20,3 +20,7 @@ each example.
 * [`deno/`](./deno) - Usage with a Deno application as the origin.
   * [`http-stream/`](./deno/http-stream) - HTTP streaming using GRIP.
   * [`websocket/`](./deno/websocket) - WebSocket-over-HTTP using GRIP.
+
+* [`cloudflare-workers/`](./cloudflare-workers) - Usage with a Cloudflare Workers application as the origin.
+  * [`http-stream/`](./cloudflare-workers/http-stream) - HTTP streaming using GRIP.
+  * [`websocket/`](./cloudflare-workers/websocket) - WebSocket-over-HTTP using GRIP.

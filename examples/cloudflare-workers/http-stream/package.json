@@ -1,0 +1,19 @@
+{
+  "name": "http-stream",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --port 3000",
+    "start": "wrangler dev --port 3000"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240222.0",
+    "typescript": "^5.4.3",
+    "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "@fanoutio/grip": "^4.1.0"
+  }
+}
+
+
