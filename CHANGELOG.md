@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [4.3.0] - 2024-10-14
+
 ### Added
 
 - Added conditional export "node" - symbols previously only exported from `@fanoutio/grip/node`
@@ -161,7 +163,8 @@ v 1.2.6 12-10-2017  - Implement workaround for parseGripUri.
 v 1.2.7 12-13-2017  - Clean package dir.
 
 
-[unreleased]: https://github.com/fanout/js-grip/compare/v4.2.0...HEAD
+[unreleased]: https://github.com/fanout/js-grip/compare/v4.3.0...HEAD
+[4.2.0]: https://github.com/fanout/js-grip/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/fanout/js-grip/compare/v4.1.0...v4.2.0
 [4.1.0]: https://github.com/fanout/js-grip/compare/v4.0.2...v4.1.0
 [4.0.2]: https://github.com/fanout/js-grip/compare/v4.0.1...v4.0.2
