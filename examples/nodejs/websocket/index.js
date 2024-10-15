@@ -1,9 +1,15 @@
 // noinspection DuplicatedCode
 
 import http from 'node:http';
-import { parseGripUri, Publisher, encodeWebSocketEvents, WebSocketMessageFormat } from '@fanoutio/grip';
+import {
+    parseGripUri,
+    Publisher,
+    encodeWebSocketEvents,
+    WebSocketMessageFormat,
+    isNodeReqWsOverHttp,
+    getWebSocketContextFromNodeReq,
+} from '@fanoutio/grip';
 import { buildFanoutGripConfig } from '@fanoutio/grip/fastly-fanout';
-import { isNodeReqWsOverHttp, getWebSocketContextFromNodeReq } from '@fanoutio/grip/node';
 import 'isomorphic-fetch'; // Only needed for Node < 16.15
 
 // Configure the Publisher.

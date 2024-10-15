@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+
+- Added conditional export "node" - symbols previously only exported from `@fanoutio/grip/node`
+   are now available on the main `@fanoutio/grip` export when the condition `"node"` is present when
+   resolving imports.
+
 ## [4.2.0] - 2024-03-25
 
 ### Added
