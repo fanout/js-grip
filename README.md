@@ -21,8 +21,11 @@ Authors: Katsuyuki Omuro <komuro@fastly.com>, Konstantin Bokarius <kon@fanout.io
 - A number of classes whose fields had previously been public now hold them privately; those values
   must now be accessed through accessor functions.
 - The `isWsOverHttp()` and `getWebSocketContextFromReq()` functions now work with
-  `Request` objects rather than Node.js's `IncomingMessage` objects. Versions of these
-  functions that work with `IncomingMessage` are available from `"@fanoutio/grip/node"`.
+  `Request` objects rather than Node.js's `IncomingMessage` objects.
+   - Versions of these functions that work with `IncomingMessage` are available as `isNodeReqWsOverHttp`
+     and `getWebSocketContextFromNodeReq`. These are exported from `@fanoutio/grip/node`, and are also
+     exported from `@fanoutio/grip` when the condition `"node"` is present when
+     resolving imports. 
 
 For detailed breaking changes, see the [detailed list](#detailed-breaking-changes).
 
