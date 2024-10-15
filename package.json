@@ -15,8 +15,18 @@
     }
   ],
   "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "exports": {
-    ".": "./build/index.js",
+    ".": {
+      "node": {
+        "types": "./build/index-node.d.ts",
+        "default": "./build/index-node.js"
+      },
+      "default": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.js"
+      }
+    },
     "./node": {
       "types": "./build/node/index.d.ts",
       "default": "./build/node/index.js"
@@ -30,7 +40,6 @@
     "build/**/*",
     "types/**/*"
   ],
-  "types": "./build/index.d.ts",
   "scripts": {
     "prepack": "npm run build",
     "build": "npm run test && npm run build-package",
