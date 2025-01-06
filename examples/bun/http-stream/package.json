@@ -11,6 +11,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@fanoutio/grip": "^4.1.0-beta.0"
+    "@fanoutio/grip": "^4.3.0"
   }
 }

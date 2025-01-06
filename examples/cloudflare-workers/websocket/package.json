@@ -12,6 +12,6 @@
     "wrangler": "^3.0.0"
   },
   "dependencies": {
-    "@fanoutio/grip": "^4.1.0"
+    "@fanoutio/grip": "^4.3.0"
   }
 }

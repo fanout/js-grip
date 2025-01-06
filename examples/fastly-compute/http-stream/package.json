@@ -1,7 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "@fanoutio/grip": "^4.1.0-beta.0",
+    "@fanoutio/grip": "^4.3.0",
     "@fastly/js-compute": "^3.0.0",
     "jose": "^5.2.2"
   },
