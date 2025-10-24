@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+## [4.3.2] - 2025-10-24
+
 ### Fixed
 
 - Correctly handle requests that contain only PING / PONG messages (including after handling earlier messages)
@@ -173,7 +175,8 @@ v 1.2.6 12-10-2017  - Implement workaround for parseGripUri.
 v 1.2.7 12-13-2017  - Clean package dir.
 
 
-[unreleased]: https://github.com/fanout/js-grip/compare/v4.3.1...HEAD
+[unreleased]: https://github.com/fanout/js-grip/compare/v4.3.2...HEAD
+[4.3.2]: https://github.com/fanout/js-grip/compare/v4.3.0...v4.3.2
 [4.3.1]: https://github.com/fanout/js-grip/compare/v4.3.0...v4.3.1
 [4.3.0]: https://github.com/fanout/js-grip/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/fanout/js-grip/compare/v4.1.0...v4.2.0
