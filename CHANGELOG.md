@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Fixed
+
+- Correctly handle requests that contain only PING / PONG messages (including after handling earlier messages)
+
 ## [4.3.1] - 2025-01-06
 
 ### Added

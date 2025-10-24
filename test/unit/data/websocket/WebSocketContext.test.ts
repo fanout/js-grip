@@ -114,4 +114,38 @@ describe('WebSocketContext', () => {
 			assert.ok(ws.outEvents[0].getContent() === null, 'disconnect event has null content')
 		});
 	});
+	describe('ping / pong', () => {
+		it('Correctly handle requests that contain only PING / PONG messages (including after handling earlier messages)', () => {
+			const ws = new WebSocketContext('conn-1', {}, [
+				new WebSocketEvent('PING', textEncoder.encode('ping1')),
+				new WebSocketEvent('PONG'),
+				new WebSocketEvent('TEXT', textEncoder.encode('hello')),
+				new WebSocketEvent('PING', textEncoder.encode('ping2')),
+			]);
+			assert.strictEqual(ws.outEvents.length, 0);
+
+			assert.ok(ws.canRecv());
+			assert.strictEqual(ws.outEvents.length, 1);
+
+			assert.strictEqual(ws.outEvents[0].getType(), 'PONG');
+			const content0 = ws.outEvents[0].getContent();
+			assert.ok(content0 instanceof Uint8Array);
+			assert.strictEqual(textDecoder.decode(content0), 'ping1');
+
+			assert.ok(ws.canRecv());
+			assert.strictEqual(ws.outEvents.length, 1);
+
+			const msg = ws.recv();
+			assert.strictEqual(msg, 'hello');
+			assert.strictEqual(ws.outEvents.length, 1);
+
+			assert.ok(!ws.canRecv());
+			assert.strictEqual(ws.outEvents.length, 2);
+
+			assert.strictEqual(ws.outEvents[1].getType(), 'PONG');
+			const content1 = ws.outEvents[1].getContent();
+			assert.ok(content1 instanceof Uint8Array);
+			assert.strictEqual(textDecoder.decode(content1), 'ping2');
+		});
+	});
 });

@@ -43,7 +43,28 @@ export class WebSocketContext {
         this.outCloseCode = code;
     }
 
+    handleUpcomingPingsAndPongs() {
+        while (true) {
+            const e = this._inEvents.at(0);
+            if (
+                e == null ||
+                !['PING', 'PONG'].includes(e.type)
+            ) {
+                return;
+            }
+            this._inEvents.shift();
+
+            if (e.type === 'PING') {
+                this.outEvents.push(
+                    new WebSocketEvent('PONG', e.content),
+                );
+            }
+        }
+    }
+
     canRecv() {
+        this.handleUpcomingPingsAndPongs();
+
         return this._inEvents.some(event =>
             ['TEXT', 'BINARY', 'CLOSE', 'DISCONNECT'].includes(event.type)
         );
@@ -54,6 +75,8 @@ export class WebSocketContext {
     }
 
     recvRaw() {
+        this.handleUpcomingPingsAndPongs();
+
         let e: IWebSocketEvent | undefined = undefined;
         while (true) {
             e = this._inEvents.shift();
@@ -62,9 +85,6 @@ export class WebSocketContext {
             }
             if (['TEXT', 'BINARY', 'CLOSE', 'DISCONNECT'].includes(e.type)) {
                 break;
-            }
-            if (e.type === 'PING') {
-                this.outEvents.push(new WebSocketEvent('PONG'));
             }
         }
 
