@@ -9,7 +9,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240222.0",
     "typescript": "^5.4.3",
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.114.17"
   },
   "dependencies": {
     "@fanoutio/grip": "^4.3.0"
