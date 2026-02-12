@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Added
+
+- Release to npmjs using updated CI workflow and trusted publishing
+
 ## [4.3.2] - 2025-10-24
 
 ### Fixed
